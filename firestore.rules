@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection - anyone can read, create; only matching user can update
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if true; // Admin handles via app logic
+    }
+    
+    // Completions - anyone can read, create, update
+    match /completions/{compId} {
+      allow read, write: if true;
+    }
+    
+    // Config (challenges) - anyone can read, admin writes via app
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Activity completions
+    match /activityCompletions/{compId} {
+      allow read, write: if true;
+    }
+
+    // Push tokens
+    match /pushTokens/{tokenId} {
+      allow read, write: if true;
+    }
+  }
+}

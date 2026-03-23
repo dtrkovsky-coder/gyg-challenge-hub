@@ -1,0 +1,10 @@
+{
+  "name": "gyg-challenge-hub-functions",
+  "description": "Cloud Functions for GYG Challenge Hub",
+  "engines": { "node": "18" },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^11.11.0",
+    "firebase-functions": "^4.5.0"
+  }
+}
