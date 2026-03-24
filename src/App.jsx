@@ -1825,10 +1825,12 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
   const[editCh,setEditCh]=useState(null);
   const[peopleTab,setPeopleTab]=useState("participants");
   const[searchQ,setSearchQ]=useState("");
-  const[editActType,setEditActType]=useState(null); // which activity type is being edited
-  const[hotspotEditor,setHotspotEditor]=useState(false); // 360 hotspot placement mode
-  const[editorYP,setEditorYP]=useState({yaw:0,pitch:0}); // editor camera position
+  const[editActType,setEditActType]=useState(null);
+  const[hotspotEditor,setHotspotEditor]=useState(false);
+  const[editorYP,setEditorYP]=useState({yaw:0,pitch:0});
   const editorViewRef=useRef(null);
+  const[contentProg,setContentProg]=useState("lse");
+  const[contentSection,setContentSection]=useState(null);
   useEffect(()=>{const h=()=>{setIsMobile(window.innerWidth<900);if(window.innerWidth>=900)setSideOpen(false);};window.addEventListener("resize",h);return()=>window.removeEventListener("resize",h);},[]);
 
   const challenges=allCh||DEFAULT_CHALLENGES;
@@ -1979,8 +1981,6 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
   </div>);
 
   /* ═══ CONTENT (unified activities + challenges) ═══ */
-  const[contentProg,setContentProg]=useState("lse");
-  const[contentSection,setContentSection]=useState(null); // which item is expanded
   const renderContent=()=>{
     const prog=PROGRAMS[contentProg];
     const progChallenges=(challenges||DEFAULT_CHALLENGES)[contentProg]||[];
@@ -2017,7 +2017,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
         {allItems.length===0&&<div style={{...card,textAlign:"center",padding:40,color:"#999",fontFamily:FC}}>No content for this program yet</div>}
         {allItems.map((item,idx)=>{
           const isOpen=contentSection===item.id;
-          const isDone=item.kind==="challenge"&&comps.some(c=>c.challengeId===item.id);
+          const isDone=item.kind==="challenge"&&co.some(c=>c.challengeId===item.id);
           const chIdx=item.kind==="challenge"?progChallenges.findIndex(c=>c.id===item.id):-1;
           return(
           <div key={item.id} style={{...card,padding:0,overflow:"hidden",marginBottom:12,border:isOpen?"2px solid #FFD300":"none"}}>
