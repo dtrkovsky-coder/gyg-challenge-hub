@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { getUsers, addUser, updateUser, deleteUser as dbDeleteUser, getCompletions, addCompletion, updateCompletion, getChallenges, setChallenges as dbSetChallenges, getLunchConfig, setLunchConfig as dbSetLunchConfig, getSession, setSession, savePushToken, getActivityCompletions, addActivityCompletion, getBatchControl, setBatchControl as dbSetBatchControl, getCoolroomImages, setCoolroomImage } from "./db";
+import { getUsers, addUser, updateUser, deleteUser as dbDeleteUser, getCompletions, addCompletion, updateCompletion, getChallenges, setChallenges as dbSetChallenges, getLunchConfig, setLunchConfig as dbSetLunchConfig, getSession, setSession, savePushToken, getActivityCompletions, addActivityCompletion, getBatchControl, setBatchControl as dbSetBatchControl, getCoolroomImages, setCoolroomImage, getActivityConfig, setActivityConfig as dbSetActivityConfig } from "./db";
 
 const PROGRAMS = {
   nextgen: { id: "nextgen", name: "NEXTGEN LEADERS", subtitle: "Assistant Restaurant Managers", short: "NGL" },
@@ -270,6 +270,7 @@ export default function App(){
   const[activityComps,setActivityComps]=useState([]);
   const[batchControl,setBatchControlState]=useState(null);
   const[coolroomImgs,setCoolroomImgs]=useState({});
+  const[activityConfig,setActivityConfigState]=useState({});
   const getInitialView=(u,bc,ac)=>{const acts=DEFAULT_ACTIVITIES[u.program];if(!acts||!acts.length)return "dashboard";const bk=(bc||{})[u.batch];if(!bk)return "activities";if(bk.skipActivities)return "dashboard";const userDone=(ac||[]).filter(c=>c.userId===u.id).map(c=>c.activityId);const allDone=acts.every(a=>userDone.includes(a.id));if(!allDone)return "activities";if(!bk.challengesUnlocked)return "waiting";return "dashboard";};
 
   useEffect(()=>{(async()=>{let u=await getUsers(),c=await getCompletions(),s=getSession();if(u.length)setUsers(u);if(c.length)setComps(c);const ch2=await getChallenges();if(ch2){
@@ -291,6 +292,8 @@ export default function App(){
     // If activityComps empty but test user exists, use local seed data
     if(ac.length===0&&u.find(x=>x.id==="test-user-1")){const tac={id:"ac-test-1",userId:"test-user-1",activityId:"le-act-1",program:"essentials",batch:"GYG-LE-WK13-26",data:{type:"huddle_builder",focus:"sales",subFocus:"combos",script:["Team, combo sales dropped 12% last week - that is money we are leaving on the table.","When I watched our best performer yesterday, she asked every single guest one question.","Instead of waiting for the guest to order, try this -","Right after they pick their main, say: Want to make it a combo? You get chips and a drink for just $4 more.","The difference is timing - ask BEFORE they finish, not after.","Make it a combo - it is the easiest yes in the restaurant.","Let us smash it today. First person to land 10 combos, let me know - I want to hear about it."],assembledScript:"",crewLine:"Make it a combo - it is the easiest yes in the restaurant.",partnerName:"Sarah",partnerFeedback:{buyIn:"yes",repeatable:"yes",voiceMatch:"yes"},allYes:true},completedAt:new Date().toISOString()};ac=[tac];setActivityComps(ac);}
     if(!bc&&u.find(x=>x.id==="test-user-1")){bc={"GYG-LE-WK13-26":{activities:{"le-act-1":"completed"},completedActivities:["le-act-1"],challengesUnlocked:true}};setBatchControlState(bc);}
+    // Load activity config
+    const acfg=await getActivityConfig();if(acfg)setActivityConfigState(acfg);
     // Load coolroom images for all known batches
     const batches=[...new Set(u.map(x=>x.batch).filter(Boolean))];
     const crImgs={};
@@ -336,7 +339,7 @@ export default function App(){
       {view==="register"&&<RegV onR={reg} onB={()=>setView("splash")} lunchConfig={lunchConfig} existingUsers={users}/>}
       {view==="dashboard"&&user&&user.id&&<DashV u={user} ch={(challenges||DEFAULT_CHALLENGES)[user.program]||[]} co={comps.filter(c=>c.userId===user.id)} wk={getUserWeek(user.createdAt)} sc={pts(user.id,user.program)} onCh={c=>{setSel(c);setView("challenge");}} onBd={()=>setView("leaderboard")} onPr={()=>setView("profile")} actComps={activityComps.filter(c=>c.userId===user.id)} acts={DEFAULT_ACTIVITIES[user.program]||[]}/>}
       {view==="challenge"&&sel&&user&&(
-        sel.type==="hazard_hunt"?<HazardHunt ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
+        sel.type==="hazard_hunt"?<HazardHunt ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig.hazard_hunt}/>:
         sel.type==="shift_in_chaos"?<ShiftInChaos ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users}/>:
         <ChV ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}}/>
       )}
@@ -347,7 +350,7 @@ export default function App(){
       {view==="activity"&&sel&&user&&sel.type==="coolroom_countdown"&&<CoolRoomCountdown act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}} coolroomImgs={coolroomImgs[user.batch]}/>}
       {view==="activity"&&sel&&user&&sel.type==="roster_reality"&&<RosterReality act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}}/>}
       {view==="waiting"&&user&&<WaitingV u={user} onB={logout}/>}
-      {view==="admin"&&<AdminDash us={users} co={comps} ch={challenges} onB={logout} lunchConfig={lunchConfig} onUpdateLunchConfig={async(cfg)=>{setLunchConfigState(cfg);await dbSetLunchConfig(cfg);}} onUpdateComps={async(updated)=>{setComps(updated);for(const c of updated){await addCompletion(c);}}} onUpdateCh={async(updated)=>{setChallenges(updated);await dbSetChallenges(updated);}} onDeleteUser={async(uid)=>{await dbDeleteUser(uid);setUsers(users.filter(u=>u.id!==uid));setComps(comps.filter(c=>c.userId!==uid));}} onChangePass={async(uid,np)=>{await updateUser(uid,{password:np});setUsers(users.map(u=>u.id===uid?{...u,password:np}:u));}} batchControl={batchControl} activityComps={activityComps} onUpdateBatchControl={async(cfg)=>{setBatchControlState(cfg);await dbSetBatchControl(cfg);}} coolroomImgs={coolroomImgs} onUpdateCoolroomImg={async(batch,key,b64)=>{await setCoolroomImage(batch,key,b64);const existing=coolroomImgs[batch]||{};const updated=b64?{...existing,[key]:b64}:{...existing};if(!b64)delete updated[key];setCoolroomImgs(prev=>({...prev,[batch]:updated}));}} flash={flash} onPreviewActivity={act=>{setSel(act);setPrevView("admin");setView("activity");}} onPreviewChallenge={ch=>{setSel(ch);setPrevView("admin");setView("challenge");}}/>}
+      {view==="admin"&&<AdminDash us={users} co={comps} ch={challenges} onB={logout} lunchConfig={lunchConfig} onUpdateLunchConfig={async(cfg)=>{setLunchConfigState(cfg);await dbSetLunchConfig(cfg);}} onUpdateComps={async(updated)=>{setComps(updated);for(const c of updated){await addCompletion(c);}}} onUpdateCh={async(updated)=>{setChallenges(updated);await dbSetChallenges(updated);}} onDeleteUser={async(uid)=>{await dbDeleteUser(uid);setUsers(users.filter(u=>u.id!==uid));setComps(comps.filter(c=>c.userId!==uid));}} onChangePass={async(uid,np)=>{await updateUser(uid,{password:np});setUsers(users.map(u=>u.id===uid?{...u,password:np}:u));}} batchControl={batchControl} activityComps={activityComps} onUpdateBatchControl={async(cfg)=>{setBatchControlState(cfg);await dbSetBatchControl(cfg);}} coolroomImgs={coolroomImgs} onUpdateCoolroomImg={async(batch,key,b64)=>{await setCoolroomImage(batch,key,b64);const existing=coolroomImgs[batch]||{};const updated=b64?{...existing,[key]:b64}:{...existing};if(!b64)delete updated[key];setCoolroomImgs(prev=>({...prev,[batch]:updated}));}} flash={flash} onPreviewActivity={act=>{setSel(act);setPrevView("admin");setView("activity");}} onPreviewChallenge={ch=>{setSel(ch);setPrevView("admin");setView("challenge");}} activityConfig={activityConfig} onUpdateActivityConfig={async(cfg)=>{setActivityConfigState(cfg);try{await dbSetActivityConfig(cfg);flash("Activity config saved!",true);}catch(e){flash("Failed to save config",false);}}}/>}
     </div>
   );
 }
@@ -586,11 +589,15 @@ function projectToScreen(zoneYaw,zonePitch,camYaw,camPitch,w,h){
   const px=fx/(-fz), py=fy/(-fz);
   const hfov=Math.tan(40*Math.PI/180);const aspect=w/h;
   const sx=(px/(2*hfov*aspect)+0.5)*w;
-  const sy2=(py/(2*hfov)+0.5)*h;
+  const sy2=(0.5-py/(2*hfov))*h;
   const scale=1/(-fz);
   return{x:sx,y:sy2,scale:Math.min(2,Math.max(0.3,scale))};
 }
-function HazardHunt({ch,done,onS,onB,user}){
+function HazardHunt({ch,done,onS,onB,user,actCfg}){
+  const cfgZones=actCfg?.zones||HAZARD_ZONES;
+  const cfgFeedback=actCfg?.feedback||HAZARD_FEEDBACK;
+  const cfgImg=actCfg?.image||HAZARD_IMG;
+  const cfgOpacity=actCfg?.hotspotOpacity!==undefined?actCfg.hotspotOpacity:1;
   const[screen,setScreen]=useState(1);
   const[timeLeft,setTimeLeft]=useState(90);
   const[found,setFound]=useState([]);
@@ -600,14 +607,14 @@ function HazardHunt({ch,done,onS,onB,user}){
   const[camYP,setCamYP]=useState({yaw:0,pitch:0});
   const timerRef=useRef(null);
   const viewRef=useRef(null);
-  const realHazards=HAZARD_ZONES.filter(z=>HAZARD_FEEDBACK[z.id].hazard);
-  const allRealFound=found.filter(id=>HAZARD_FEEDBACK[id]?.hazard).length>=realHazards.length;
-  const allTapped=allRealFound||found.length>=HAZARD_ZONES.length;
-  const score=(()=>{let s=found.filter(id=>HAZARD_FEEDBACK[id]?.hazard).length*20;if(found.filter(id=>HAZARD_FEEDBACK[id]?.hazard).length>=5&&(90-timeLeft)<=60)s+=20;if(!decoyTapped)s+=10;if(answer.trim().length>0)s+=20;return Math.max(0,s-(decoyTapped?10:0));})();
-  const speedBonus=found.filter(id=>HAZARD_FEEDBACK[id]?.hazard).length>=5&&(90-timeLeft)<=60;
+  const realHazards=cfgZones.filter(z=>(cfgFeedback[z.id]||{}).hazard);
+  const allRealFound=found.filter(id=>(cfgFeedback[id]||{}).hazard).length>=realHazards.length;
+  const allTapped=allRealFound||found.length>=cfgZones.length;
+  const score=(()=>{let s=found.filter(id=>(cfgFeedback[id]||{}).hazard).length*20;if(found.filter(id=>(cfgFeedback[id]||{}).hazard).length>=realHazards.length&&(90-timeLeft)<=60)s+=20;if(!decoyTapped)s+=10;if(answer.trim().length>0)s+=20;return Math.max(0,s-(decoyTapped?10:0));})();
+  const speedBonus=found.filter(id=>(cfgFeedback[id]||{}).hazard).length>=realHazards.length&&(90-timeLeft)<=60;
   useEffect(()=>{if(screen===2&&timeLeft>0&&!allTapped){timerRef.current=setInterval(()=>setTimeLeft(t=>{if(t<=1){clearInterval(timerRef.current);return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}if(timerRef.current)clearInterval(timerRef.current);},[screen,timeLeft,allTapped]);
   useEffect(()=>{if((timeLeft===0||allTapped)&&screen===2)setScreen(3);},[timeLeft,allTapped,screen]);
-  const tapZone=(zone)=>{if(found.includes(zone.id))return;const fb=HAZARD_FEEDBACK[zone.id];if(!fb.hazard)setDecoyTapped(true);setFound(p=>[...p,zone.id]);setFeedback({...fb,id:zone.id});setTimeout(()=>setFeedback(null),2000);};
+  const tapZone=(zone)=>{if(found.includes(zone.id))return;const fb=cfgFeedback[zone.id]||{};if(!fb.hazard)setDecoyTapped(true);setFound(p=>[...p,zone.id]);setFeedback({...fb,id:zone.id});setTimeout(()=>setFeedback(null),2000);};
   if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div><div style={{fontSize:13,fontFamily:FC,fontWeight:600,color:"#888",marginTop:12,letterSpacing:0.5}}>WEEK 2 UNLOCKS WHEN AVAILABLE</div></div></div>);
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}>
@@ -633,30 +640,30 @@ function HazardHunt({ch,done,onS,onB,user}){
         <div style={{position:"absolute",top:0,left:0,right:0,zIndex:10,background:"rgba(0,0,0,0.7)",padding:"10px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div style={{fontSize:28,fontWeight:900,fontFamily:FG,color:timeLeft<=10?"#E3000B":timeLeft<=30?"#FFD300":"#fff"}}>{Math.floor(timeLeft/60)}:{String(timeLeft%60).padStart(2,"0")}</div>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
-            <span style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#ccc"}}>{found.filter(id=>HAZARD_FEEDBACK[id]?.hazard).length}/5 FOUND</span>
+            <span style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#ccc"}}>{found.filter(id=>(cfgFeedback[id]||{}).hazard).length}/{realHazards.length} FOUND</span>
             <span style={{fontSize:18,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{score} PTS</span>
           </div>
         </div>
         <div style={{flex:1,position:"relative"}} ref={viewRef}>
-          <PanoViewer imgSrc={HAZARD_IMG} onYawPitch={(y,p)=>setCamYP({yaw:y,pitch:p})}/>
+          <PanoViewer imgSrc={cfgImg} onYawPitch={(y,p)=>setCamYP({yaw:y,pitch:p})}/>
           {/* Projected hazard tap zones */}
-          {HAZARD_ZONES.map(z=>{const tapped=found.includes(z.id);const fb=HAZARD_FEEDBACK[z.id];
+          {cfgZones.map(z=>{const tapped=found.includes(z.id);const fb=cfgFeedback[z.id]||{};
             const vw=viewRef.current?.clientWidth||400;const vh=viewRef.current?.clientHeight||600;
             const proj=projectToScreen(z.yaw,z.pitch,camYP.yaw,camYP.pitch,vw,vh);
             if(!proj)return null;
             const sz=z.size*proj.scale;
             return(
-            <div key={z.id} onClick={()=>!tapped&&tapZone(z)} style={{position:"absolute",left:proj.x-sz/2,top:proj.y-sz/2,width:sz,height:sz,zIndex:5,borderRadius:"50%",cursor:tapped?"default":"pointer",border:tapped?(fb.hazard?"3px solid #007A33":"3px solid #E3000B"):"2px solid rgba(255,211,0,0.4)",background:tapped?(fb.hazard?"rgba(0,122,51,0.4)":"rgba(227,0,11,0.4)"):"rgba(255,211,0,0.08)",display:"flex",alignItems:"center",justifyContent:"center",transition:"border 0.3s, background 0.3s",boxShadow:tapped?"none":"0 0 12px rgba(255,211,0,0.2)"}}>
+            <div key={z.id} onClick={()=>!tapped&&tapZone(z)} style={{position:"absolute",left:proj.x-sz/2,top:proj.y-sz/2,width:sz,height:sz,zIndex:5,borderRadius:"50%",cursor:tapped?"default":"pointer",opacity:tapped?1:cfgOpacity,border:tapped?(fb.hazard?"3px solid #007A33":"3px solid #E3000B"):(cfgOpacity>0?"2px solid rgba(255,211,0,"+cfgOpacity*0.4+")":"none"),background:tapped?(fb.hazard?"rgba(0,122,51,0.4)":"rgba(227,0,11,0.4)"):(cfgOpacity>0?"rgba(255,211,0,"+cfgOpacity*0.08+")":"transparent"),display:"flex",alignItems:"center",justifyContent:"center",transition:"border 0.3s, background 0.3s",boxShadow:tapped?"none":(cfgOpacity>0?"0 0 12px rgba(255,211,0,"+cfgOpacity*0.2+")":"none")}}>
               {tapped&&<span style={{fontSize:Math.max(16,sz*0.5),color:"#fff",textShadow:"0 1px 4px rgba(0,0,0,0.8)"}}>{fb.hazard?"\u2713":"\u2717"}</span>}
             </div>
           );})}
         </div>
         <div style={{position:"absolute",bottom:0,left:0,right:0,zIndex:10,background:"rgba(0,0,0,0.5)",padding:"8px 16px",fontSize:12,fontFamily:FC,fontWeight:700,color:"rgba(255,255,255,0.6)",letterSpacing:0.5,textAlign:"center"}}>DRAG TO LOOK AROUND - TAP HAZARDS TO IDENTIFY</div>
         {feedback&&(
-          <div className="anim-fade-up" style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",zIndex:100,background:feedback.hazard?"#007A33":"#E3000B",color:"#fff",borderRadius:16,padding:"20px 24px",maxWidth:300,textAlign:"center",boxShadow:"0 8px 32px rgba(0,0,0,0.4)"}}>
-            <div style={{fontSize:16,fontWeight:900,fontFamily:FC,letterSpacing:1,marginBottom:6}}>{feedback.title}</div>
-            <div style={{fontSize:13,lineHeight:1.5,opacity:0.9}}>{feedback.desc}</div>
-            {!feedback.hazard&&<div style={{marginTop:8,fontSize:14,fontWeight:800,fontFamily:FC,color:"#FFD300"}}>-10 PTS</div>}
+          <div className="anim-fade-up" style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",zIndex:200,background:feedback.hazard?"#007A33":"#E3000B",color:"#fff",borderRadius:16,padding:"16px 20px",maxWidth:280,width:"calc(100% - 48px)",textAlign:"center",boxShadow:"0 8px 32px rgba(0,0,0,0.5)",margin:"0 auto"}}>
+            <div style={{fontSize:15,fontWeight:900,fontFamily:FC,letterSpacing:1,marginBottom:4}}>{feedback.title}</div>
+            <div style={{fontSize:12,lineHeight:1.4,opacity:0.9}}>{feedback.desc}</div>
+            {!feedback.hazard&&<div style={{marginTop:6,fontSize:13,fontWeight:800,fontFamily:FC,color:"#FFD300"}}>-10 PTS</div>}
           </div>
         )}
       </div>
@@ -671,7 +678,7 @@ function HazardHunt({ch,done,onS,onB,user}){
           <div style={{fontSize:12,fontWeight:800,fontFamily:FC,color:"#FFD300",letterSpacing:1,marginBottom:12}}>SCORE BREAKDOWN</div>
           {realHazards.map(z=>{const f=found.includes(z.id);return(
             <div key={z.id} style={{display:"flex",justifyContent:"space-between",fontSize:13,fontFamily:FC,color:f?"#fff":"#666",marginBottom:4}}>
-              <span>{f?"\u2713 ":"\u2717 "}{HAZARD_FEEDBACK[z.id].title}</span><span>{f?"+20":"0"}</span>
+              <span>{f?"\u2713 ":"\u2717 "}{(cfgFeedback[z.id]||{}).title||z.id}</span><span>{f?"+20":"0"}</span>
             </div>
           );})}
           <div style={{borderTop:"1px solid #333",marginTop:8,paddingTop:8}}>
@@ -684,7 +691,7 @@ function HazardHunt({ch,done,onS,onB,user}){
           <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1,display:"block",marginBottom:6}}>WHAT'S THE FIRST THING YOU'D SAY TO YOUR CREW?</label>
           <textarea style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,color:"#1a1a1a",fontSize:15,fontFamily:FB,outline:"none",height:80,resize:"vertical",boxSizing:"border-box"}} value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="Your response..."/>
         </div>
-        <button style={{...BY,width:"100%",opacity:answer.trim()?"1":"0.5"}} disabled={!answer.trim()} onClick={()=>{const finalScore=score;onS({text:answer,hazardsFound:found.filter(id=>HAZARD_FEEDBACK[id]?.hazard),decoyTapped,timeUsed:90-timeLeft,score:finalScore,speedBonus,claimedBonus:speedBonus&&!decoyTapped,autoBonus:speedBonus&&!decoyTapped,points:finalScore});}}>SUBMIT</button>
+        <button style={{...BY,width:"100%",opacity:answer.trim()?"1":"0.5"}} disabled={!answer.trim()} onClick={()=>{const finalScore=score;onS({text:answer,hazardsFound:found.filter(id=>(cfgFeedback[id]||{}).hazard),decoyTapped,timeUsed:90-timeLeft,score:finalScore,speedBonus,claimedBonus:speedBonus&&!decoyTapped,autoBonus:speedBonus&&!decoyTapped,points:finalScore});}}>SUBMIT</button>
       </div>
     )}
   </div>
@@ -1289,8 +1296,8 @@ void main(){
         pitchRef.current+=d.velY;d.velY*=0.92;
         pitchRef.current=Math.max(-Math.PI/3,Math.min(Math.PI/3,pitchRef.current));
         render();
-        if(onYPRef.current)onYPRef.current(yawRef.current,pitchRef.current);
       }
+      if(onYPRef.current)onYPRef.current(yawRef.current,pitchRef.current);
       rafRef.current=requestAnimationFrame(loop);
     };
     rafRef.current=requestAnimationFrame(loop);
@@ -1797,7 +1804,7 @@ function RosterReality({act,u,onComplete,onB}){
   );
 }
 
-function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateComps,onUpdateCh,onDeleteUser,onChangePass,batchControl,activityComps,onUpdateBatchControl,coolroomImgs,onUpdateCoolroomImg,flash,onPreviewActivity,onPreviewChallenge}){
+function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateComps,onUpdateCh,onDeleteUser,onChangePass,batchControl,activityComps,onUpdateBatchControl,coolroomImgs,onUpdateCoolroomImg,flash,onPreviewActivity,onPreviewChallenge,activityConfig,onUpdateActivityConfig}){
   const[tab,sT]=useState("overview");
   const[isMobile,setIsMobile]=useState(typeof window!=="undefined"&&window.innerWidth<900);
   const[sideOpen,setSideOpen]=useState(false);
@@ -1809,6 +1816,10 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
   const[editCh,setEditCh]=useState(null);
   const[peopleTab,setPeopleTab]=useState("participants");
   const[searchQ,setSearchQ]=useState("");
+  const[editActType,setEditActType]=useState(null); // which activity type is being edited
+  const[hotspotEditor,setHotspotEditor]=useState(false); // 360 hotspot placement mode
+  const[editorYP,setEditorYP]=useState({yaw:0,pitch:0}); // editor camera position
+  const editorViewRef=useRef(null);
   useEffect(()=>{const h=()=>{setIsMobile(window.innerWidth<900);if(window.innerWidth>=900)setSideOpen(false);};window.addEventListener("resize",h);return()=>window.removeEventListener("resize",h);},[]);
 
   const challenges=allCh||DEFAULT_CHALLENGES;
@@ -1943,8 +1954,149 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
   </div>);
 
   /* ═══ ACTIVITIES ═══ */
-  const renderActivities=()=>(<div>
-    <div style={secTitle}>Activity Controls</div>
+  const acfg=activityConfig||{};
+  const saveAcfg=(type,updates)=>{const cfg={...acfg,[type]:{...(acfg[type]||{}),...updates}};onUpdateActivityConfig(cfg);};
+  const addHotspot=(yaw,pitch)=>{const hz=acfg.hazard_hunt?.zones||[...HAZARD_ZONES];const newId="hz_"+Date.now();const fb={...(acfg.hazard_hunt?.feedback||{...HAZARD_FEEDBACK})};fb[newId]={hazard:true,title:"NEW HAZARD",desc:"Edit this description"};hz.push({id:newId,yaw,pitch,size:44});saveAcfg("hazard_hunt",{zones:hz,feedback:fb});};
+  const removeHotspot=(id)=>{const hz=(acfg.hazard_hunt?.zones||[...HAZARD_ZONES]).filter(z=>z.id!==id);const fb={...(acfg.hazard_hunt?.feedback||{...HAZARD_FEEDBACK})};delete fb[id];saveAcfg("hazard_hunt",{zones:hz,feedback:fb});};
+  const updateHotspotFb=(id,field,val)=>{const fb={...(acfg.hazard_hunt?.feedback||{...HAZARD_FEEDBACK})};fb[id]={...(fb[id]||{}),[field]:val};saveAcfg("hazard_hunt",{feedback:fb});};
+  const updateHotspotZone=(idx,field,val)=>{const hz=[...(acfg.hazard_hunt?.zones||[...HAZARD_ZONES])];hz[idx]={...hz[idx],[field]:val};saveAcfg("hazard_hunt",{zones:hz});};
+  const updateChaosProb=(idx,field,val)=>{const probs=[...(acfg.shift_in_chaos?.problems||[...CHAOS_PROBLEMS])];probs[idx]={...probs[idx],[field]:val};saveAcfg("shift_in_chaos",{problems:probs});};
+
+  const renderActivities=()=>{
+    const actTypes=[
+      {type:"coolroom_countdown",label:"COOL ROOM COUNTDOWN",prog:"nextgen",desc:"360 image with timed stock counting"},
+      {type:"roster_reality",label:"ROSTER REALITY",prog:"nextgen",desc:"Labour cost scenario activity"},
+      {type:"huddle_builder",label:"SAY IT LIKE A LEADER",prog:"essentials",desc:"Interactive huddle script builder"},
+    ];
+    return(<div>
+    {/* Activity Content Editors */}
+    <div style={secTitle}>Activity Content Editor</div>
+    <div style={{marginBottom:24}}>
+      {actTypes.map(at=>{const isOpen=editActType===at.type;return(
+        <div key={at.type} style={{...card,border:isOpen?"2px solid #FFD300":"1px solid #e8e8e3",marginBottom:8}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer"}} onClick={()=>setEditActType(isOpen?null:at.type)}>
+            <div><div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:0.5}}>{at.label}</div><div style={{fontSize:12,color:"#999",fontFamily:FB}}>{PROGRAMS[at.prog]?.short} - {at.desc}</div></div>
+            <div style={{display:"flex",gap:6}}>
+              <button onClick={e=>{e.stopPropagation();const act=Object.values(DEFAULT_ACTIVITIES).flat().find(a=>a.type===at.type);if(act)onPreviewActivity(act);}} style={{...btnB,padding:"6px 12px",fontSize:11}}>PREVIEW</button>
+              <span style={{fontSize:20,color:"#ccc",transition:"transform 0.2s",transform:isOpen?"rotate(90deg)":"none"}}>{"\u203A"}</span>
+            </div>
+          </div>
+
+          {isOpen&&at.type==="hazard_hunt"&&(
+            <div style={{marginTop:16,borderTop:"1px solid #e8e8e3",paddingTop:16}}>
+              {/* 360 Image */}
+              <div style={{marginBottom:16}}>
+                <div style={subLabel}>360 IMAGE</div>
+                <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+                  <span style={{fontSize:12,color:"#666",fontFamily:FB}}>{acfg.hazard_hunt?.image||"Default: /360-prep.jpg"}</span>
+                  <label style={{...btnY,padding:"8px 14px",fontSize:12,display:"inline-flex",alignItems:"center",gap:4,cursor:"pointer"}}>
+                    UPLOAD 360<input type="file" accept="image/*" style={{display:"none"}} onChange={async e=>{const file=e.target.files[0];if(!file)return;const url=URL.createObjectURL(file);saveAcfg("hazard_hunt",{image:url});flash("360 image set - note: use public folder path for production",true);}}/></label>
+                </div>
+              </div>
+
+              {/* Hotspot Opacity */}
+              <div style={{marginBottom:16}}>
+                <div style={subLabel}>HOTSPOT VISIBILITY</div>
+                <div style={{display:"flex",alignItems:"center",gap:12}}>
+                  <input type="range" min="0" max="1" step="0.1" value={acfg.hazard_hunt?.hotspotOpacity!==undefined?acfg.hazard_hunt.hotspotOpacity:1} onChange={e=>saveAcfg("hazard_hunt",{hotspotOpacity:parseFloat(e.target.value)})} style={{flex:1,accentColor:"#FFD300"}}/>
+                  <span style={{fontFamily:FC,fontWeight:800,fontSize:13,minWidth:40}}>{Math.round((acfg.hazard_hunt?.hotspotOpacity!==undefined?acfg.hazard_hunt.hotspotOpacity:1)*100)}%</span>
+                </div>
+                <div style={{fontSize:11,color:"#999",fontFamily:FC,marginTop:4}}>0% = invisible (hard mode), 100% = fully visible</div>
+              </div>
+
+              {/* Hotspot Placement */}
+              <div style={{marginBottom:16}}>
+                <div style={subLabel}>HOTSPOT PLACEMENT</div>
+                {hotspotEditor?(
+                  <div>
+                    <div style={{position:"relative",height:300,borderRadius:12,overflow:"hidden",marginBottom:8}} ref={editorViewRef}>
+                      <PanoViewer imgSrc={acfg.hazard_hunt?.image||HAZARD_IMG} onYawPitch={(y,p)=>setEditorYP({yaw:y,pitch:p})}/>
+                      {/* Show existing hotspots projected */}
+                      {(acfg.hazard_hunt?.zones||HAZARD_ZONES).map((z,zi)=>{
+                        const vw=editorViewRef.current?.clientWidth||400;const vh=editorViewRef.current?.clientHeight||300;
+                        const proj=projectToScreen(z.yaw,z.pitch,editorYP.yaw,editorYP.pitch,vw,vh);
+                        if(!proj)return null;const sz=20*proj.scale;const fb2=(acfg.hazard_hunt?.feedback||HAZARD_FEEDBACK)[z.id]||{};
+                        return <div key={z.id} style={{position:"absolute",left:proj.x-sz/2,top:proj.y-sz/2,width:sz,height:sz,borderRadius:"50%",background:fb2.hazard?"rgba(0,122,51,0.6)":"rgba(227,0,11,0.6)",border:"2px solid #fff",zIndex:5,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"#fff",fontWeight:900}}>{zi+1}</div>;
+                      })}
+                      {/* Crosshair */}
+                      <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",zIndex:6,pointerEvents:"none"}}>
+                        <div style={{width:24,height:24,border:"2px solid #FFD300",borderRadius:"50%"}}/>
+                        <div style={{position:"absolute",top:11,left:-6,width:8,height:2,background:"#FFD300"}}/>
+                        <div style={{position:"absolute",top:11,left:22,width:8,height:2,background:"#FFD300"}}/>
+                        <div style={{position:"absolute",top:-6,left:11,width:2,height:8,background:"#FFD300"}}/>
+                        <div style={{position:"absolute",top:22,left:11,width:2,height:8,background:"#FFD300"}}/>
+                      </div>
+                    </div>
+                    <div style={{display:"flex",gap:8,marginBottom:8}}>
+                      <button onClick={()=>addHotspot(editorYP.yaw,editorYP.pitch)} style={{...btnY,flex:1,fontSize:12}}>DROP HOTSPOT AT CROSSHAIR</button>
+                      <button onClick={()=>setHotspotEditor(false)} style={{...btnG,fontSize:12}}>CLOSE</button>
+                    </div>
+                    <div style={{fontSize:11,color:"#888",fontFamily:FC}}>Pan the 360 image to position the crosshair over the hazard, then tap DROP HOTSPOT</div>
+                  </div>
+                ):(
+                  <button onClick={()=>setHotspotEditor(true)} style={{...btnB,width:"100%",fontSize:12}}>OPEN 360 HOTSPOT EDITOR</button>
+                )}
+              </div>
+
+              {/* Hotspot List */}
+              <div style={subLabel}>HOTSPOTS ({(acfg.hazard_hunt?.zones||HAZARD_ZONES).length})</div>
+              {(acfg.hazard_hunt?.zones||HAZARD_ZONES).map((z,zi)=>{const fb2=(acfg.hazard_hunt?.feedback||HAZARD_FEEDBACK)[z.id]||{};return(
+                <div key={z.id} style={{background:"#fff",borderRadius:10,border:"1px solid #e8e8e3",padding:12,marginBottom:8}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <span style={{fontFamily:FC,fontWeight:900,fontSize:13,background:fb2.hazard?"#007A33":"#E3000B",color:"#fff",width:24,height:24,borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center"}}>{zi+1}</span>
+                      <span style={{fontFamily:FC,fontWeight:700,fontSize:13}}>{fb2.title||z.id}</span>
+                    </div>
+                    <div style={{display:"flex",gap:6}}>
+                      <button onClick={()=>updateHotspotFb(z.id,"hazard",!fb2.hazard)} style={{padding:"4px 10px",borderRadius:6,border:"none",background:fb2.hazard?"#007A33":"#E3000B",color:"#fff",fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>{fb2.hazard?"HAZARD":"DECOY"}</button>
+                      <button onClick={()=>removeHotspot(z.id)} style={{padding:"4px 10px",borderRadius:6,border:"none",background:"#f5f5f0",color:"#E3000B",fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>DELETE</button>
+                    </div>
+                  </div>
+                  <input value={fb2.title||""} onChange={e=>updateHotspotFb(z.id,"title",e.target.value)} placeholder="Hazard title" style={{...inp,marginBottom:6,fontSize:13}}/>
+                  <textarea value={fb2.desc||""} onChange={e=>updateHotspotFb(z.id,"desc",e.target.value)} placeholder="Feedback description shown when tapped" rows={2} style={{...inp,resize:"vertical",fontSize:13}}/>
+                  <div style={{display:"flex",gap:8,marginTop:6,alignItems:"center"}}>
+                    <span style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#999"}}>SIZE</span>
+                    <input type="range" min="20" max="80" value={z.size||44} onChange={e=>updateHotspotZone(zi,"size",parseInt(e.target.value))} style={{flex:1,accentColor:"#FFD300"}}/>
+                    <span style={{fontSize:12,fontFamily:FC,fontWeight:700,minWidth:28}}>{z.size||44}</span>
+                  </div>
+                </div>
+              );})}
+            </div>
+          )}
+
+          {isOpen&&at.type==="shift_in_chaos"&&(
+            <div style={{marginTop:16,borderTop:"1px solid #e8e8e3",paddingTop:16}}>
+              <div style={subLabel}>PROBLEMS ({(acfg.shift_in_chaos?.problems||CHAOS_PROBLEMS).length})</div>
+              <div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:12}}>Order here is the EXPERT ranking. Participants see them shuffled.</div>
+              {(acfg.shift_in_chaos?.problems||CHAOS_PROBLEMS).map((p,pi)=>(
+                <div key={p.id||pi} style={{background:"#fff",borderRadius:10,border:"1px solid #e8e8e3",padding:12,marginBottom:6}}>
+                  <div style={{display:"flex",alignItems:"flex-start",gap:8}}>
+                    <span style={{fontFamily:FC,fontWeight:900,fontSize:13,background:"#000",color:"#FFD300",width:24,height:24,borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{pi+1}</span>
+                    <div style={{flex:1}}>
+                      <textarea value={p.text} onChange={e=>updateChaosProb(pi,"text",e.target.value)} rows={2} style={{...inp,resize:"vertical",fontSize:13}}/>
+                      <div style={{display:"flex",gap:6,marginTop:4}}>
+                        {["safety","operational","cosmetic"].map(cat=>(
+                          <button key={cat} onClick={()=>updateChaosProb(pi,"category",cat)} style={{padding:"4px 10px",borderRadius:6,border:"none",background:p.category===cat?(cat==="safety"?"#E3000B":cat==="operational"?"#FFD300":"#999"):"#f5f5f0",color:p.category===cat?"#fff":"#888",fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>{cat.toUpperCase()}</button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {isOpen&&(at.type==="coolroom_countdown"||at.type==="roster_reality"||at.type==="huddle_builder")&&(
+            <div style={{marginTop:16,borderTop:"1px solid #e8e8e3",paddingTop:16}}>
+              <div style={{fontSize:12,color:"#888",fontFamily:FC,textAlign:"center",padding:16}}>Content for this activity type is configured via the batch controls below.</div>
+            </div>
+          )}
+        </div>
+      );})}
+    </div>
+
+    {/* Batch Controls */}
+    <div style={secTitle}>Batch Controls</div>
     {batches.map(b=>{
       const batchUsers=us.filter(u=>u.batch===b);if(!batchUsers.length)return null;
       const prog=batchUsers[0]?.program;const acts=DEFAULT_ACTIVITIES[prog];if(!acts||!acts.length)return null;
@@ -1963,7 +2115,6 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
             </div>
           </div>
 
-          {/* Skip Activities */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",marginBottom:16,background:bk.skipActivities?"#FFFDE6":"#f8f8f5",borderRadius:12,border:bk.skipActivities?"2px solid #FFD300":"2px solid #f0f0eb"}}>
             <div><div style={{fontSize:12,fontWeight:900,fontFamily:FC,letterSpacing:1}}>SKIP ACTIVITIES</div><div style={{fontSize:11,color:"#999",fontFamily:FC,marginTop:2}}>Send straight to challenges</div></div>
             <button onClick={()=>{const updated={...(batchControl||{})};updated[b]={...bk,skipActivities:!bk.skipActivities};onUpdateBatchControl(updated);}} style={{padding:"8px 18px",borderRadius:8,border:"none",background:bk.skipActivities?"#FFD300":"#e8e8e3",color:bk.skipActivities?"#000":"#999",fontSize:12,fontWeight:800,fontFamily:FC,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"}}>{bk.skipActivities?"ON":"OFF"}</button>
@@ -1981,13 +2132,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                   return <button key={s} onClick={()=>toggleAct(act.id,s)} style={{flex:1,minWidth:80,padding:"10px",borderRadius:10,border:sel?`2px solid ${bg}`:"2px solid #e8e8e3",background:bg,color:col,fontSize:12,fontWeight:800,fontFamily:FC,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"}}>{s.toUpperCase()}</button>;
                 })}
               </div>
-              <button onClick={()=>onPreviewActivity&&onPreviewActivity(act)} style={{...btnB,width:"100%",marginBottom:12,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFD300" strokeWidth="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                PREVIEW ACTIVITY
-              </button>
-              <div style={{fontSize:11,fontWeight:800,fontFamily:FC,letterSpacing:1,color:"#999",marginBottom:6}}>TYPE: {act.type?.toUpperCase().replace(/_/g," ")||"STANDARD"}</div>
 
-              {/* 360 Image Config for coolroom */}
               {act.type==="coolroom_countdown"&&(isActive||isCompleted)&&(
                 <div style={{padding:14,background:"#fff",borderRadius:12,border:"1px solid #e8e8e3"}}>
                   <div style={{fontSize:11,fontWeight:800,fontFamily:FC,letterSpacing:1,color:"#999",marginBottom:12}}>360 IMAGE CONFIG</div>
@@ -1998,9 +2143,8 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                         <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#666",marginBottom:6}}>{label}</div>
                         <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                           <label style={{...btnY,padding:"8px 14px",fontSize:12,display:"inline-flex",alignItems:"center",gap:4,cursor:"pointer"}}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            UPLOAD<input type="file" accept="image/*" style={{display:"none"}} onChange={async e=>{const file=e.target.files[0];if(!file)return;try{const b64=await compressImage(file,800,0.5);await onUpdateCoolroomImg(b,key,b64);flash("360 image uploaded!",true);}catch(err){console.error("360 upload error:",err);flash("Upload failed - image may be too large. Try a smaller file.",false);}}}/></label>
-                          {currentImg&&<button onClick={async()=>{try{await onUpdateCoolroomImg(b,key,null);flash("Image cleared",true);}catch(err){flash("Failed to clear image",false);}}} style={{...btnG,padding:"8px 14px",fontSize:12,color:"#E3000B"}}>CLEAR</button>}
+                            UPLOAD<input type="file" accept="image/*" style={{display:"none"}} onChange={async e=>{const file=e.target.files[0];if(!file)return;try{const b64=await compressImage(file,800,0.5);await onUpdateCoolroomImg(b,key,b64);flash("360 image uploaded!",true);}catch(err){flash("Upload failed",false);}}}/></label>
+                          {currentImg&&<button onClick={async()=>{try{await onUpdateCoolroomImg(b,key,null);flash("Image cleared",true);}catch(err){flash("Failed",false);}}} style={{...btnG,padding:"8px 14px",fontSize:12,color:"#E3000B"}}>CLEAR</button>}
                         </div>
                       </div>
                     </div>
@@ -2010,7 +2154,6 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
             </div>);
           })}
 
-          {/* Unlock Challenges */}
           <div style={{marginTop:4,paddingTop:16,borderTop:"2px solid #f0f0eb",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
             <div><div style={{fontSize:12,fontWeight:900,fontFamily:FC,letterSpacing:1}}>UNLOCK CHALLENGES</div><div style={{fontSize:11,color:"#999",fontFamily:FC,marginTop:2}}>Allow weekly challenges</div></div>
             <button onClick={()=>{const updated={...(batchControl||{})};updated[b]={...bk,challengesUnlocked:!bk.challengesUnlocked};onUpdateBatchControl(updated);}} style={{padding:"10px 22px",borderRadius:10,border:"none",background:bk.challengesUnlocked?"#007A33":"#E3000B",color:"#fff",fontSize:12,fontWeight:800,fontFamily:FC,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"}}>{bk.challengesUnlocked?"UNLOCKED":"LOCKED"}</button>
@@ -2019,7 +2162,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
       );
     })}
     {batches.filter(b=>{const bu=us.filter(u=>u.batch===b);const prog=bu[0]?.program;return DEFAULT_ACTIVITIES[prog]?.length>0;}).length===0&&<div style={{fontSize:14,color:"#999",textAlign:"center",padding:40,fontFamily:FC}}>No batches with activities found.</div>}
-  </div>);
+  </div>);};
 
   /* ═══ PEOPLE ═══ */
   const renderPeople=()=>{
@@ -2183,6 +2326,99 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                 <div style={{textAlign:"center"}}><label style={{fontSize:11,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:0.5}}>BONUS</label><input type="number" value={c.bonusPoints} onChange={e=>saveCh(progId,idx,"bonusPoints",parseInt(e.target.value)||0)} style={{...inp,width:70,textAlign:"center",marginTop:4}}/></div>
                 <button onClick={()=>setEditCh(null)} style={{...btnY,flex:1,minWidth:80}}>DONE</button>
               </div>
+
+              {/* Hazard Hunt Editor */}
+              {c.type==="hazard_hunt"&&(
+                <div style={{marginTop:16,borderTop:"1px solid #e8e8e3",paddingTop:16}}>
+                  <div style={{...subLabel,fontSize:12,fontWeight:900,color:"#000"}}>HAZARD HUNT CONFIG</div>
+
+                  {/* 360 Image */}
+                  <div style={{marginBottom:12}}>
+                    <div style={subLabel}>360 IMAGE</div>
+                    <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+                      <span style={{fontSize:12,color:"#666",fontFamily:FB}}>{acfg.hazard_hunt?.image||"/360-prep.jpg"}</span>
+                      <label style={{...btnY,padding:"6px 12px",fontSize:11,display:"inline-flex",alignItems:"center",gap:4,cursor:"pointer"}}>
+                        UPLOAD<input type="file" accept="image/*" style={{display:"none"}} onChange={async e=>{const file=e.target.files[0];if(!file)return;const url=URL.createObjectURL(file);saveAcfg("hazard_hunt",{image:url});flash("Image set",true);}}/></label>
+                    </div>
+                  </div>
+
+                  {/* Hotspot Opacity */}
+                  <div style={{marginBottom:12}}>
+                    <div style={subLabel}>HOTSPOT VISIBILITY</div>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <input type="range" min="0" max="1" step="0.1" value={acfg.hazard_hunt?.hotspotOpacity!==undefined?acfg.hazard_hunt.hotspotOpacity:1} onChange={e=>saveAcfg("hazard_hunt",{hotspotOpacity:parseFloat(e.target.value)})} style={{flex:1,accentColor:"#FFD300"}}/>
+                      <span style={{fontFamily:FC,fontWeight:800,fontSize:12,minWidth:36}}>{Math.round((acfg.hazard_hunt?.hotspotOpacity!==undefined?acfg.hazard_hunt.hotspotOpacity:1)*100)}%</span>
+                    </div>
+                  </div>
+
+                  {/* Hotspot Placement */}
+                  <div style={{marginBottom:12}}>
+                    <div style={subLabel}>HOTSPOT PLACEMENT</div>
+                    {hotspotEditor?(
+                      <div>
+                        <div style={{position:"relative",height:250,borderRadius:12,overflow:"hidden",marginBottom:8}} ref={editorViewRef}>
+                          <PanoViewer imgSrc={acfg.hazard_hunt?.image||HAZARD_IMG} onYawPitch={(y,p)=>setEditorYP({yaw:y,pitch:p})}/>
+                          {(acfg.hazard_hunt?.zones||HAZARD_ZONES).map((z,zi)=>{
+                            const vw=editorViewRef.current?.clientWidth||400;const vh=editorViewRef.current?.clientHeight||250;
+                            const proj=projectToScreen(z.yaw,z.pitch,editorYP.yaw,editorYP.pitch,vw,vh);
+                            if(!proj)return null;const sz=16*proj.scale;const fb2=(acfg.hazard_hunt?.feedback||HAZARD_FEEDBACK)[z.id]||{};
+                            return <div key={z.id} style={{position:"absolute",left:proj.x-sz/2,top:proj.y-sz/2,width:sz,height:sz,borderRadius:"50%",background:fb2.hazard?"rgba(0,122,51,0.7)":"rgba(227,0,11,0.7)",border:"2px solid #fff",zIndex:5,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color:"#fff",fontWeight:900}}>{zi+1}</div>;
+                          })}
+                          <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",zIndex:6,pointerEvents:"none",width:20,height:20,border:"2px solid #FFD300",borderRadius:"50%"}}/>
+                        </div>
+                        <div style={{display:"flex",gap:6}}>
+                          <button onClick={()=>addHotspot(editorYP.yaw,editorYP.pitch)} style={{...btnY,flex:1,fontSize:11,padding:"8px"}}>DROP HOTSPOT</button>
+                          <button onClick={()=>setHotspotEditor(false)} style={{...btnG,fontSize:11,padding:"8px"}}>CLOSE</button>
+                        </div>
+                      </div>
+                    ):(
+                      <button onClick={()=>setHotspotEditor(true)} style={{...btnB,width:"100%",fontSize:11,padding:"8px"}}>OPEN 360 HOTSPOT EDITOR</button>
+                    )}
+                  </div>
+
+                  {/* Hotspot List */}
+                  <div style={subLabel}>HOTSPOTS ({(acfg.hazard_hunt?.zones||HAZARD_ZONES).length})</div>
+                  {(acfg.hazard_hunt?.zones||HAZARD_ZONES).map((z,zi)=>{const fb2=(acfg.hazard_hunt?.feedback||HAZARD_FEEDBACK)[z.id]||{};return(
+                    <div key={z.id} style={{background:"#f8f8f5",borderRadius:8,padding:10,marginBottom:6}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6}}>
+                          <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:fb2.hazard?"#007A33":"#E3000B",color:"#fff",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center"}}>{zi+1}</span>
+                          <span style={{fontFamily:FC,fontWeight:700,fontSize:12}}>{fb2.title||z.id}</span>
+                        </div>
+                        <div style={{display:"flex",gap:4}}>
+                          <button onClick={()=>updateHotspotFb(z.id,"hazard",!fb2.hazard)} style={{padding:"3px 8px",borderRadius:4,border:"none",background:fb2.hazard?"#007A33":"#E3000B",color:"#fff",fontSize:10,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>{fb2.hazard?"HAZ":"DEC"}</button>
+                          <button onClick={()=>removeHotspot(z.id)} style={{padding:"3px 8px",borderRadius:4,border:"none",background:"#f0f0eb",color:"#E3000B",fontSize:10,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>X</button>
+                        </div>
+                      </div>
+                      <input value={fb2.title||""} onChange={e=>updateHotspotFb(z.id,"title",e.target.value)} placeholder="Title" style={{...inp,fontSize:12,padding:"6px 10px",marginBottom:4}}/>
+                      <textarea value={fb2.desc||""} onChange={e=>updateHotspotFb(z.id,"desc",e.target.value)} placeholder="Feedback text" rows={2} style={{...inp,resize:"vertical",fontSize:12,padding:"6px 10px"}}/>
+                    </div>
+                  );})}
+                </div>
+              )}
+
+              {/* Shift in Chaos Editor */}
+              {c.type==="shift_in_chaos"&&(
+                <div style={{marginTop:16,borderTop:"1px solid #e8e8e3",paddingTop:16}}>
+                  <div style={{...subLabel,fontSize:12,fontWeight:900,color:"#000"}}>SHIFT IN CHAOS - PROBLEMS</div>
+                  <div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:8}}>Order = expert ranking. Participants see shuffled.</div>
+                  {(acfg.shift_in_chaos?.problems||CHAOS_PROBLEMS).map((p,pi)=>(
+                    <div key={p.id||pi} style={{background:"#f8f8f5",borderRadius:8,padding:10,marginBottom:4}}>
+                      <div style={{display:"flex",alignItems:"flex-start",gap:6}}>
+                        <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:6}}>{pi+1}</span>
+                        <div style={{flex:1}}>
+                          <textarea value={p.text} onChange={e=>updateChaosProb(pi,"text",e.target.value)} rows={2} style={{...inp,resize:"vertical",fontSize:12,padding:"6px 10px"}}/>
+                          <div style={{display:"flex",gap:4,marginTop:4}}>
+                            {["safety","operational","cosmetic"].map(cat=>(
+                              <button key={cat} onClick={()=>updateChaosProb(pi,"category",cat)} style={{padding:"3px 8px",borderRadius:4,border:"none",background:p.category===cat?(cat==="safety"?"#E3000B":cat==="operational"?"#FFD300":"#999"):"#f0f0eb",color:p.category===cat?"#fff":"#888",fontSize:10,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>{cat.toUpperCase()}</button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>}
           </div>);
         })}

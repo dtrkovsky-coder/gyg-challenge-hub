@@ -183,6 +183,23 @@ export async function setCoolroomImage(batch, key, b64) {
   } catch (e) { console.error('setCoolroomImage error:', e); throw e; }
 }
 
+// --- Activity Config (editable activity content) ---
+
+export async function getActivityConfig() {
+  try {
+    const ref = doc(db, 'config', 'activityConfig');
+    const snap = await getDoc(ref);
+    return snap.exists() ? snap.data() : null;
+  } catch (e) { console.error('getActivityConfig error:', e); return null; }
+}
+
+export async function setActivityConfig(config) {
+  try {
+    await setDoc(doc(db, 'config', 'activityConfig'), config);
+    return true;
+  } catch (e) { console.error('setActivityConfig error:', e); throw e; }
+}
+
 // --- Push Notification Subscriptions ---
 
 export async function savePushToken(userId, token) {
