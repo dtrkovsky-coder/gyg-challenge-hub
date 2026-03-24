@@ -24,6 +24,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Coolroom 360 images (separate docs per batch)
+    match /coolroomImages/{batch} {
+      allow read, write: if true;
+    }
+
     // Push tokens
     match /pushTokens/{tokenId} {
       allow read, write: if true;

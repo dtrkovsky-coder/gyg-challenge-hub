@@ -157,6 +157,32 @@ export async function setBatchControl(config) {
   } catch (e) { console.error('setBatchControl error:', e); return false; }
 }
 
+// --- Coolroom Images (one doc per image to stay under 1MB limit) ---
+
+export async function getCoolroomImages(batch) {
+  try {
+    const result = {};
+    for (const key of ['imgA', 'imgB']) {
+      const ref = doc(db, 'coolroomImages', `${batch}_${key}`);
+      const snap = await getDoc(ref);
+      if (snap.exists()) result[key] = snap.data().data;
+    }
+    return Object.keys(result).length ? result : null;
+  } catch (e) { console.error('getCoolroomImages error:', e); return null; }
+}
+
+export async function setCoolroomImage(batch, key, b64) {
+  try {
+    const ref = doc(db, 'coolroomImages', `${batch}_${key}`);
+    if (b64) {
+      await setDoc(ref, { data: b64, batch, key, updatedAt: new Date().toISOString() });
+    } else {
+      await deleteDoc(ref);
+    }
+    return true;
+  } catch (e) { console.error('setCoolroomImage error:', e); throw e; }
+}
+
 // --- Push Notification Subscriptions ---
 
 export async function savePushToken(userId, token) {
