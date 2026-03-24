@@ -598,8 +598,16 @@ function HazardHunt({ch,done,onS,onB,user,actCfg}){
   const cfgFeedback=actCfg?.feedback||HAZARD_FEEDBACK;
   const cfgImg=actCfg?.image||HAZARD_IMG;
   const cfgOpacity=actCfg?.hotspotOpacity!==undefined?actCfg.hotspotOpacity:1;
+  const cfgTimer=actCfg?.timerDuration||90;
+  const cfgPtsPerHz=actCfg?.ptsPerHazard||20;
+  const cfgSpeedThresh=actCfg?.speedThreshold||60;
+  const cfgSpeedPts=actCfg?.speedBonusPts||20;
+  const cfgDecoyAvoid=actCfg?.decoyAvoidPts||10;
+  const cfgDecoyPen=actCfg?.decoyPenalty||10;
+  const cfgTextPts=actCfg?.textResponsePts||20;
+  const cfgQuestion=actCfg?.openQuestion||"What's the first thing you'd say to your crew about what you just saw?";
   const[screen,setScreen]=useState(1);
-  const[timeLeft,setTimeLeft]=useState(90);
+  const[timeLeft,setTimeLeft]=useState(cfgTimer);
   const[found,setFound]=useState([]);
   const[decoyTapped,setDecoyTapped]=useState(false);
   const[feedback,setFeedback]=useState(null);
@@ -610,8 +618,9 @@ function HazardHunt({ch,done,onS,onB,user,actCfg}){
   const realHazards=cfgZones.filter(z=>(cfgFeedback[z.id]||{}).hazard);
   const allRealFound=found.filter(id=>(cfgFeedback[id]||{}).hazard).length>=realHazards.length;
   const allTapped=allRealFound||found.length>=cfgZones.length;
-  const score=(()=>{let s=found.filter(id=>(cfgFeedback[id]||{}).hazard).length*20;if(found.filter(id=>(cfgFeedback[id]||{}).hazard).length>=realHazards.length&&(90-timeLeft)<=60)s+=20;if(!decoyTapped)s+=10;if(answer.trim().length>0)s+=20;return Math.max(0,s-(decoyTapped?10:0));})();
-  const speedBonus=found.filter(id=>(cfgFeedback[id]||{}).hazard).length>=realHazards.length&&(90-timeLeft)<=60;
+  const hazardsFoundCount=found.filter(id=>(cfgFeedback[id]||{}).hazard).length;
+  const score=(()=>{let s=hazardsFoundCount*cfgPtsPerHz;if(hazardsFoundCount>=realHazards.length&&(cfgTimer-timeLeft)<=cfgSpeedThresh)s+=cfgSpeedPts;if(!decoyTapped)s+=cfgDecoyAvoid;if(answer.trim().length>0)s+=cfgTextPts;return Math.max(0,s-(decoyTapped?cfgDecoyPen:0));})();
+  const speedBonus=hazardsFoundCount>=realHazards.length&&(cfgTimer-timeLeft)<=cfgSpeedThresh;
   useEffect(()=>{if(screen===2&&timeLeft>0&&!allTapped){timerRef.current=setInterval(()=>setTimeLeft(t=>{if(t<=1){clearInterval(timerRef.current);return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}if(timerRef.current)clearInterval(timerRef.current);},[screen,timeLeft,allTapped]);
   useEffect(()=>{if((timeLeft===0||allTapped)&&screen===2)setScreen(3);},[timeLeft,allTapped,screen]);
   const tapZone=(zone)=>{if(found.includes(zone.id))return;const fb=cfgFeedback[zone.id]||{};if(!fb.hazard)setDecoyTapped(true);setFound(p=>[...p,zone.id]);setFeedback({...fb,id:zone.id});setTimeout(()=>setFeedback(null),2000);};
@@ -627,7 +636,7 @@ function HazardHunt({ch,done,onS,onB,user,actCfg}){
         <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
         <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:20,color:"#fff"}}>
           <div style={{fontSize:12,fontWeight:800,fontFamily:FC,color:"#FFD300",letterSpacing:1,marginBottom:12}}>POINTS BREAKDOWN</div>
-          {[["Each hazard found (x5)","20 pts each"],["Speed bonus (all 5 under 60s)","+20 pts"],["Decoy NOT tapped","+10 pts"],["Open text response","+20 pts"],["MAX POSSIBLE","150 pts"]].map(([l,r],i)=>(
+          {[[`Each hazard found (x${realHazards.length})`,`${cfgPtsPerHz} pts each`],[`Speed bonus (all ${realHazards.length} under ${cfgSpeedThresh}s)`,`+${cfgSpeedPts} pts`],["Decoy NOT tapped",`+${cfgDecoyAvoid} pts`],["Open text response",`+${cfgTextPts} pts`],["MAX POSSIBLE",`${realHazards.length*cfgPtsPerHz+cfgSpeedPts+cfgDecoyAvoid+cfgTextPts} pts`]].map(([l,r],i)=>(
             <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:13,fontFamily:FC,fontWeight:i===4?800:500,color:i===4?"#FFD300":"#ccc",borderTop:i===4?"1px solid #333":"none",paddingTop:i===4?8:0,marginTop:i===4?8:4}}><span>{l}</span><span>{r}</span></div>
           ))}
         </div>
@@ -678,17 +687,17 @@ function HazardHunt({ch,done,onS,onB,user,actCfg}){
           <div style={{fontSize:12,fontWeight:800,fontFamily:FC,color:"#FFD300",letterSpacing:1,marginBottom:12}}>SCORE BREAKDOWN</div>
           {realHazards.map(z=>{const f=found.includes(z.id);return(
             <div key={z.id} style={{display:"flex",justifyContent:"space-between",fontSize:13,fontFamily:FC,color:f?"#fff":"#666",marginBottom:4}}>
-              <span>{f?"\u2713 ":"\u2717 "}{(cfgFeedback[z.id]||{}).title||z.id}</span><span>{f?"+20":"0"}</span>
+              <span>{f?"\u2713 ":"\u2717 "}{(cfgFeedback[z.id]||{}).title||z.id}</span><span>{f?`+${cfgPtsPerHz}`:"0"}</span>
             </div>
           );})}
           <div style={{borderTop:"1px solid #333",marginTop:8,paddingTop:8}}>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:13,fontFamily:FC,color:speedBonus?"#fff":"#666",marginBottom:4}}><span>{speedBonus?"\u2713":"\u2717"} Speed bonus (under 60s)</span><span>{speedBonus?"+20":"0"}</span></div>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:13,fontFamily:FC,color:!decoyTapped?"#fff":"#E3000B",marginBottom:4}}><span>{!decoyTapped?"\u2713":"\u2717"} Decoy avoided</span><span>{!decoyTapped?"+10":"-10"}</span></div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:13,fontFamily:FC,color:speedBonus?"#fff":"#666",marginBottom:4}}><span>{speedBonus?"\u2713":"\u2717"} Speed bonus (under {cfgSpeedThresh}s)</span><span>{speedBonus?`+${cfgSpeedPts}`:"0"}</span></div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:13,fontFamily:FC,color:!decoyTapped?"#fff":"#E3000B",marginBottom:4}}><span>{!decoyTapped?"\u2713":"\u2717"} Decoy avoided</span><span>{!decoyTapped?`+${cfgDecoyAvoid}`:`-${cfgDecoyPen}`}</span></div>
           </div>
         </div>
         {decoyTapped&&<div style={{background:"#FFF8E0",border:"1px solid #FFD300",borderRadius:14,padding:16,marginBottom:16}}><div style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#000"}}>You tapped the decoy. It looked wrong but it was fine. Going fast isn't the same as going right.</div></div>}
         <div style={{marginBottom:16}}>
-          <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1,display:"block",marginBottom:6}}>WHAT'S THE FIRST THING YOU'D SAY TO YOUR CREW?</label>
+          <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1,display:"block",marginBottom:6}}>{cfgQuestion.toUpperCase()}</label>
           <textarea style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,color:"#1a1a1a",fontSize:15,fontFamily:FB,outline:"none",height:80,resize:"vertical",boxSizing:"border-box"}} value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="Your response..."/>
         </div>
         <button style={{...BY,width:"100%",opacity:answer.trim()?"1":"0.5"}} disabled={!answer.trim()} onClick={()=>{const finalScore=score;onS({text:answer,hazardsFound:found.filter(id=>(cfgFeedback[id]||{}).hazard),decoyTapped,timeUsed:90-timeLeft,score:finalScore,speedBonus,claimedBonus:speedBonus&&!decoyTapped,autoBonus:speedBonus&&!decoyTapped,points:finalScore});}}>SUBMIT</button>
@@ -2351,6 +2360,21 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                     </div>
                   </div>
 
+                  {/* Game Settings */}
+                  <div style={{marginBottom:16,background:"#f8f8f5",borderRadius:12,padding:14}}>
+                    <div style={{...subLabel,marginBottom:10}}>GAME SETTINGS</div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                      <div><label style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#888",letterSpacing:0.5}}>TIMER (SEC)</label><input type="number" value={acfg.hazard_hunt?.timerDuration||90} onChange={e=>saveAcfg("hazard_hunt",{timerDuration:parseInt(e.target.value)||90})} style={{...inp,marginTop:4,fontSize:13,textAlign:"center"}}/></div>
+                      <div><label style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#888",letterSpacing:0.5}}>PTS PER HAZARD</label><input type="number" value={acfg.hazard_hunt?.ptsPerHazard||20} onChange={e=>saveAcfg("hazard_hunt",{ptsPerHazard:parseInt(e.target.value)||20})} style={{...inp,marginTop:4,fontSize:13,textAlign:"center"}}/></div>
+                      <div><label style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#888",letterSpacing:0.5}}>SPEED THRESHOLD (SEC)</label><input type="number" value={acfg.hazard_hunt?.speedThreshold||60} onChange={e=>saveAcfg("hazard_hunt",{speedThreshold:parseInt(e.target.value)||60})} style={{...inp,marginTop:4,fontSize:13,textAlign:"center"}}/></div>
+                      <div><label style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#888",letterSpacing:0.5}}>SPEED BONUS PTS</label><input type="number" value={acfg.hazard_hunt?.speedBonusPts||20} onChange={e=>saveAcfg("hazard_hunt",{speedBonusPts:parseInt(e.target.value)||20})} style={{...inp,marginTop:4,fontSize:13,textAlign:"center"}}/></div>
+                      <div><label style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#888",letterSpacing:0.5}}>DECOY AVOIDED PTS</label><input type="number" value={acfg.hazard_hunt?.decoyAvoidPts||10} onChange={e=>saveAcfg("hazard_hunt",{decoyAvoidPts:parseInt(e.target.value)||10})} style={{...inp,marginTop:4,fontSize:13,textAlign:"center"}}/></div>
+                      <div><label style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#888",letterSpacing:0.5}}>TEXT RESPONSE PTS</label><input type="number" value={acfg.hazard_hunt?.textResponsePts||20} onChange={e=>saveAcfg("hazard_hunt",{textResponsePts:parseInt(e.target.value)||20})} style={{...inp,marginTop:4,fontSize:13,textAlign:"center"}}/></div>
+                    </div>
+                    <div style={{marginTop:10}}><label style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#888",letterSpacing:0.5}}>DECOY PENALTY PTS</label><input type="number" value={acfg.hazard_hunt?.decoyPenalty||10} onChange={e=>saveAcfg("hazard_hunt",{decoyPenalty:parseInt(e.target.value)||10})} style={{...inp,marginTop:4,fontSize:13,textAlign:"center",maxWidth:120}}/></div>
+                    <div style={{marginTop:10}}><label style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#888",letterSpacing:0.5}}>OPEN TEXT QUESTION</label><input value={acfg.hazard_hunt?.openQuestion||"What's the first thing you'd say to your crew about what you just saw?"} onChange={e=>saveAcfg("hazard_hunt",{openQuestion:e.target.value})} style={{...inp,marginTop:4,fontSize:13}}/></div>
+                  </div>
+
                   {/* Hotspot Placement */}
                   <div style={{marginBottom:12}}>
                     <div style={subLabel}>HOTSPOT PLACEMENT</div>
@@ -2400,7 +2424,16 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
               {/* Shift in Chaos Editor */}
               {c.type==="shift_in_chaos"&&(
                 <div style={{marginTop:16,borderTop:"1px solid #e8e8e3",paddingTop:16}}>
-                  <div style={{...subLabel,fontSize:12,fontWeight:900,color:"#000"}}>SHIFT IN CHAOS - PROBLEMS</div>
+                  <div style={{...subLabel,fontSize:12,fontWeight:900,color:"#000"}}>SHIFT IN CHAOS CONFIG</div>
+
+                  <div style={{marginBottom:16,background:"#f8f8f5",borderRadius:12,padding:14}}>
+                    <div style={{...subLabel,marginBottom:8}}>SCENE BRIEFING</div>
+                    <textarea value={acfg.shift_in_chaos?.briefing||"It's 12:05pm. Saturday. GYG is slammed. Everything below just happened in the last 10 minutes. Rank them 1-12 in order of what you deal with FIRST."} onChange={e=>saveAcfg("shift_in_chaos",{briefing:e.target.value})} rows={3} style={{...inp,resize:"vertical",fontSize:13}}/>
+                    <div style={{...subLabel,marginTop:12,marginBottom:8}}>PREVENTION QUESTION</div>
+                    <textarea value={acfg.shift_in_chaos?.preventionQ||"What's one thing that would have prevented this shift from getting to this point? Be specific about when it should have happened and who should have done it."} onChange={e=>saveAcfg("shift_in_chaos",{preventionQ:e.target.value})} rows={3} style={{...inp,resize:"vertical",fontSize:13}}/>
+                  </div>
+
+                  <div style={{...subLabel}}>PROBLEMS ({(acfg.shift_in_chaos?.problems||CHAOS_PROBLEMS).length})</div>
                   <div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:8}}>Order = expert ranking. Participants see shuffled.</div>
                   {(acfg.shift_in_chaos?.problems||CHAOS_PROBLEMS).map((p,pi)=>(
                     <div key={p.id||pi} style={{background:"#f8f8f5",borderRadius:8,padding:10,marginBottom:4}}>
