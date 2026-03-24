@@ -778,15 +778,24 @@ const EXPERT_ORDER=[1,2,3,4,5,6,7,8,9,10,11,12];
 function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
   const[screen,setScreen]=useState(1);
   const[ranking,setRanking]=useState(()=>{const shuffled=[...CHAOS_PROBLEMS];for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}return shuffled;});
-  const[selected,setSelected]=useState(null);
   const[showConfirm,setShowConfirm]=useState(false);
   const[answer,setAnswer]=useState("");
+  const[dragIdx,setDragIdx]=useState(null);
+  const[dragY,setDragY]=useState(0);
+  const[dragStartY,setDragStartY]=useState(0);
+  const[itemHeight,setItemHeight]=useState(60);
+  const listRef=useRef(null);
   const catColor={safety:"#E3000B",operational:"#FFD300",cosmetic:"#999"};
   const totalDistance=ranking.reduce((sum,p,i)=>{const expertIdx=EXPERT_ORDER.indexOf(p.id);return sum+Math.abs(i-expertIdx);},0);
   const batchComps=comps.filter(c=>c.challengeId==="lse-w2"&&c.program==="lse");
   const distances=[...batchComps.map(c=>c.submission?.distanceFromExpert||999),totalDistance].sort((a,b)=>a-b);
   const isTop3=distances.indexOf(totalDistance)<3;
-  const tapItem=(i)=>{if(selected===null){setSelected(i);}else if(selected===i){setSelected(null);}else{const n=[...ranking];[n[selected],n[i]]=[n[i],n[selected]];setRanking(n);setSelected(null);}};
+  const onDragStart=(i,e)=>{e.preventDefault();const t=e.touches?e.touches[0]:e;setDragIdx(i);setDragStartY(t.clientY);setDragY(0);
+    if(listRef.current){const items=listRef.current.children;if(items[0])setItemHeight(items[0].getBoundingClientRect().height+6);}};
+  const onDragMove=(e)=>{if(dragIdx===null)return;e.preventDefault();const t=e.touches?e.touches[0]:e;setDragY(t.clientY-dragStartY);};
+  const onDragEnd=()=>{if(dragIdx===null)return;const offset=Math.round(dragY/itemHeight);const newIdx=Math.max(0,Math.min(ranking.length-1,dragIdx+offset));
+    if(newIdx!==dragIdx){const n=[...ranking];const[item]=n.splice(dragIdx,1);n.splice(newIdx,0,item);setRanking(n);}
+    setDragIdx(null);setDragY(0);};
   if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div><div style={{fontSize:13,fontFamily:FC,fontWeight:600,color:"#888",marginTop:12,letterSpacing:0.5}}>WEEK 3 UNLOCKS WHEN AVAILABLE</div></div></div>);
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
@@ -808,15 +817,41 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
       </div>
     )}
     {screen===2&&(
-      <div style={{padding:"16px 16px 24px"}}>
-        <div style={{fontSize:12,fontWeight:800,fontFamily:FC,color:"#999",letterSpacing:1,marginBottom:8,textAlign:"center"}}>TAP TO SELECT, THEN TAP ANOTHER TO SWAP</div>
-        {ranking.map((p,i)=>(
-          <button key={p.id} onClick={()=>tapItem(i)} style={{display:"flex",alignItems:"center",width:"100%",padding:"12px 14px",background:selected===i?"#FFF8E0":"#fff",border:selected===i?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,marginBottom:6,cursor:"pointer",textAlign:"left",fontFamily:FB,color:"#1a1a1a",transition:"all 0.15s"}}>
-            <div style={{width:28,height:28,borderRadius:14,background:"#000",color:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:13,flexShrink:0,marginRight:10}}>{i+1}</div>
-            <div style={{flex:1,fontSize:13,lineHeight:1.4}}>{p.text}</div>
-            <div style={{width:10,height:10,borderRadius:5,background:catColor[p.category],flexShrink:0,marginLeft:8}}/>
-          </button>
-        ))}
+      <div style={{padding:"16px 16px 24px"}} onTouchMove={onDragMove} onTouchEnd={onDragEnd} onMouseMove={onDragMove} onMouseUp={onDragEnd}>
+        <div style={{fontSize:12,fontWeight:800,fontFamily:FC,color:"#999",letterSpacing:1,marginBottom:8,textAlign:"center"}}>HOLD AND DRAG TO REORDER</div>
+        <div ref={listRef} style={{position:"relative"}}>
+          {ranking.map((p,i)=>{
+            const isDragging=dragIdx===i;
+            const dragOffset=isDragging?dragY:0;
+            // Calculate if another item should visually shift
+            let shift=0;
+            if(dragIdx!==null&&!isDragging){
+              const movingTo=Math.round(dragY/itemHeight);
+              const targetIdx=dragIdx+movingTo;
+              if(dragIdx<i&&targetIdx>=i)shift=-1;
+              if(dragIdx>i&&targetIdx<=i)shift=1;
+            }
+            return(
+            <div key={p.id}
+              onTouchStart={e=>onDragStart(i,e)} onMouseDown={e=>onDragStart(i,e)}
+              style={{display:"flex",alignItems:"center",width:"100%",padding:"12px 14px",background:isDragging?"#FFF8E0":"#fff",border:isDragging?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,marginBottom:6,cursor:"grab",textAlign:"left",fontFamily:FB,color:"#1a1a1a",
+                transform:`translateY(${isDragging?dragOffset:shift*itemHeight}px)`,
+                transition:isDragging?"none":"transform 0.2s",
+                zIndex:isDragging?10:1,
+                boxShadow:isDragging?"0 4px 20px rgba(0,0,0,0.15)":"none",
+                position:"relative",userSelect:"none",touchAction:"none"}}>
+              {/* Drag handle */}
+              <div style={{display:"flex",flexDirection:"column",gap:2,marginRight:10,flexShrink:0,opacity:0.3}}>
+                <div style={{width:14,height:2,background:"#999",borderRadius:1}}/>
+                <div style={{width:14,height:2,background:"#999",borderRadius:1}}/>
+                <div style={{width:14,height:2,background:"#999",borderRadius:1}}/>
+              </div>
+              <div style={{width:28,height:28,borderRadius:14,background:"#000",color:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:13,flexShrink:0,marginRight:10}}>{i+1}</div>
+              <div style={{flex:1,fontSize:13,lineHeight:1.4}}>{p.text}</div>
+              <div style={{width:10,height:10,borderRadius:5,background:catColor[p.category],flexShrink:0,marginLeft:8}}/>
+            </div>);
+          })}
+        </div>
         <div style={{display:"flex",gap:12,marginTop:8,justifyContent:"center"}}>
           {[["safety","#E3000B"],["operational","#FFD300"],["cosmetic","#999"]].map(([l,c])=>(
             <div key={l} style={{display:"flex",alignItems:"center",gap:4,fontSize:11,fontFamily:FC,fontWeight:700,color:"#888",letterSpacing:0.5}}><div style={{width:8,height:8,borderRadius:4,background:c}}/>{l.toUpperCase()}</div>
