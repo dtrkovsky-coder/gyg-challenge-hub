@@ -640,12 +640,14 @@ function HazardHunt({ch,done,onS,onB,user,actCfg}){
   const cfgTextPts=actCfg?.textResponsePts||20;
   const cfgQuestion=actCfg?.openQuestion||"What's the first thing you'd say to your crew about what you just saw?";
   const[screen,setScreen]=useState(1);
+  const[countdown,setCountdown]=useState(0);// 3,2,1 countdown before timer starts
   const[timeLeft,setTimeLeft]=useState(cfgTimer);
   const[found,setFound]=useState([]);
   const[decoyTapped,setDecoyTapped]=useState(false);
   const[feedback,setFeedback]=useState(null);
   const[answer,setAnswer]=useState("");
   const[camYP,setCamYP]=useState({yaw:0,pitch:0});
+  const[animScore,setAnimScore]=useState(0);// for count-up animation
   const timerRef=useRef(null);
   const viewRef=useRef(null);
   const realHazards=cfgZones.filter(z=>(cfgFeedback[z.id]||{}).hazard);
@@ -654,8 +656,13 @@ function HazardHunt({ch,done,onS,onB,user,actCfg}){
   const hazardsFoundCount=found.filter(id=>(cfgFeedback[id]||{}).hazard).length;
   const score=(()=>{let s=hazardsFoundCount*cfgPtsPerHz;if(hazardsFoundCount>=realHazards.length&&(cfgTimer-timeLeft)<=cfgSpeedThresh)s+=cfgSpeedPts;if(!decoyTapped)s+=cfgDecoyAvoid;if(answer.trim().length>0)s+=cfgTextPts;return Math.max(0,s-(decoyTapped?cfgDecoyPen:0));})();
   const speedBonus=hazardsFoundCount>=realHazards.length&&(cfgTimer-timeLeft)<=cfgSpeedThresh;
-  useEffect(()=>{if(screen===2&&timeLeft>0&&!allTapped){timerRef.current=setInterval(()=>setTimeLeft(t=>{if(t<=1){clearInterval(timerRef.current);return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}if(timerRef.current)clearInterval(timerRef.current);},[screen,timeLeft,allTapped]);
-  useEffect(()=>{if((timeLeft===0||allTapped)&&screen===2)setScreen(3);},[timeLeft,allTapped,screen]);
+  // Countdown 3,2,1 before timer starts
+  useEffect(()=>{if(screen===2&&countdown>0){const t=setTimeout(()=>setCountdown(c=>c-1),1000);return()=>clearTimeout(t);}
+    if(screen===2&&countdown===0&&timeLeft>0&&!allTapped){timerRef.current=setInterval(()=>setTimeLeft(t=>{if(t<=1){clearInterval(timerRef.current);return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}
+    if(timerRef.current)clearInterval(timerRef.current);},[screen,countdown,timeLeft,allTapped]);
+  useEffect(()=>{if((timeLeft===0||allTapped)&&screen===2&&countdown===0)setScreen(3);},[timeLeft,allTapped,screen,countdown]);
+  // Score count-up animation
+  useEffect(()=>{if(screen===3&&animScore<score){const t=setTimeout(()=>setAnimScore(s=>Math.min(s+Math.ceil(score/20),score)),40);return()=>clearTimeout(t);}},[screen,animScore,score]);
   const tapZone=(zone)=>{if(found.includes(zone.id))return;const fb=cfgFeedback[zone.id]||{};if(!fb.hazard)setDecoyTapped(true);setFound(p=>[...p,zone.id]);setFeedback({...fb,id:zone.id});setTimeout(()=>setFeedback(null),2000);};
   if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div><div style={{fontSize:13,fontFamily:FC,fontWeight:600,color:"#888",marginTop:12,letterSpacing:0.5}}>WEEK 2 UNLOCKS WHEN AVAILABLE</div></div></div>);
   return(
@@ -674,38 +681,48 @@ function HazardHunt({ch,done,onS,onB,user,actCfg}){
           ))}
         </div>
         <div style={{background:"#f0f8f0",border:"1px solid #d4e8d4",borderRadius:14,padding:16,marginBottom:24}}><div style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#007A33",letterSpacing:1,marginBottom:6}}>TIP</div><p style={{fontSize:14,color:"#666",lineHeight:1.5,margin:0}}>{ch.tip}</p></div>
-        <button style={{...BY,width:"100%"}} onClick={()=>setScreen(2)}>START HAZARD HUNT</button>
+        <button style={{...BY,width:"100%"}} onClick={()=>{setCountdown(3);setScreen(2);}}>START HAZARD HUNT</button>
       </div>
     )}
     {screen===2&&(
-      <div style={{position:"relative",height:"100vh",display:"flex",flexDirection:"column"}}>
-        <div style={{position:"absolute",top:0,left:0,right:0,zIndex:10,background:"rgba(0,0,0,0.7)",padding:"10px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <div style={{position:"relative",height:"calc(100vh - 48px)",display:"flex",flexDirection:"column"}}>
+        {/* Countdown overlay */}
+        {countdown>0&&(<div style={{position:"absolute",inset:0,zIndex:50,background:"rgba(0,0,0,0.85)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+          <div style={{fontSize:120,fontWeight:900,fontFamily:F107,color:"#FFD300",lineHeight:1}}>{countdown}</div>
+          <div style={{fontSize:18,fontFamily:FC,fontWeight:700,color:"#fff",marginTop:12,letterSpacing:1}}>GET READY</div>
+        </div>)}
+        {/* Timer bar */}
+        <div style={{background:"rgba(0,0,0,0.8)",padding:"10px 16px",display:"flex",justifyContent:"space-between",alignItems:"center",zIndex:10,flexShrink:0}}>
           <div style={{fontSize:28,fontWeight:900,fontFamily:FG,color:timeLeft<=10?"#E3000B":timeLeft<=30?"#FFD300":"#fff"}}>{Math.floor(timeLeft/60)}:{String(timeLeft%60).padStart(2,"0")}</div>
-          <div style={{display:"flex",alignItems:"center",gap:8}}>
-            <span style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#ccc"}}>{found.filter(id=>(cfgFeedback[id]||{}).hazard).length}/{realHazards.length} FOUND</span>
-            <span style={{fontSize:18,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{score} PTS</span>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <span style={{fontSize:13,fontFamily:FC,fontWeight:700,color:"#ccc"}}>{hazardsFoundCount}/{realHazards.length}</span>
+            <span style={{fontSize:16,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{score} PTS</span>
           </div>
         </div>
-        <div style={{flex:1,position:"relative"}} ref={viewRef}>
+        {/* 360 viewer */}
+        <div style={{flex:1,position:"relative",overflow:"hidden"}} ref={viewRef}>
           <PanoViewer imgSrc={cfgImg} onYawPitch={(y,p)=>setCamYP({yaw:y,pitch:p})}/>
-          {/* Projected hazard tap zones */}
-          {cfgZones.map(z=>{const tapped=found.includes(z.id);const fb=cfgFeedback[z.id]||{};
+          {countdown===0&&cfgZones.map(z=>{const tapped=found.includes(z.id);const fb=cfgFeedback[z.id]||{};
             const vw=viewRef.current?.clientWidth||400;const vh=viewRef.current?.clientHeight||600;
             const proj=projectToScreen(z.yaw,z.pitch,camYP.yaw,camYP.pitch,vw,vh);
             if(!proj)return null;
             const sz=z.size*proj.scale;
             return(
-            <div key={z.id} onClick={()=>!tapped&&tapZone(z)} style={{position:"absolute",left:proj.x-sz/2,top:proj.y-sz/2,width:sz,height:sz,zIndex:5,borderRadius:"50%",cursor:tapped?"default":"pointer",opacity:tapped?1:cfgOpacity,border:tapped?(fb.hazard?"3px solid #007A33":"3px solid #E3000B"):(cfgOpacity>0?"2px solid rgba(255,211,0,"+cfgOpacity*0.4+")":"none"),background:tapped?(fb.hazard?"rgba(0,122,51,0.4)":"rgba(227,0,11,0.4)"):(cfgOpacity>0?"rgba(255,211,0,"+cfgOpacity*0.08+")":"transparent"),display:"flex",alignItems:"center",justifyContent:"center",transition:"border 0.3s, background 0.3s",boxShadow:tapped?"none":(cfgOpacity>0?"0 0 12px rgba(255,211,0,"+cfgOpacity*0.2+")":"none")}}>
+            <div key={z.id} onClick={()=>!tapped&&countdown===0&&tapZone(z)} style={{position:"absolute",left:proj.x-sz/2,top:proj.y-sz/2,width:sz,height:sz,zIndex:5,borderRadius:"50%",cursor:tapped?"default":"pointer",opacity:tapped?1:cfgOpacity,border:tapped?(fb.hazard?"3px solid #007A33":"3px solid #E3000B"):(cfgOpacity>0?"2px solid rgba(255,211,0,"+cfgOpacity*0.4+")":"none"),background:tapped?(fb.hazard?"rgba(0,122,51,0.4)":"rgba(227,0,11,0.4)"):(cfgOpacity>0?"rgba(255,211,0,"+cfgOpacity*0.08+")":"transparent"),display:"flex",alignItems:"center",justifyContent:"center",transition:"border 0.3s, background 0.3s",boxShadow:tapped?"none":(cfgOpacity>0?"0 0 12px rgba(255,211,0,"+cfgOpacity*0.2+")":"none")}}>
               {tapped&&<span style={{fontSize:Math.max(16,sz*0.5),color:"#fff",textShadow:"0 1px 4px rgba(0,0,0,0.8)"}}>{fb.hazard?"\u2713":"\u2717"}</span>}
             </div>
           );})}
         </div>
-        <div style={{position:"absolute",bottom:0,left:0,right:0,zIndex:10,background:"rgba(0,0,0,0.5)",padding:"8px 16px",fontSize:12,fontFamily:FC,fontWeight:700,color:"rgba(255,255,255,0.6)",letterSpacing:0.5,textAlign:"center"}}>DRAG TO LOOK AROUND - TAP HAZARDS TO IDENTIFY</div>
+        {/* Bottom hint - no overlap */}
+        <div style={{background:"rgba(0,0,0,0.8)",padding:"10px 16px",fontSize:11,fontFamily:FC,fontWeight:600,color:"rgba(255,255,255,0.5)",letterSpacing:0.5,textAlign:"center",flexShrink:0}}>DRAG TO LOOK AROUND - TAP HAZARDS</div>
+        {/* Feedback popup - centered in viewport */}
         {feedback&&(
-          <div className="anim-fade-up" style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",zIndex:200,background:feedback.hazard?"#007A33":"#E3000B",color:"#fff",borderRadius:16,padding:"16px 20px",maxWidth:280,width:"calc(100% - 48px)",textAlign:"center",boxShadow:"0 8px 32px rgba(0,0,0,0.5)",margin:"0 auto"}}>
-            <div style={{fontSize:15,fontWeight:900,fontFamily:FC,letterSpacing:1,marginBottom:4}}>{feedback.title}</div>
-            <div style={{fontSize:12,lineHeight:1.4,opacity:0.9}}>{feedback.desc}</div>
-            {!feedback.hazard&&<div style={{marginTop:6,fontSize:13,fontWeight:800,fontFamily:FC,color:"#FFD300"}}>-10 PTS</div>}
+          <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none"}}>
+            <div className="anim-scale-in" style={{background:feedback.hazard?"#007A33":"#E3000B",color:"#fff",borderRadius:16,padding:"18px 24px",maxWidth:300,width:"calc(100% - 48px)",textAlign:"center",boxShadow:"0 8px 32px rgba(0,0,0,0.5)",pointerEvents:"auto"}}>
+              <div style={{fontSize:16,fontWeight:900,fontFamily:FC,letterSpacing:1,marginBottom:6}}>{feedback.title}</div>
+              <div style={{fontSize:13,lineHeight:1.5,opacity:0.9}}>{feedback.desc}</div>
+              {!feedback.hazard&&<div style={{marginTop:8,fontSize:14,fontWeight:800,fontFamily:FC,color:"#FFD300"}}>-{cfgDecoyPen} PTS</div>}
+            </div>
           </div>
         )}
       </div>
@@ -713,7 +730,7 @@ function HazardHunt({ch,done,onS,onB,user,actCfg}){
     {screen===3&&(
       <div style={{padding:"24px 20px"}}>
         <div style={{textAlign:"center",marginBottom:20}}>
-          <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{score}</div>
+          <div style={{fontSize:56,fontWeight:900,fontFamily:FC,color:"#FFD300",transition:"all 0.1s"}}>{animScore}</div>
           <div style={{fontSize:16,fontFamily:FC,fontWeight:700,color:"#888",letterSpacing:1}}>POINTS EARNED</div>
         </div>
         <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:16,color:"#fff"}}>
@@ -2436,24 +2453,54 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                   {/* Hazard Hunt specific */}
                   {item.type==="hazard_hunt"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
                     <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Hazard Hunt Settings</div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:12}}>
-                      <div><div style={subLabel}>TIMER (SEC)</div><input type="number" value={acfg.hazard_hunt?.timerDuration||90} onChange={e=>saveAcfg("hazard_hunt",{timerDuration:parseInt(e.target.value)||90})} style={{...inp,textAlign:"center"}}/></div>
-                      <div><div style={subLabel}>PTS/HAZARD</div><input type="number" value={acfg.hazard_hunt?.ptsPerHazard||20} onChange={e=>saveAcfg("hazard_hunt",{ptsPerHazard:parseInt(e.target.value)||20})} style={{...inp,textAlign:"center"}}/></div>
-                      <div><div style={subLabel}>SPEED (SEC)</div><input type="number" value={acfg.hazard_hunt?.speedThreshold||60} onChange={e=>saveAcfg("hazard_hunt",{speedThreshold:parseInt(e.target.value)||60})} style={{...inp,textAlign:"center"}}/></div>
-                    </div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:12}}>
-                      <div><div style={subLabel}>SPEED PTS</div><input type="number" value={acfg.hazard_hunt?.speedBonusPts||20} onChange={e=>saveAcfg("hazard_hunt",{speedBonusPts:parseInt(e.target.value)||20})} style={{...inp,textAlign:"center"}}/></div>
-                      <div><div style={subLabel}>DECOY +PTS</div><input type="number" value={acfg.hazard_hunt?.decoyAvoidPts||10} onChange={e=>saveAcfg("hazard_hunt",{decoyAvoidPts:parseInt(e.target.value)||10})} style={{...inp,textAlign:"center"}}/></div>
-                      <div><div style={subLabel}>TEXT PTS</div><input type="number" value={acfg.hazard_hunt?.textResponsePts||20} onChange={e=>saveAcfg("hazard_hunt",{textResponsePts:parseInt(e.target.value)||20})} style={{...inp,textAlign:"center"}}/></div>
-                    </div>
-                    <div style={{marginBottom:12}}>
-                      <div style={subLabel}>VISIBILITY</div>
-                      <div style={{display:"flex",alignItems:"center",gap:10}}>
-                        <input type="range" min="0" max="1" step="0.1" value={acfg.hazard_hunt?.hotspotOpacity!==undefined?acfg.hazard_hunt.hotspotOpacity:1} onChange={e=>saveAcfg("hazard_hunt",{hotspotOpacity:parseFloat(e.target.value)})} style={{flex:1,accentColor:"#FFD300"}}/>
-                        <span style={{fontFamily:FC,fontWeight:800,fontSize:13}}>{Math.round((acfg.hazard_hunt?.hotspotOpacity!==undefined?acfg.hazard_hunt.hotspotOpacity:1)*100)}%</span>
+
+                    {/* 360 Image Upload */}
+                    <div style={{background:"#fff",borderRadius:12,padding:14,marginBottom:14}}>
+                      <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a",marginBottom:8}}>360 Kitchen Image</div>
+                      <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+                        <input value={acfg.hazard_hunt?.image||"/360-prep.jpg"} onChange={e=>saveAcfg("hazard_hunt",{image:e.target.value})} placeholder="/360-image.jpg" style={{...inp,flex:1,fontSize:12,padding:"8px 12px"}}/>
+                        <label style={{...btnY,padding:"8px 14px",fontSize:11,display:"inline-flex",alignItems:"center",gap:4,cursor:"pointer"}}>
+                          UPLOAD<input type="file" accept="image/*" style={{display:"none"}} onChange={async e=>{const file=e.target.files[0];if(!file)return;saveAcfg("hazard_hunt",{image:URL.createObjectURL(file)});flash("Image set",true);}}/></label>
                       </div>
                     </div>
-                    <div style={{marginBottom:12}}><div style={subLabel}>QUESTION</div><input value={acfg.hazard_hunt?.openQuestion||"What's the first thing you'd say to your crew about what you just saw?"} onChange={e=>saveAcfg("hazard_hunt",{openQuestion:e.target.value})} style={inp}/></div>
+
+                    {/* Timer & Gameplay */}
+                    <div style={{background:"#fff",borderRadius:12,padding:14,marginBottom:14}}>
+                      <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a",marginBottom:10}}>Timer</div>
+                      <div style={{display:"flex",gap:12,alignItems:"center",marginBottom:12}}>
+                        <div style={{flex:1}}><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Hunt duration</div><div style={{display:"flex",alignItems:"center",gap:6}}><input type="number" value={acfg.hazard_hunt?.timerDuration||90} onChange={e=>saveAcfg("hazard_hunt",{timerDuration:parseInt(e.target.value)||90})} style={{...inp,width:70,textAlign:"center",padding:"8px"}}/><span style={{fontSize:12,color:"#999"}}>seconds</span></div></div>
+                        <div style={{flex:1}}><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Speed bonus if all found within</div><div style={{display:"flex",alignItems:"center",gap:6}}><input type="number" value={acfg.hazard_hunt?.speedThreshold||60} onChange={e=>saveAcfg("hazard_hunt",{speedThreshold:parseInt(e.target.value)||60})} style={{...inp,width:70,textAlign:"center",padding:"8px"}}/><span style={{fontSize:12,color:"#999"}}>seconds</span></div></div>
+                      </div>
+                    </div>
+
+                    {/* Points */}
+                    <div style={{background:"#fff",borderRadius:12,padding:14,marginBottom:14}}>
+                      <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a",marginBottom:10}}>Points</div>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                        <div><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Per hazard found</div><input type="number" value={acfg.hazard_hunt?.ptsPerHazard||20} onChange={e=>saveAcfg("hazard_hunt",{ptsPerHazard:parseInt(e.target.value)||20})} style={{...inp,textAlign:"center",padding:"8px"}}/></div>
+                        <div><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Speed bonus</div><input type="number" value={acfg.hazard_hunt?.speedBonusPts||20} onChange={e=>saveAcfg("hazard_hunt",{speedBonusPts:parseInt(e.target.value)||20})} style={{...inp,textAlign:"center",padding:"8px"}}/></div>
+                        <div><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Decoy avoided bonus</div><input type="number" value={acfg.hazard_hunt?.decoyAvoidPts||10} onChange={e=>saveAcfg("hazard_hunt",{decoyAvoidPts:parseInt(e.target.value)||10})} style={{...inp,textAlign:"center",padding:"8px"}}/></div>
+                        <div><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Text response bonus</div><input type="number" value={acfg.hazard_hunt?.textResponsePts||20} onChange={e=>saveAcfg("hazard_hunt",{textResponsePts:parseInt(e.target.value)||20})} style={{...inp,textAlign:"center",padding:"8px"}}/></div>
+                      </div>
+                      <div style={{marginTop:8}}><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Decoy tap penalty</div><input type="number" value={acfg.hazard_hunt?.decoyPenalty||10} onChange={e=>saveAcfg("hazard_hunt",{decoyPenalty:parseInt(e.target.value)||10})} style={{...inp,width:80,textAlign:"center",padding:"8px"}}/></div>
+                    </div>
+
+                    {/* Hotspot Visibility */}
+                    <div style={{background:"#fff",borderRadius:12,padding:14,marginBottom:14}}>
+                      <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a",marginBottom:8}}>Hotspot Visibility</div>
+                      <div style={{display:"flex",alignItems:"center",gap:10}}>
+                        <span style={{fontSize:11,color:"#888"}}>Hidden</span>
+                        <input type="range" min="0" max="1" step="0.1" value={acfg.hazard_hunt?.hotspotOpacity!==undefined?acfg.hazard_hunt.hotspotOpacity:1} onChange={e=>saveAcfg("hazard_hunt",{hotspotOpacity:parseFloat(e.target.value)})} style={{flex:1,accentColor:"#FFD300"}}/>
+                        <span style={{fontSize:11,color:"#888"}}>Visible</span>
+                        <span style={{fontFamily:FC,fontWeight:800,fontSize:13,minWidth:36,textAlign:"right"}}>{Math.round((acfg.hazard_hunt?.hotspotOpacity!==undefined?acfg.hazard_hunt.hotspotOpacity:1)*100)}%</span>
+                      </div>
+                    </div>
+
+                    {/* Open Text Question */}
+                    <div style={{background:"#fff",borderRadius:12,padding:14,marginBottom:14}}>
+                      <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a",marginBottom:8}}>Post-Hunt Question</div>
+                      <input value={acfg.hazard_hunt?.openQuestion||"What's the first thing you'd say to your crew about what you just saw?"} onChange={e=>saveAcfg("hazard_hunt",{openQuestion:e.target.value})} style={inp}/>
+                    </div>
                     {/* Hotspot editor */}
                     <div style={{marginBottom:8}}>
                       {hotspotEditor?(<div>
@@ -2466,7 +2513,10 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                           <button onClick={()=>addHotspot(editorYP.yaw,editorYP.pitch)} style={{...btnY,flex:1,fontSize:12,padding:"10px"}}>Drop Hotspot</button>
                           <button onClick={()=>setHotspotEditor(false)} style={{...btnG,fontSize:12,padding:"10px"}}>Close</button>
                         </div>
-                      </div>):(<button onClick={()=>setHotspotEditor(true)} style={{...btnB,width:"100%",fontSize:12}}>Open Hotspot Editor</button>)}
+                      </div>):(<div style={{display:"flex",gap:8}}>
+                        <button onClick={()=>setHotspotEditor(true)} style={{...btnB,flex:1,fontSize:12}}>Open Hotspot Editor</button>
+                        <button onClick={()=>{saveAcfg("hazard_hunt",{zones:[...HAZARD_ZONES],feedback:{...HAZARD_FEEDBACK}});flash("Reset to 7 default hotspots",true);}} style={{...btnG,fontSize:12}}>Reset Defaults</button>
+                      </div>)}
                     </div>
                     {/* Hotspot list */}
                     {(acfg.hazard_hunt?.zones||HAZARD_ZONES).map((z,zi)=>{const fb2=(acfg.hazard_hunt?.feedback||HAZARD_FEEDBACK)[z.id]||{};return(
