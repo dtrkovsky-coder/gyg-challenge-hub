@@ -2032,7 +2032,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                 <div style={{fontSize:13,color:"#999",fontFamily:FB,marginTop:1}}>{item.subtitle}</div>
               </div>
               <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-                <span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"4px 10px",borderRadius:8,background:item.kind==="activity"?"#FFF8E0":"#f5f5f0",color:item.kind==="activity"?"#B8860B":"#999"}}>{item.kind==="activity"?"ACTIVITY":item.type==="standard"?"UPLOAD":(item.type||"STANDARD").toUpperCase().replace(/_/g," ")}</span>
+                <span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"4px 10px",borderRadius:8,background:item.kind==="activity"?"#FFF8E0":"#f5f5f0",color:item.kind==="activity"?"#B8860B":"#999"}}>{item.kind==="activity"?"ACTIVITY":(item.type&&item.type!=="standard")?item.type.toUpperCase().replace(/_/g," "):"CHALLENGE"}</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2" style={{transform:isOpen?"rotate(90deg)":"none",transition:"transform 0.2s"}}><path d="M9 18l6-6-6-6"/></svg>
               </div>
             </div>
@@ -2127,9 +2127,61 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                   </div>)}
                 </div>)}
 
-                {/* Activity info */}
-                {item.kind==="activity"&&(<div>
-                  <div style={{fontSize:13,color:"#888",fontFamily:FB,padding:"8px 0"}}>Activity type: <strong>{(item.type||"standard").replace(/_/g," ")}</strong>. Content is configured in the activity component.</div>
+                {/* Activity editors */}
+                {item.kind==="activity"&&item.type==="huddle_builder"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                  <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Huddle Builder Settings</div>
+                  <div style={subLabel}>FOCUS AREAS</div>
+                  {Object.entries(acfg.huddle_builder?.focuses||HUDDLE_FOCUSES).map(([fKey,fVal])=>(
+                    <div key={fKey} style={{background:"#fff",borderRadius:10,padding:12,marginBottom:8}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                        <input value={fVal.label||fKey} onChange={e=>{const f={...(acfg.huddle_builder?.focuses||{...HUDDLE_FOCUSES})};f[fKey]={...f[fKey],label:e.target.value};saveAcfg("huddle_builder",{focuses:f});}} style={{...inp,fontWeight:700,fontSize:14,flex:1,padding:"8px 12px"}}/>
+                      </div>
+                      <div style={subLabel}>SUB-FOCUSES</div>
+                      {(fVal.subs||[]).map((sub,si)=>(
+                        <div key={sub.id||si} style={{display:"flex",gap:6,marginBottom:4}}>
+                          <input value={sub.label} onChange={e=>{const f={...(acfg.huddle_builder?.focuses||{...HUDDLE_FOCUSES})};const subs=[...f[fKey].subs];subs[si]={...subs[si],label:e.target.value};f[fKey]={...f[fKey],subs};saveAcfg("huddle_builder",{focuses:f});}} style={{...inp,flex:1,fontSize:13,padding:"6px 10px"}}/>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                  <div style={{...subLabel,marginTop:16}}>SCRIPT STEPS</div>
+                  {(acfg.huddle_builder?.steps||HUDDLE_STEPS).map((step,si)=>(
+                    <div key={si} style={{display:"flex",gap:8,marginBottom:6,alignItems:"center"}}>
+                      <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#FFD300",color:"#000",padding:"4px 8px",borderRadius:6,flexShrink:0,minWidth:80,textAlign:"center"}}>{step.label}</span>
+                      <input value={step.prefix} onChange={e=>{const steps=[...(acfg.huddle_builder?.steps||[...HUDDLE_STEPS])];steps[si]={...steps[si],prefix:e.target.value};saveAcfg("huddle_builder",{steps});}} placeholder="Prefix text" style={{...inp,flex:1,fontSize:13,padding:"6px 10px"}}/>
+                    </div>
+                  ))}
+                </div>)}
+
+                {item.kind==="activity"&&item.type==="coolroom_countdown"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                  <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Cool Room Countdown Settings</div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
+                    <div><div style={subLabel}>TIMER (SEC)</div><input type="number" value={acfg.coolroom?.timerDuration||120} onChange={e=>saveAcfg("coolroom",{timerDuration:parseInt(e.target.value)||120})} style={{...inp,textAlign:"center"}}/></div>
+                    <div><div style={subLabel}>COMPARE TIME (SEC)</div><input type="number" value={acfg.coolroom?.compareTime||60} onChange={e=>saveAcfg("coolroom",{compareTime:parseInt(e.target.value)||60})} style={{...inp,textAlign:"center"}}/></div>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
+                    <div><div style={subLabel}>BLACKOUT AT (SEC LEFT)</div><input type="number" value={acfg.coolroom?.blackoutAt||60} onChange={e=>saveAcfg("coolroom",{blackoutAt:parseInt(e.target.value)||60})} style={{...inp,textAlign:"center"}}/></div>
+                    <div><div style={subLabel}>BLACKOUT DURATION (SEC)</div><input type="number" value={acfg.coolroom?.blackoutDur||3} onChange={e=>saveAcfg("coolroom",{blackoutDur:parseInt(e.target.value)||3})} style={{...inp,textAlign:"center"}}/></div>
+                  </div>
+                  <div style={{marginBottom:12}}><div style={subLabel}>BRIEFING TEXT</div><textarea value={acfg.coolroom?.briefing||"You have 2 minutes. Count everything you can see. Product name, quantity, unit. The clock doesn't wait."} onChange={e=>saveAcfg("coolroom",{briefing:e.target.value})} rows={2} style={{...inp,resize:"vertical"}}/></div>
+                  <div style={{marginBottom:12}}><div style={subLabel}>REFLECTION QUESTION</div><input value={acfg.coolroom?.reflectionQ||"What will you do differently next time you count stock?"} onChange={e=>saveAcfg("coolroom",{reflectionQ:e.target.value})} style={inp}/></div>
+                  <div style={{fontSize:12,color:"#888",fontFamily:FC,padding:"8px 0"}}>360 images are configured per-batch in Batch Controls below.</div>
+                </div>)}
+
+                {item.kind==="activity"&&item.type==="roster_reality"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                  <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Roster Reality Settings</div>
+                  <div style={{marginBottom:12}}><div style={subLabel}>RESTAURANT NAME</div><input value={acfg.roster?.restaurantName||"GYG Harrington Park"} onChange={e=>saveAcfg("roster",{restaurantName:e.target.value})} style={inp}/></div>
+                  <div style={{marginBottom:12}}><div style={subLabel}>SCENARIO 1 TITLE</div><input value={acfg.roster?.s1Title||"The Forecast Problem"} onChange={e=>saveAcfg("roster",{s1Title:e.target.value})} style={inp}/></div>
+                  <div style={{marginBottom:12}}><div style={subLabel}>SCENARIO 1 DESCRIPTION</div><textarea value={acfg.roster?.s1Desc||"Monday's forecast says 180 transactions. You've rostered for 220."} onChange={e=>saveAcfg("roster",{s1Desc:e.target.value})} rows={2} style={{...inp,resize:"vertical"}}/></div>
+                  <div style={{marginBottom:12}}><div style={subLabel}>SCENARIO 2 TITLE</div><input value={acfg.roster?.s2Title||"The AHR Problem"} onChange={e=>saveAcfg("roster",{s2Title:e.target.value})} style={inp}/></div>
+                  <div style={{marginBottom:12}}><div style={subLabel}>SCENARIO 2 DESCRIPTION</div><textarea value={acfg.roster?.s2Desc||"Your Average Hourly Rate is $39.20 vs the $37.10 benchmark."} onChange={e=>saveAcfg("roster",{s2Desc:e.target.value})} rows={2} style={{...inp,resize:"vertical"}}/></div>
+                  <div style={{marginBottom:12}}><div style={subLabel}>SCENARIO 3 TITLE</div><input value={acfg.roster?.s3Title||"The Mid-Shift Moment"} onChange={e=>saveAcfg("roster",{s3Title:e.target.value})} style={inp}/></div>
+                  <div style={{marginBottom:12}}><div style={subLabel}>SCENARIO 3 DESCRIPTION</div><textarea value={acfg.roster?.s3Desc||"Tuesday 2pm. Floor is quiet. 3 crew on. None are casuals."} onChange={e=>saveAcfg("roster",{s3Desc:e.target.value})} rows={2} style={{...inp,resize:"vertical"}}/></div>
+                  <div style={{marginBottom:12}}><div style={subLabel}>FINAL REFLECTION QUESTION</div><input value={acfg.roster?.reflectionQ||"What's the one thing you'll do differently on your next roster?"} onChange={e=>saveAcfg("roster",{reflectionQ:e.target.value})} style={inp}/></div>
+                </div>)}
+
+                {item.kind==="activity"&&!["huddle_builder","coolroom_countdown","roster_reality"].includes(item.type)&&(<div>
+                  <div style={{fontSize:13,color:"#888",fontFamily:FB,padding:"8px 0"}}>Activity type: <strong>{(item.type||"standard").replace(/_/g," ")}</strong></div>
                 </div>)}
               </div>
             )}
