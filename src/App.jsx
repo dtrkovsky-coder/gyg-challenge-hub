@@ -49,10 +49,10 @@ const DEFAULT_CHALLENGES = {
     { id: "ng-w4", week: 4, title: "THE ARM DASHBOARD", subtitle: "See. Name. Fix.", points: 100, bonusPoints: 50, bonusCondition: "Shared your plan with your RM before check-in", description: "Check all three numbers this week: NV%, AHR, and MIAM%. For each number that's off target, write one specific action with a name and deadline. Share the plan with your RM before they ask for it.", deliverable: "Screenshot of your 3 numbers + your action plan (what, who, by when) for each", tip: "Three numbers tell you everything. NV: leaking? AHR: overpaying? MIAM: underselling?", icon: "churros" },
   ],
   essentials: [
-    { id: "le-w1", week: 1, title: "GUEST RECOVERY WIN", subtitle: "Turn one around", points: 100, bonusPoints: 50, bonusCondition: "Guest gave positive feedback after recovery", description: "Identify one guest complaint this week. Apply the LAST framework (Listen, Apologise, Solve, Thank). Document the situation, what you did, and the outcome.", deliverable: "Brief write-up of the situation, your response, and result", tip: "Recovery done well creates more loyalty than no problem at all.", icon: "taco" },
-    { id: "le-w2", week: 2, title: "MIAM MACHINE", subtitle: "Ask every time", points: 100, bonusPoints: 50, bonusCondition: "MIAM% above 20% for 3 consecutive shifts", description: "Track your personal MIAM% across 3 shifts this week. For every shift, make sure you and your crew ask 'Make it a meal?' on every single transaction.", deliverable: "Your MIAM% for 3 shifts + one thing you did differently", tip: "1 extra MIAM per hour across the network = $2.86 million a year.", icon: "guac" },
-    { id: "le-w3", week: 3, title: "PRE-SHIFT POWER", subtitle: "Run one that lands", points: 100, bonusPoints: 50, bonusCondition: "Crew member told you it helped", description: "Run a pre-shift huddle with one clear focus. Pick one topic. Keep it under 3 minutes. Make it energising. Document what you said and how crew responded.", deliverable: "Your pre-shift topic, key message, and crew reaction", tip: "Pre-shift huddles set the tone. 3 minutes. One focus. Energy up.", icon: "fire_burrito" },
-    { id: "le-w4", week: 4, title: "COACH ONE UP", subtitle: "Develop a crew member", points: 100, bonusPoints: 50, bonusCondition: "Crew member demonstrated improvement within the week", description: "Pick one crew member who needs development in one specific area. Have a focused coaching conversation. Set a clear expectation. Follow up within 48 hours.", deliverable: "Who you coached, what the focus was, and what changed after follow-up", tip: "Coaching is not correcting. It's building. Name what good looks like.", icon: "burrito" },
+    { id: "le-w1", week: 1, type: "spot_the_moment", title: "SPOT THE MOMENT", subtitle: "See your restaurant like a guest", points: 100, bonusPoints: 50, bonusCondition: "All 5 photos uploaded + swipe game completed", description: "5 photos across 5 days from a guest's perspective. Then swipe through your cohort's photos and see how they swiped on yours.", deliverable: "5 restaurant photos + swipe reactions", tip: "You walk past it every shift. Your guests see it for the first time, every time.", icon: "taco" },
+    { id: "le-w2", week: 2, type: "thirty_second_sell", title: "THE 30-SECOND SELL", subtitle: "Sell it like you mean it", points: 100, bonusPoints: 50, bonusCondition: "Top-rated video in cohort", description: "A random menu item appears. You have 30 seconds on camera to sell it. Redo until you're happy. Then rate your cohort's videos.", deliverable: "3 video submissions + peer ratings", tip: "It's not just what you say - it's whether you look like you believe it.", icon: "fire_burrito" },
+    { id: "le-w3", week: 3, type: "recovery_race", title: "THE RECOVERY RACE", subtitle: "De-escalate under pressure", points: 100, bonusPoints: 50, bonusCondition: "All scenarios completed with positive outcomes", description: "Branching scenario game. An upset guest appears. Choose your response. Your choice changes the outcome. Four decision points per scenario, each on a timer.", deliverable: "Completed scenarios with impact scores", tip: "Good recovery creates more loyalty than no problem at all. But know when to stop recovering and start protecting.", icon: "churros" },
+    { id: "le-w4", week: 4, type: "shift_leader_lens", title: "THE SHIFT LEADER LENS", subtitle: "What would you do?", points: 100, bonusPoints: 50, bonusCondition: "Completed all clips with consistent leadership profile", description: "Short scenario clips of real restaurant moments. For each one: what would you do, when would you act, what's at risk. Your answers build your shift leader profile.", deliverable: "Clip assessments + leadership profile", tip: "There's no single right answer. But there's a pattern in yours - and that pattern is your leadership style.", icon: "socks" },
   ],
   elite: [
     { id: "el-w1", week: 1, title: "P&L DEEP DIVE", subtitle: "Read the story", points: 100, bonusPoints: 50, bonusCondition: "Identified 2+ specific action items", description: "Pull your restaurant's P&L for the last period. Identify the 3 biggest variances from budget. For each one, write what caused it and one action to address it.", deliverable: "Your 3 biggest P&L variances with root cause and action plan", tip: "Numbers don't lie. But they don't act either. That's your job.", icon: "bag" },
@@ -276,6 +276,7 @@ export default function App(){
   useEffect(()=>{(async()=>{let u=await getUsers(),c=await getCompletions(),s=getSession();if(u.length)setUsers(u);if(c.length)setComps(c);const ch2=await getChallenges();if(ch2){
       // Force-update LSE challenges if they don't have the new type field
       if(ch2.lse&&ch2.lse[0]&&!ch2.lse[0].type){ch2.lse=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.lse));try{await dbSetChallenges(ch2);}catch(e){}}
+      if(ch2.essentials&&ch2.essentials[0]&&!ch2.essentials[0].type){ch2.essentials=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.essentials));try{await dbSetChallenges(ch2);}catch(e){}}
       setChallenges(ch2);
     }else setChallenges(JSON.parse(JSON.stringify(DEFAULT_CHALLENGES)));const lc=await getLunchConfig();if(lc)setLunchConfigState(lc);let ac=await getActivityCompletions();if(ac.length)setActivityComps(ac);let bc=await getBatchControl();if(bc)setBatchControlState(bc);
     // Seed test users if not exist
@@ -341,6 +342,10 @@ export default function App(){
       {view==="challenge"&&sel&&user&&(
         sel.type==="hazard_hunt"?<HazardHunt ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig.hazard_hunt}/>:
         sel.type==="shift_in_chaos"?<ShiftInChaos ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users}/>:
+        sel.type==="spot_the_moment"?<SpotTheMoment ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users}/>:
+        sel.type==="thirty_second_sell"?<ThirtySecondSell ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
+        sel.type==="recovery_race"?<RecoveryRace ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
+        sel.type==="shift_leader_lens"?<ShiftLeaderLens ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
         <ChV ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}}/>
       )}
       {view==="leaderboard"&&user&&<LbV us={users} co={comps} cu={user} onB={()=>setView("dashboard")} onP={()=>setView("profile")} defaultProg={user.program} defaultBatch={user.batch}/>}
@@ -818,6 +823,343 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
     )}
   </div>
 );}
+
+// ─── SPOT THE MOMENT (LE Week 1) ─────────────────────────────────────────────
+const SHOT_LIST=[
+  {day:1,prompt:"The first thing a guest sees when they walk in"},
+  {day:2,prompt:"The menu board from where a guest stands to decide"},
+  {day:3,prompt:"The pickup area when it's busy"},
+  {day:4,prompt:"The dining area from the best seat in the house"},
+  {day:5,prompt:"The thing you walk past every shift but guests notice immediately"},
+];
+const SWIPE_WORDS=["welcoming","messy","warm","flat","busy","alive","ignored","clean"];
+function SpotTheMoment({ch,done,onS,onB,user,comps,users}){
+  const[phase,setPhase]=useState("upload");// upload | swipe | reveal
+  const[photos,setPhotos]=useState([null,null,null,null,null]);
+  const[currentDay,setCurrentDay]=useState(0);
+  const[swipeIdx,setSwipeIdx]=useState(0);
+  const[swipes,setSwipes]=useState([]);
+  const[wordPick,setWordPick]=useState(null);
+  const[showWord,setShowWord]=useState(false);
+  const uploadCount=photos.filter(Boolean).length;
+  const batchPhotos=(comps||[]).filter(c=>c.challengeId==="le-w1"&&c.batch===user.batch&&c.userId!==user.id&&c.submission?.photos).flatMap(c=>(c.submission.photos||[]).map((p,i)=>({photo:p,userId:c.userId,idx:i})));
+  const canSwipe=uploadCount>=5&&batchPhotos.length>=3;
+  const compressPhoto=(file)=>new Promise(r=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,400/img.width);c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",0.7));};img.src=URL.createObjectURL(file);});
+  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div><div style={{fontSize:13,fontFamily:FC,fontWeight:600,color:"#888",marginTop:12}}>WEEK 2 UNLOCKS WHEN AVAILABLE</div></div></div>);
+  return(
+  <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div>
+    {phase==="upload"&&(<div style={{padding:"24px 20px"}}>
+      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
+      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
+      <div style={{display:"flex",justifyContent:"center",gap:8,marginBottom:24}}>{SHOT_LIST.map((_,i)=>(<div key={i} style={{width:12,height:12,borderRadius:6,background:photos[i]?"#007A33":"#ddd"}}/>))}</div>
+      {SHOT_LIST.map((shot,i)=>{const hasPhoto=!!photos[i];return(
+        <div key={i} style={{background:hasPhoto?"#f0f8f0":"#fff",border:hasPhoto?"1px solid #d4e8d4":"1px solid #e8e8e3",borderRadius:14,padding:16,marginBottom:10}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:800,fontSize:13,letterSpacing:0.5}}>DAY {shot.day}</div><div style={{fontSize:14,color:"#555",marginTop:4,fontFamily:FB}}>{shot.prompt}</div></div>
+            {hasPhoto?<div style={{width:56,height:56,borderRadius:10,overflow:"hidden",flexShrink:0,marginLeft:12}}><img src={photos[i]} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/></div>
+            :<label style={{...BY,padding:"10px 16px",fontSize:12,minWidth:0,cursor:"pointer",flexShrink:0,marginLeft:12}}>
+              SNAP<input type="file" accept="image/*" capture="environment" style={{display:"none"}} onChange={async e=>{const f=e.target.files[0];if(!f)return;const b=await compressPhoto(f);const np=[...photos];np[i]=b;setPhotos(np);}}/>
+            </label>}
+          </div>
+        </div>
+      );})}
+      {uploadCount>=5&&(<button style={{...BY,width:"100%",marginTop:16}} onClick={()=>{if(canSwipe)setPhase("swipe");else onS({text:"Spot the Moment - photos uploaded",photos,claimedBonus:true,autoBonus:true,points:ch.points});}}>{canSwipe?"START SWIPE GAME":"SUBMIT PHOTOS"}</button>)}
+    </div>)}
+    {phase==="swipe"&&(<div style={{padding:"24px 20px"}}>
+      {swipeIdx<Math.min(batchPhotos.length,20)?(
+        <div>
+          <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:12}}>{swipeIdx+1}/{Math.min(batchPhotos.length,20)} PHOTOS</div>
+          <div style={{borderRadius:16,overflow:"hidden",marginBottom:16,height:300,background:"#222"}}><img src={batchPhotos[swipeIdx].photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/></div>
+          {!showWord?(<div style={{display:"flex",gap:12}}>
+            <button onClick={()=>{setSwipes(p=>[...p,{...batchPhotos[swipeIdx],right:false,word:null}]);setShowWord(true);}} style={{flex:1,padding:"16px",background:"#E3000B",color:"#fff",border:"none",borderRadius:14,fontFamily:FC,fontWeight:800,fontSize:14,cursor:"pointer"}}>WOULDN'T COME BACK</button>
+            <button onClick={()=>{setSwipes(p=>[...p,{...batchPhotos[swipeIdx],right:true,word:null}]);setShowWord(true);}} style={{flex:1,padding:"16px",background:"#007A33",color:"#fff",border:"none",borderRadius:14,fontFamily:FC,fontWeight:800,fontSize:14,cursor:"pointer"}}>I'D COME BACK</button>
+          </div>):(<div>
+            <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:8}}>PICK ONE WORD</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:6}}>{SWIPE_WORDS.map(w=>(<button key={w} onClick={()=>{const ns=[...swipes];ns[ns.length-1].word=w;setSwipes(ns);setShowWord(false);setSwipeIdx(si=>si+1);}} style={{padding:"10px 6px",borderRadius:10,border:wordPick===w?"2px solid #FFD300":"1px solid #e8e8e3",background:wordPick===w?"#FFF8E0":"#fff",fontFamily:FC,fontWeight:700,fontSize:12,cursor:"pointer"}}>{w}</button>))}</div>
+          </div>)}
+        </div>
+      ):(<div style={{textAlign:"center"}}>
+        <div style={{fontSize:20,fontFamily:FC,fontWeight:900,marginBottom:8}}>SWIPE COMPLETE</div>
+        <div style={{fontSize:14,color:"#888",marginBottom:20}}>You swiped on {swipes.length} photos</div>
+        <button style={{...BY,width:"100%"}} onClick={()=>setPhase("reveal")}>SEE YOUR RESULTS</button>
+      </div>)}
+    </div>)}
+    {phase==="reveal"&&(<div style={{padding:"24px 20px"}}>
+      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontSize:28,fontFamily:FC,fontWeight:900,color:"#FFD300"}}>YOUR PHOTOS</div><div style={{fontSize:14,color:"#888"}}>How your cohort swiped on your shots</div></div>
+      {photos.map((p,i)=>{if(!p)return null;const mySwipes=swipes.filter(s=>s.userId===user.id);const approval=mySwipes.length?Math.round(mySwipes.filter(s=>s.right).length/mySwipes.length*100):75;return(
+        <div key={i} style={{background:"#fff",borderRadius:14,padding:14,marginBottom:10,display:"flex",gap:12,alignItems:"center"}}>
+          <div style={{width:64,height:64,borderRadius:10,overflow:"hidden",flexShrink:0}}><img src={p} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/></div>
+          <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:700,fontSize:13}}>DAY {i+1}</div><div style={{fontSize:12,color:"#888"}}>{SHOT_LIST[i].prompt}</div></div>
+        </div>
+      );})}
+      <button style={{...BY,width:"100%",marginTop:16}} onClick={()=>{onS({text:"Spot the Moment completed",photos,swipeResults:swipes,claimedBonus:true,autoBonus:true,points:ch.points});}}>SUBMIT</button>
+    </div>)}
+  </div>);
+}
+
+// ─── THE 30-SECOND SELL (LE Week 2) ──────────────────────────────────────────
+const SELL_ITEMS=[
+  {id:"item_1",name:"Chicken Burrito",day:1},
+  {id:"item_2",name:"Pulled Pork Bowl",day:3},
+  {id:"item_3",name:"Chips & Guac",day:5},
+];
+function ThirtySecondSell({ch,done,onS,onB,user}){
+  const[currentItem,setCurrentItem]=useState(0);
+  const[phase,setPhase]=useState("ready");// ready | countdown | recording | review | rate | done
+  const[timer,setTimer]=useState(30);
+  const[countdown,setCountdown]=useState(3);
+  const[attempts,setAttempts]=useState(0);
+  const[rating,setRating]=useState(3);
+  const[items,setItems]=useState([]);
+  const timerRef=useRef(null);
+  const RATINGS=["Nope","Maybe","Sure","Sold","Take My Money"];
+  useEffect(()=>{if(phase==="countdown"&&countdown>0){const t=setTimeout(()=>setCountdown(c=>c-1),1000);return()=>clearTimeout(t);}if(phase==="countdown"&&countdown===0)setPhase("recording");},[phase,countdown]);
+  useEffect(()=>{if(phase==="recording"&&timer>0){timerRef.current=setInterval(()=>setTimer(t=>{if(t<=1){clearInterval(timerRef.current);return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}if(phase==="recording"&&timer===0)setPhase("review");},[phase,timer]);
+  const startRecording=()=>{setCountdown(3);setTimer(30);setAttempts(a=>a+1);setPhase("countdown");};
+  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  return(
+  <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div>
+    <div style={{padding:"24px 20px"}}>
+      {phase==="ready"&&currentItem<3&&(<div>
+        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
+        <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
+        <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:20}}>{SELL_ITEMS.map((_,i)=>(<div key={i} style={{width:12,height:12,borderRadius:6,background:i<currentItem?"#007A33":i===currentItem?"#FFD300":"#ddd"}}/>))}</div>
+        <div style={{background:"#000",borderRadius:16,padding:24,textAlign:"center",marginBottom:20}}>
+          <div style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#FFD300",letterSpacing:1,marginBottom:8}}>ITEM {currentItem+1} OF 3</div>
+          <div style={{fontSize:28,fontFamily:F107,fontWeight:900,color:"#fff"}}>{SELL_ITEMS[currentItem].name.toUpperCase()}</div>
+          <div style={{fontSize:14,color:"#888",marginTop:8}}>You have 30 seconds to sell it</div>
+        </div>
+        <button style={{...BY,width:"100%"}} onClick={startRecording}>START RECORDING</button>
+      </div>)}
+      {phase==="countdown"&&(<div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"60vh",flexDirection:"column"}}>
+        <div style={{fontSize:120,fontWeight:900,fontFamily:F107,color:countdown>0?"#FFD300":"#007A33"}}>{countdown>0?countdown:"GO!"}</div>
+        <div style={{fontSize:16,fontFamily:FC,fontWeight:700,color:"#888",marginTop:12}}>SELL: {SELL_ITEMS[currentItem].name.toUpperCase()}</div>
+      </div>)}
+      {phase==="recording"&&(<div>
+        <div style={{background:"#E3000B",borderRadius:16,padding:20,textAlign:"center",marginBottom:16}}>
+          <div style={{width:12,height:12,borderRadius:6,background:"#fff",display:"inline-block",marginRight:8,animation:"pulse 1s infinite"}}/>
+          <span style={{fontSize:16,fontFamily:FC,fontWeight:800,color:"#fff",letterSpacing:1}}>RECORDING</span>
+        </div>
+        <div style={{textAlign:"center",marginBottom:20}}>
+          <div style={{fontSize:72,fontWeight:900,fontFamily:FG,color:timer<=5?"#E3000B":timer<=10?"#FFD300":"#000"}}>{timer}</div>
+          <div style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#888"}}>SECONDS LEFT</div>
+        </div>
+        <div style={{fontSize:18,fontFamily:FC,fontWeight:800,textAlign:"center",color:"#555"}}>SELL: {SELL_ITEMS[currentItem].name.toUpperCase()}</div>
+        <button style={{...BO,width:"100%",marginTop:24}} onClick={()=>setPhase("review")}>STOP EARLY</button>
+      </div>)}
+      {phase==="review"&&(<div style={{textAlign:"center"}}>
+        <div style={{fontSize:48,marginBottom:12}}>&#127909;</div>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:18,marginBottom:4}}>TAKE {attempts}</div>
+        <div style={{fontSize:14,color:"#888",marginBottom:24}}>Duration: {30-timer} seconds</div>
+        <div style={{display:"flex",gap:12}}>
+          <button style={{...BO,flex:1}} onClick={startRecording}>REDO</button>
+          <button style={{...BY,flex:1}} onClick={()=>setPhase("rate")}>KEEP IT</button>
+        </div>
+      </div>)}
+      {phase==="rate"&&(<div>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,textAlign:"center",marginBottom:8}}>SHOW YOUR VIDEO TO A PARTNER</div>
+        <div style={{fontSize:13,color:"#888",textAlign:"center",marginBottom:20}}>They rate: would they order {SELL_ITEMS[currentItem].name}?</div>
+        <div style={{background:"#000",borderRadius:14,padding:20,marginBottom:16}}>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>{RATINGS.map((r,i)=>(<div key={i} style={{textAlign:"center",flex:1}}><div style={{fontSize:20}}>{["&#128530;","&#129300;","&#128528;","&#128523;","&#129297;"][i]}</div><div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:rating===i+1?"#FFD300":"#666",marginTop:4}}>{r.toUpperCase()}</div></div>))}</div>
+          <input type="range" min="1" max="5" value={rating} onChange={e=>setRating(parseInt(e.target.value))} style={{width:"100%",accentColor:"#FFD300"}}/>
+          <div style={{textAlign:"center",fontSize:24,fontFamily:FC,fontWeight:900,color:"#FFD300",marginTop:8}}>{rating}/5</div>
+        </div>
+        <button style={{...BY,width:"100%"}} onClick={()=>{const newItems=[...items,{itemId:SELL_ITEMS[currentItem].id,attempts,peerRating:rating,duration:30-timer}];setItems(newItems);if(currentItem<2){setCurrentItem(c=>c+1);setPhase("ready");setAttempts(0);}else{const avg=newItems.reduce((s,x)=>s+x.peerRating,0)/newItems.length;onS({text:"The 30-Second Sell completed",items:newItems,avgPeerRating:avg,claimedBonus:avg>=4,autoBonus:avg>=4,points:ch.points});}}}>
+          {currentItem<2?"NEXT ITEM":"SUBMIT ALL"}
+        </button>
+      </div>)}
+    </div>
+  </div>);
+}
+
+// ─── THE RECOVERY RACE (LE Week 3) ──────────────────────────────────────────
+const RECOVERY_SCENARIOS=[
+  {id:"s1",title:"The Wrong Order",setup:"A guest approaches the counter holding a burrito bowl. They ordered a burrito. They look annoyed but not angry - yet.",
+    decisions:[
+      {situation:"The guest says: 'This isn't what I ordered. I asked for a burrito, not a bowl.'",timer:8,options:[
+        {id:"a",text:"Apologise and immediately offer to remake it",outcome:"good",next:"The guest relaxes slightly. 'Okay, thanks. How long will it be?'"},
+        {id:"b",text:"Check the receipt to verify what they ordered",outcome:"neutral",next:"The guest crosses their arms. 'I know what I ordered.'"},
+        {id:"c",text:"Explain that the bowl has the same ingredients",outcome:"bad",next:"The guest's voice rises. 'I don't care about the ingredients.'"}]},
+      {situation:null,timer:8,options:[
+        {id:"a",text:"Give a time estimate and offer a free drink while they wait",outcome:"good",next:"The guest nods. 'That's fair. Thanks for sorting it.'"},
+        {id:"b",text:"Rush the kitchen to prioritise their order",outcome:"neutral",next:"The remake comes out fast but the guest noticed you yelling."},
+        {id:"c",text:"Ask them to wait without giving a timeframe",outcome:"bad",next:"The guest checks their watch. 'I've got 10 minutes.'"}]},
+      {situation:null,timer:8,options:[
+        {id:"a",text:"Thank them for patience and hand-deliver the correct order",outcome:"good",next:"The guest smiles. 'Appreciate that. Mistakes happen.'"},
+        {id:"b",text:"Have another crew member deliver it",outcome:"neutral",next:"The guest gets their food but there's no closure."},
+        {id:"c",text:"Call their name from the counter",outcome:"bad",next:"The guest shakes their head as they pick it up."}]},
+      {situation:null,timer:8,options:[
+        {id:"a",text:"Ask if everything's right and wish them a good day",outcome:"good",next:"The guest says they'll be back. Recovery complete."},
+        {id:"b",text:"Move on to the next guest",outcome:"neutral",next:"The guest leaves without saying anything."},
+        {id:"c",text:"Avoid eye contact and hope they leave happy",outcome:"bad",next:"The guest posts a 2-star review that night."}]}
+    ],resultGood:{guest:"Leaves happy",cpt:"-0.2"},resultBad:{guest:"Posts negative review",cpt:"+1.5"}},
+  {id:"s2",title:"The Long Wait",setup:"Drive-thru. A car has been waiting 9 minutes. The driver walks inside. They look furious.",
+    decisions:[
+      {situation:"'Nine minutes in a drive-thru. Nine. I could have gone anywhere else.'",timer:7,options:[
+        {id:"a",text:"'You're right, that's too long. I'm sorry.'",outcome:"good",next:"The guest exhales. Still angry but feels heard."},
+        {id:"b",text:"Explain that you're short-staffed today",outcome:"bad",next:"'That's not my problem. I'm the customer.'"},
+        {id:"c",text:"Ask for their order number to check on it",outcome:"neutral",next:"The guest sighs impatiently."}]},
+      {situation:null,timer:7,options:[
+        {id:"a",text:"Offer the meal on the house and check the kitchen",outcome:"good",next:"The guest pauses. 'Alright. I appreciate that.'"},
+        {id:"b",text:"Promise to have it out in 2 minutes",outcome:"neutral",next:"Two minutes pass. Then three."},
+        {id:"c",text:"Point out that other people are waiting too",outcome:"bad",next:"The guest raises their voice. Others are watching."}]},
+      {situation:null,timer:7,options:[
+        {id:"a",text:"Bring the food out yourself, make eye contact, thank them",outcome:"good",next:"'Thanks. It's been a rough one.'"},
+        {id:"b",text:"Call their name from the counter",outcome:"neutral",next:"They grab the food and leave."},
+        {id:"c",text:"Let the kitchen slide it across",outcome:"bad",next:"The guest shakes their head."}]},
+      {situation:null,timer:7,options:[
+        {id:"a",text:"Walk them to the door, thank them again",outcome:"good",next:"You might have saved a regular."},
+        {id:"b",text:"Say 'have a good day'",outcome:"neutral",next:"Standard exit."},
+        {id:"c",text:"Turn to the next customer immediately",outcome:"bad",next:"Nobody noticed them go."}]}
+    ],resultGood:{guest:"Comes back next week",cpt:"-0.5"},resultBad:{guest:"Never comes back",cpt:"+2.0"}},
+  {id:"s3",title:"The Allergy Scare",setup:"A guest rushes back. 'I said NO dairy. There's cheese all over this. My daughter is lactose intolerant.'",
+    decisions:[
+      {situation:"The guest is panicking. Their daughter hasn't eaten any yet.",timer:6,options:[
+        {id:"a",text:"Take the bowl immediately - 'Let me get that away and make a new one.'",outcome:"good",next:"'Thank god she didn't eat it.'"},
+        {id:"b",text:"Check the ticket to see what was ordered",outcome:"bad",next:"'Don't check the ticket - get the food away!'"},
+        {id:"c",text:"Offer to scrape the cheese off",outcome:"bad",next:"'Are you serious? That's not how allergies work!'"}]},
+      {situation:null,timer:6,options:[
+        {id:"a",text:"Personally make the new order, confirm every ingredient",outcome:"good",next:"'Thank you for taking this seriously.'"},
+        {id:"b",text:"Send the order back to the kitchen with a note",outcome:"neutral",next:"The guest can't see it being made and is anxious."},
+        {id:"c",text:"Assure them it will be fine this time",outcome:"bad",next:"'How can I trust that?'"}]},
+      {situation:null,timer:6,options:[
+        {id:"a",text:"Comp the meal and apologise to both parent and child",outcome:"good",next:"The daughter is eating happily. The parent relaxes."},
+        {id:"b",text:"Offer a discount on the next visit",outcome:"neutral",next:"'If there is a next visit.'"},
+        {id:"c",text:"Explain that the kitchen is very busy today",outcome:"bad",next:"'Busy is not an excuse for my daughter's health.'"}]},
+      {situation:null,timer:6,options:[
+        {id:"a",text:"Brief the kitchen immediately on the allergen miss",outcome:"good",next:"You've prevented the next one. That's leadership."},
+        {id:"b",text:"Make a mental note for next pre-shift",outcome:"neutral",next:"You'll probably forget."},
+        {id:"c",text:"Move on - it's handled",outcome:"bad",next:"Same mistake happens next Tuesday."}]}
+    ],resultGood:{guest:"Posts thanking the restaurant",cpt:"-1.0"},resultBad:{guest:"Reports to food authority",cpt:"+3.0"}},
+];
+function RecoveryRace({ch,done,onS,onB,user}){
+  const[screen,setScreen]=useState("intro");// intro | play | result | complete
+  const[scenIdx,setScenIdx]=useState(0);
+  const[decIdx,setDecIdx]=useState(0);
+  const[decTimer,setDecTimer]=useState(0);
+  const[choices,setChoices]=useState([]);
+  const[allResults,setAllResults]=useState([]);
+  const[lastOutcome,setLastOutcome]=useState(null);
+  const timerRef=useRef(null);
+  const scen=RECOVERY_SCENARIOS[scenIdx]||null;
+  const dec=scen?.decisions[decIdx]||null;
+  useEffect(()=>{if(screen==="play"&&dec&&decTimer>0){timerRef.current=setInterval(()=>setDecTimer(t=>{if(t<=1){clearInterval(timerRef.current);return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}return()=>clearInterval(timerRef.current);},[screen,decIdx,decTimer]);
+  const choose=(opt)=>{clearInterval(timerRef.current);setChoices(p=>[...p,opt.outcome]);setLastOutcome(opt);
+    if(decIdx<(scen?.decisions.length||4)-1){setTimeout(()=>{setDecIdx(d=>d+1);setDecTimer(scen?.decisions[decIdx+1]?.timer||8);setLastOutcome(null);},2000);}
+    else{const goods=choices.filter(c=>c==="good").length+(opt.outcome==="good"?1:0);const total=choices.length+1;setAllResults(p=>[...p,{scenId:scen.id,title:scen.title,goods,total,score:Math.round(goods/total*100)}]);setTimeout(()=>setScreen("result"),2000);}};
+  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 3</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  return(
+  <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 3</span><span style={{width:32}}/></div>
+    {screen==="intro"&&(<div style={{padding:"24px 20px"}}>
+      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
+      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
+      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
+      <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:20,color:"#fff"}}>
+        <div style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#FFD300",letterSpacing:1,marginBottom:8}}>{RECOVERY_SCENARIOS.length} SCENARIOS</div>
+        {RECOVERY_SCENARIOS.map((s,i)=>(<div key={s.id} style={{fontSize:13,color:"#ccc",marginBottom:4}}>{i+1}. {s.title}</div>))}
+      </div>
+      <button style={{...BY,width:"100%"}} onClick={()=>{setScreen("play");setDecTimer(scen?.decisions[0]?.timer||8);}}>START SCENARIO 1</button>
+    </div>)}
+    {screen==="play"&&scen&&dec&&(<div style={{padding:"24px 20px"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+        <span style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:0.5}}>{scen.title.toUpperCase()}</span>
+        <span style={{fontFamily:FC,fontWeight:900,fontSize:20,color:decTimer<=3?"#E3000B":decTimer<=5?"#FFD300":"#000"}}>{decTimer}s</span>
+      </div>
+      <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:16,color:"#fff"}}>
+        <div style={{fontSize:15,lineHeight:1.6}}>{lastOutcome?lastOutcome.next:(dec.situation||scen.setup)}</div>
+      </div>
+      {!lastOutcome&&(<div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {dec.options.map(opt=>(<button key={opt.id} onClick={()=>choose(opt)} style={{padding:"14px 16px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,color:"#1a1a1a",cursor:"pointer"}}>{opt.text}</button>))}
+      </div>)}
+      {lastOutcome&&(<div style={{textAlign:"center",padding:16}}>
+        <div style={{fontSize:32}}>{lastOutcome.outcome==="good"?"&#9989;":lastOutcome.outcome==="neutral"?"&#128528;":"&#10060;"}</div>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:lastOutcome.outcome==="good"?"#007A33":lastOutcome.outcome==="bad"?"#E3000B":"#FFB800",marginTop:8}}>{lastOutcome.outcome.toUpperCase()}</div>
+      </div>)}
+      <div style={{display:"flex",gap:4,marginTop:16,justifyContent:"center"}}>{scen.decisions.map((_,i)=>(<div key={i} style={{width:8,height:8,borderRadius:4,background:i<decIdx?"#007A33":i===decIdx?"#FFD300":"#ddd"}}/>))}</div>
+    </div>)}
+    {screen==="result"&&(<div style={{padding:"24px 20px"}}>
+      <div style={{textAlign:"center",marginBottom:20}}>
+        <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{allResults[allResults.length-1]?.score||0}%</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888"}}>RECOVERY SCORE</div>
+      </div>
+      {scenIdx<RECOVERY_SCENARIOS.length-1?(
+        <button style={{...BY,width:"100%"}} onClick={()=>{setScenIdx(s=>s+1);setDecIdx(0);setChoices([]);setLastOutcome(null);setScreen("play");setDecTimer(RECOVERY_SCENARIOS[scenIdx+1]?.decisions[0]?.timer||8);}}>NEXT SCENARIO: {RECOVERY_SCENARIOS[scenIdx+1]?.title.toUpperCase()}</button>
+      ):(
+        <button style={{...BY,width:"100%"}} onClick={()=>setScreen("complete")}>VIEW FINAL RESULTS</button>
+      )}
+    </div>)}
+    {screen==="complete"&&(<div style={{padding:"24px 20px"}}>
+      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontSize:24,fontFamily:FC,fontWeight:900}}>RECOVERY RACE COMPLETE</div></div>
+      {allResults.map((r,i)=>(<div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{r.title}</div><div style={{fontSize:12,color:"#888"}}>{r.goods}/{r.total} good choices</div></div><div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:r.score>=75?"#007A33":r.score>=50?"#FFB800":"#E3000B"}}>{r.score}%</div></div>))}
+      <div style={{textAlign:"center",marginTop:16}}><div style={{fontSize:16,fontFamily:FC,fontWeight:800,color:"#000"}}>AVG: {Math.round(allResults.reduce((s,r)=>s+r.score,0)/allResults.length)}%</div></div>
+      <button style={{...BY,width:"100%",marginTop:16}} onClick={()=>{const avg=Math.round(allResults.reduce((s,r)=>s+r.score,0)/allResults.length);onS({text:"Recovery Race completed",scenarios:allResults,avgScore:avg,claimedBonus:avg>=75,autoBonus:avg>=75,points:ch.points});}}>SUBMIT</button>
+    </div>)}
+  </div>);
+}
+
+// ─── THE SHIFT LEADER LENS (LE Week 4) ──────────────────────────────────────
+const SLL_CLIPS=[
+  {id:"c1",title:"The Quiet One",desc:"A crew member has been silent all shift. They're doing their job but haven't spoken to anyone. It's 2pm.",q:"What do you do?",options:["Check in privately","Leave them alone","Assign them a task with a partner","Ask another crew member what's up"]},
+  {id:"c2",title:"The Shortcut",desc:"You catch a crew member skipping the handwash step between raw and ready-to-eat. The line is slammed.",q:"What do you do?",options:["Stop them immediately, in front of guests","Pull them aside after the rush","Wash your own hands visibly nearby","Report it to the RM"]},
+  {id:"c3",title:"The Late Start",desc:"A crew member arrives 15 minutes late. No call. No text. They look rough.",q:"What do you do?",options:["Ask if they're okay first","Tell them being late isn't acceptable","Dock their break time","Note it and address it at end of shift"]},
+  {id:"c4",title:"The Guest Compliment",desc:"A guest tells you that one of your crew members was 'amazing'. The crew member doesn't know.",q:"What do you do?",options:["Tell them immediately in front of the team","Write it on the board","Tell them privately after shift","Pass it to the RM to handle"]},
+  {id:"c5",title:"The Dead Period",desc:"It's 3pm. Four crew. Zero guests. Everyone is standing around.",q:"What do you do?",options:["Deep clean challenge","Let them have a breather","Training moment","Send one home early"]},
+  {id:"c6",title:"The Tension",desc:"Two crew members clearly aren't speaking. The vibe on the line is off.",q:"What do you do?",options:["Talk to each separately","Bring them together","Ignore it unless it affects guests","Move one to a different station"]},
+  {id:"c7",title:"The New Start",desc:"It's their first shift. They look terrified. The trainer called in sick.",q:"What do you do?",options:["Train them yourself","Buddy them with your best person","Give them easy tasks and check in often","Send them home and reschedule"]},
+  {id:"c8",title:"The Request",desc:"A crew member asks to leave 2 hours early. You're already short. They say it's personal.",q:"What do you do?",options:["Let them go, figure it out","Ask what's going on","Say no, you need them","Offer a compromise - leave 1 hour early"]},
+];
+function ShiftLeaderLens({ch,done,onS,onB,user}){
+  const[clipIdx,setClipIdx]=useState(0);
+  const[answers,setAnswers]=useState([]);
+  const[selected,setSelected]=useState(null);
+  const[why,setWhy]=useState("");
+  const clip=SLL_CLIPS[clipIdx]||null;
+  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 4</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  return(
+  <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 4</span><span style={{width:32}}/></div>
+    <div style={{padding:"24px 20px"}}>
+      {clipIdx===0&&answers.length===0&&(<div style={{marginBottom:20}}>
+        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
+        <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:12}}>{ch.subtitle}</p>
+        <p style={{fontSize:15,lineHeight:1.6,color:"#555"}}>{ch.description}</p>
+      </div>)}
+      {clip&&clipIdx<SLL_CLIPS.length?(
+        <div>
+          <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:12}}>{clipIdx+1}/{SLL_CLIPS.length}</div>
+          <div style={{background:"#000",borderRadius:14,padding:20,marginBottom:16,color:"#fff"}}>
+            <div style={{fontFamily:FC,fontWeight:800,fontSize:16,color:"#FFD300",marginBottom:8}}>{clip.title.toUpperCase()}</div>
+            <div style={{fontSize:15,lineHeight:1.6}}>{clip.desc}</div>
+          </div>
+          <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:10}}>{clip.q}</div>
+          <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
+            {clip.options.map((opt,i)=>(<button key={i} onClick={()=>setSelected(i)} style={{padding:"14px 16px",background:selected===i?"#FFF8E0":"#fff",border:selected===i?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,color:"#1a1a1a",cursor:"pointer"}}>{opt}</button>))}
+          </div>
+          {selected!==null&&(<div style={{marginBottom:16}}>
+            <div style={subLabel}>WHY? (OPTIONAL)</div>
+            <textarea value={why} onChange={e=>setWhy(e.target.value)} placeholder="Brief reason..." rows={2} style={{width:"100%",padding:"12px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:14,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+          </div>)}
+          <button style={{...BY,width:"100%",opacity:selected!==null?1:0.4}} disabled={selected===null} onClick={()=>{setAnswers(a=>[...a,{clipId:clip.id,title:clip.title,choice:clip.options[selected],choiceIdx:selected,why}]);setSelected(null);setWhy("");setClipIdx(c=>c+1);}}>
+            {clipIdx<SLL_CLIPS.length-1?"NEXT CLIP":"FINISH"}
+          </button>
+        </div>
+      ):(
+        <div>
+          <div style={{textAlign:"center",marginBottom:20}}><div style={{fontSize:24,fontFamily:FC,fontWeight:900}}>YOUR LEADERSHIP PROFILE</div><div style={{fontSize:14,color:"#888",marginTop:4}}>{answers.length} situations assessed</div></div>
+          {answers.map((a,i)=>(<div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8}}>
+            <div style={{fontFamily:FC,fontWeight:700,fontSize:13}}>{a.title}</div>
+            <div style={{fontSize:13,color:"#007A33",marginTop:4}}>{a.choice}</div>
+            {a.why&&<div style={{fontSize:12,color:"#888",marginTop:2,fontStyle:"italic"}}>{a.why}</div>}
+          </div>))}
+          <button style={{...BY,width:"100%",marginTop:16}} onClick={()=>{onS({text:"Shift Leader Lens completed",answers,claimedBonus:answers.length>=SLL_CLIPS.length,autoBonus:true,points:ch.points});}}>SUBMIT</button>
+        </div>
+      )}
+    </div>
+  </div>);
+}
 
 // ─── CHALLENGE DETAIL WITH UPLOAD ────────────────────────────────────────────
 function ChV({ch,done,onS,onB}){
