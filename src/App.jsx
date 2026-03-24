@@ -314,6 +314,7 @@ export default function App(){
   };
   const login=async(un,pw)=>{
     if(un==="gyg-admin"&&pw==="devdays2026"){setUser({id:"admin",name:"Admin",isAdmin:true});setView("admin");return;}
+    if(un==="test-all"&&pw==="test"){setUser({id:"test-all",name:"Test All",program:"lse",batch:"TEST",position:"Tester",restaurant:"Test"});setView("testbed");return;}
     const f=users.find(u=>u.username===un&&u.password===pw);
     if(!f){flash("Invalid credentials",false);return;}
     setUser(f);setSession({id:f.id});setView(getInitialView(f,batchControl,activityComps));flash(`Hola, ${f.name.split(" ")[0]}!`);
@@ -355,6 +356,33 @@ export default function App(){
       {view==="activity"&&sel&&user&&sel.type==="coolroom_countdown"&&<CoolRoomCountdown act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}} coolroomImgs={coolroomImgs[user.batch]}/>}
       {view==="activity"&&sel&&user&&sel.type==="roster_reality"&&<RosterReality act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}}/>}
       {view==="waiting"&&user&&<WaitingV u={user} onB={logout}/>}
+      {view==="testbed"&&user&&(<div style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+        <div style={{background:"#000",padding:"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,zIndex:100}}>
+          <div style={{display:"flex",alignItems:"center",gap:10}}><img src={GYG_LOGO} alt="" style={{width:28,height:28}}/><span style={{fontFamily:F107,fontWeight:900,fontSize:16,color:"#fff"}}>TEST MODE</span></div>
+          <button onClick={()=>{setUser(null);setView("splash");}} style={{padding:"6px 14px",background:"#333",border:"none",borderRadius:8,color:"#888",fontFamily:FC,fontWeight:700,fontSize:12,cursor:"pointer"}}>EXIT</button>
+        </div>
+        <div style={{display:"flex",gap:6,padding:"12px 16px",overflowX:"auto",background:"#fff",borderBottom:"1px solid #e8e8e3"}}>
+          {[PROGRAMS.lse,PROGRAMS.essentials,PROGRAMS.nextgen,PROGRAMS.elite].map(p=>(<button key={p.id} onClick={()=>setUser(u=>({...u,program:p.id}))} style={{padding:"9px 18px",borderRadius:24,border:"none",background:user.program===p.id?"#FFD300":"#f0f0eb",color:user.program===p.id?"#000":"#888",fontFamily:FC,fontWeight:700,fontSize:12,cursor:"pointer",whiteSpace:"nowrap"}}>{p.short}</button>))}
+        </div>
+        <div style={{padding:"16px 16px 0"}}>
+          {/* Activities */}
+          {(DEFAULT_ACTIVITIES[user.program]||[]).length>0&&(<>
+            <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:0.5,color:"#999",marginBottom:10}}>ACTIVITIES</div>
+            {(DEFAULT_ACTIVITIES[user.program]||[]).map(act=>(<button key={act.id} onClick={()=>{setSel(act);setPrevView("testbed");setView("activity");}} style={{display:"flex",alignItems:"center",width:"100%",padding:16,background:"#fff",borderRadius:14,marginBottom:8,border:"none",cursor:"pointer",textAlign:"left",fontFamily:FB,boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
+              <div style={{width:36,height:36,borderRadius:10,background:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+              <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:800,fontSize:15}}>{act.title}</div><div style={{fontSize:13,color:"#888",marginTop:2}}>{act.subtitle}</div></div>
+              <span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"4px 10px",borderRadius:8,background:"#FFF8E0",color:"#B8860B"}}>ACTIVITY</span>
+            </button>))}
+          </>)}
+          {/* Challenges */}
+          <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:0.5,color:"#999",marginBottom:10,marginTop:16}}>CHALLENGES</div>
+          {((challenges||DEFAULT_CHALLENGES)[user.program]||[]).map(ch=>(<button key={ch.id} onClick={()=>{setSel(ch);setPrevView("testbed");setView("challenge");}} style={{display:"flex",alignItems:"center",width:"100%",padding:16,background:"#fff",borderRadius:14,marginBottom:8,border:"none",cursor:"pointer",textAlign:"left",fontFamily:FB,boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
+            <div style={{width:36,height:36,borderRadius:10,background:"#1a1a1a",display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}><span style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#FFD300"}}>{ch.week}</span></div>
+            <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:800,fontSize:15}}>{ch.title}</div><div style={{fontSize:13,color:"#888",marginTop:2}}>{ch.subtitle}</div></div>
+            <div style={{textAlign:"right",flexShrink:0}}><span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"4px 10px",borderRadius:8,background:"#f5f5f0",color:"#999"}}>CHALLENGE</span><div style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#000",marginTop:4}}>{ch.points} PTS</div></div>
+          </button>))}
+        </div>
+      </div>)}
       {view==="admin"&&<AdminDash us={users} co={comps} ch={challenges} onB={logout} lunchConfig={lunchConfig} onUpdateLunchConfig={async(cfg)=>{setLunchConfigState(cfg);await dbSetLunchConfig(cfg);}} onUpdateComps={async(updated)=>{setComps(updated);for(const c of updated){await addCompletion(c);}}} onUpdateCh={async(updated)=>{setChallenges(updated);await dbSetChallenges(updated);}} onDeleteUser={async(uid)=>{await dbDeleteUser(uid);setUsers(users.filter(u=>u.id!==uid));setComps(comps.filter(c=>c.userId!==uid));}} onChangePass={async(uid,np)=>{await updateUser(uid,{password:np});setUsers(users.map(u=>u.id===uid?{...u,password:np}:u));}} batchControl={batchControl} activityComps={activityComps} onUpdateBatchControl={async(cfg)=>{setBatchControlState(cfg);await dbSetBatchControl(cfg);}} coolroomImgs={coolroomImgs} onUpdateCoolroomImg={async(batch,key,b64)=>{await setCoolroomImage(batch,key,b64);const existing=coolroomImgs[batch]||{};const updated=b64?{...existing,[key]:b64}:{...existing};if(!b64)delete updated[key];setCoolroomImgs(prev=>({...prev,[batch]:updated}));}} flash={flash} onPreviewActivity={act=>{setSel(act);setPrevView("admin");setView("activity");}} onPreviewChallenge={ch=>{setSel(ch);setPrevView("admin");setView("challenge");}} activityConfig={activityConfig} onUpdateActivityConfig={async(cfg)=>{setActivityConfigState(cfg);try{await dbSetActivityConfig(cfg);flash("Activity config saved!",true);}catch(e){flash("Failed to save config",false);}}}/>}
     </div>
   );
