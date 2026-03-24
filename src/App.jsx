@@ -1881,11 +1881,10 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
 
   // Nav
   const navItems=[
-    {id:"overview",label:"Overview",icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>},
-    {id:"activities",label:"Activities",icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>},
+    {id:"overview",label:"Dashboard",icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>},
+    {id:"content",label:"Content",icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>},
     {id:"people",label:"People",icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>},
     {id:"submissions",label:"Submissions",icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>},
-    {id:"challenges",label:"Challenges",icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>},
   ];
 
   // Shared styles - Apple-inspired, GYG on brand
@@ -1970,6 +1969,211 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
   const updateHotspotFb=(id,field,val)=>{const fb={...(acfg.hazard_hunt?.feedback||{...HAZARD_FEEDBACK})};fb[id]={...(fb[id]||{}),[field]:val};saveAcfg("hazard_hunt",{feedback:fb});};
   const updateHotspotZone=(idx,field,val)=>{const hz=[...(acfg.hazard_hunt?.zones||[...HAZARD_ZONES])];hz[idx]={...hz[idx],[field]:val};saveAcfg("hazard_hunt",{zones:hz});};
   const updateChaosProb=(idx,field,val)=>{const probs=[...(acfg.shift_in_chaos?.problems||[...CHAOS_PROBLEMS])];probs[idx]={...probs[idx],[field]:val};saveAcfg("shift_in_chaos",{problems:probs});};
+
+  // Toggle switch component
+  const Toggle=({on,onToggle,label,sub})=>(<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 0"}}>
+    <div><div style={{fontSize:14,fontWeight:600,fontFamily:FB,color:"#1a1a1a"}}>{label}</div>{sub&&<div style={{fontSize:12,color:"#999",fontFamily:FB,marginTop:2}}>{sub}</div>}</div>
+    <div onClick={onToggle} style={{width:48,height:28,borderRadius:14,background:on?"#007A33":"#ddd",cursor:"pointer",transition:"background 0.3s",position:"relative",flexShrink:0}}>
+      <div style={{width:24,height:24,borderRadius:12,background:"#fff",position:"absolute",top:2,left:on?22:2,transition:"left 0.3s",boxShadow:"0 1px 3px rgba(0,0,0,0.2)"}}/>
+    </div>
+  </div>);
+
+  /* ═══ CONTENT (unified activities + challenges) ═══ */
+  const[contentProg,setContentProg]=useState("lse");
+  const[contentSection,setContentSection]=useState(null); // which item is expanded
+  const renderContent=()=>{
+    const prog=PROGRAMS[contentProg];
+    const progChallenges=(challenges||DEFAULT_CHALLENGES)[contentProg]||[];
+    const progActivities=DEFAULT_ACTIVITIES[contentProg]||[];
+    // All content items for this program
+    const allItems=[
+      ...progActivities.map(a=>({...a,kind:"activity",label:"Activity"})),
+      ...progChallenges.map(c=>({...c,kind:"challenge",label:`Week ${c.week}`})),
+    ];
+    // Batch controls for this program
+    const progBatches=batches.filter(b=>us.some(u=>u.batch===b&&u.program===contentProg));
+
+    return(<div>
+      {/* Program selector */}
+      <div style={{display:"flex",gap:8,marginBottom:24,flexWrap:"wrap"}}>
+        {[PROGRAMS.lse,PROGRAMS.essentials,PROGRAMS.nextgen,PROGRAMS.elite].map(p=>(
+          <button key={p.id} onClick={()=>{setContentProg(p.id);setContentSection(null);}} style={{padding:"10px 20px",borderRadius:24,border:"none",background:contentProg===p.id?"#1a1a1a":"#fff",color:contentProg===p.id?"#FFD300":"#888",fontFamily:FC,fontWeight:700,fontSize:13,cursor:"pointer",transition:"all 0.2s",boxShadow:contentProg===p.id?"none":"0 1px 3px rgba(0,0,0,0.04)"}}>{p.short}</button>
+        ))}
+      </div>
+
+      {/* Program header */}
+      <div style={{...card,background:"#1a1a1a",color:"#fff",padding:isMobile?20:28}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div>
+            <div style={{fontFamily:F107,fontWeight:900,fontSize:isMobile?20:24,letterSpacing:0.5}}>{prog?.name||contentProg.toUpperCase()}</div>
+            <div style={{fontSize:13,color:"#888",fontFamily:FB,marginTop:4}}>{allItems.length} items - {progBatches.length} active batches</div>
+          </div>
+          {LOGOS[contentProg]&&<img src={LOGOS[contentProg]} alt="" style={{height:44,objectFit:"contain",opacity:0.9}}/>}
+        </div>
+      </div>
+
+      {/* Content items */}
+      <div style={{marginTop:8}}>
+        {allItems.length===0&&<div style={{...card,textAlign:"center",padding:40,color:"#999",fontFamily:FC}}>No content for this program yet</div>}
+        {allItems.map((item,idx)=>{
+          const isOpen=contentSection===item.id;
+          const isDone=item.kind==="challenge"&&comps.some(c=>c.challengeId===item.id);
+          const chIdx=item.kind==="challenge"?progChallenges.findIndex(c=>c.id===item.id):-1;
+          return(
+          <div key={item.id} style={{...card,padding:0,overflow:"hidden",marginBottom:12,border:isOpen?"2px solid #FFD300":"none"}}>
+            {/* Item header */}
+            <div onClick={()=>setContentSection(isOpen?null:item.id)} style={{display:"flex",alignItems:"center",padding:isMobile?"14px 16px":"18px 24px",cursor:"pointer",gap:14}}>
+              <div style={{width:36,height:36,borderRadius:10,background:item.kind==="activity"?"#FFD300":"#1a1a1a",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                {item.kind==="activity"?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                :<span style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#FFD300"}}>{item.week}</span>}
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontFamily:FC,fontWeight:800,fontSize:15,letterSpacing:0.3}}>{item.title}</div>
+                <div style={{fontSize:13,color:"#999",fontFamily:FB,marginTop:1}}>{item.subtitle}</div>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
+                <span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"4px 10px",borderRadius:8,background:item.kind==="activity"?"#FFF8E0":"#f5f5f0",color:item.kind==="activity"?"#B8860B":"#999"}}>{item.kind==="activity"?"ACTIVITY":item.type==="standard"?"UPLOAD":(item.type||"STANDARD").toUpperCase().replace(/_/g," ")}</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2" style={{transform:isOpen?"rotate(90deg)":"none",transition:"transform 0.2s"}}><path d="M9 18l6-6-6-6"/></svg>
+              </div>
+            </div>
+
+            {/* Expanded editor */}
+            {isOpen&&(
+              <div style={{padding:isMobile?"0 16px 16px":"0 24px 24px",borderTop:"1px solid #f0f0eb"}}>
+                {/* Preview + basic fields */}
+                <div style={{display:"flex",gap:8,marginTop:16,marginBottom:16}}>
+                  <button onClick={()=>{if(item.kind==="activity")onPreviewActivity(item);else onPreviewChallenge(item);}} style={{...btnB,flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:6,fontSize:12}}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFD300" strokeWidth="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Preview
+                  </button>
+                </div>
+
+                {/* Challenge fields */}
+                {item.kind==="challenge"&&chIdx>=0&&(<div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
+                    <div><div style={subLabel}>TITLE</div><input value={item.title} onChange={e=>saveCh(contentProg,chIdx,"title",e.target.value)} style={inp}/></div>
+                    <div><div style={subLabel}>SUBTITLE</div><input value={item.subtitle} onChange={e=>saveCh(contentProg,chIdx,"subtitle",e.target.value)} style={inp}/></div>
+                  </div>
+                  <div style={{marginBottom:12}}><div style={subLabel}>DESCRIPTION</div><textarea value={item.description} onChange={e=>saveCh(contentProg,chIdx,"description",e.target.value)} rows={3} style={{...inp,resize:"vertical"}}/></div>
+                  <div style={{marginBottom:12}}><div style={subLabel}>DELIVERABLE</div><input value={item.deliverable} onChange={e=>saveCh(contentProg,chIdx,"deliverable",e.target.value)} style={inp}/></div>
+                  <div style={{marginBottom:12}}><div style={subLabel}>TIP</div><input value={item.tip} onChange={e=>saveCh(contentProg,chIdx,"tip",e.target.value)} style={inp}/></div>
+                  <div style={{marginBottom:12}}><div style={subLabel}>BONUS CONDITION</div><input value={item.bonusCondition} onChange={e=>saveCh(contentProg,chIdx,"bonusCondition",e.target.value)} style={inp}/></div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:16}}>
+                    <div><div style={subLabel}>POINTS</div><input type="number" value={item.points} onChange={e=>saveCh(contentProg,chIdx,"points",parseInt(e.target.value)||0)} style={{...inp,textAlign:"center"}}/></div>
+                    <div><div style={subLabel}>BONUS PTS</div><input type="number" value={item.bonusPoints} onChange={e=>saveCh(contentProg,chIdx,"bonusPoints",parseInt(e.target.value)||0)} style={{...inp,textAlign:"center"}}/></div>
+                    <div><div style={subLabel}>ICON</div><select value={item.icon||""} onChange={e=>saveCh(contentProg,chIdx,"icon",e.target.value)} style={inp}>{Object.keys(ICONS).map(k=><option key={k} value={k}>{k.replace(/_/g," ")}</option>)}</select></div>
+                  </div>
+
+                  {/* Hazard Hunt specific */}
+                  {item.type==="hazard_hunt"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Hazard Hunt Settings</div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:12}}>
+                      <div><div style={subLabel}>TIMER (SEC)</div><input type="number" value={acfg.hazard_hunt?.timerDuration||90} onChange={e=>saveAcfg("hazard_hunt",{timerDuration:parseInt(e.target.value)||90})} style={{...inp,textAlign:"center"}}/></div>
+                      <div><div style={subLabel}>PTS/HAZARD</div><input type="number" value={acfg.hazard_hunt?.ptsPerHazard||20} onChange={e=>saveAcfg("hazard_hunt",{ptsPerHazard:parseInt(e.target.value)||20})} style={{...inp,textAlign:"center"}}/></div>
+                      <div><div style={subLabel}>SPEED (SEC)</div><input type="number" value={acfg.hazard_hunt?.speedThreshold||60} onChange={e=>saveAcfg("hazard_hunt",{speedThreshold:parseInt(e.target.value)||60})} style={{...inp,textAlign:"center"}}/></div>
+                    </div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:12}}>
+                      <div><div style={subLabel}>SPEED PTS</div><input type="number" value={acfg.hazard_hunt?.speedBonusPts||20} onChange={e=>saveAcfg("hazard_hunt",{speedBonusPts:parseInt(e.target.value)||20})} style={{...inp,textAlign:"center"}}/></div>
+                      <div><div style={subLabel}>DECOY +PTS</div><input type="number" value={acfg.hazard_hunt?.decoyAvoidPts||10} onChange={e=>saveAcfg("hazard_hunt",{decoyAvoidPts:parseInt(e.target.value)||10})} style={{...inp,textAlign:"center"}}/></div>
+                      <div><div style={subLabel}>TEXT PTS</div><input type="number" value={acfg.hazard_hunt?.textResponsePts||20} onChange={e=>saveAcfg("hazard_hunt",{textResponsePts:parseInt(e.target.value)||20})} style={{...inp,textAlign:"center"}}/></div>
+                    </div>
+                    <div style={{marginBottom:12}}>
+                      <div style={subLabel}>VISIBILITY</div>
+                      <div style={{display:"flex",alignItems:"center",gap:10}}>
+                        <input type="range" min="0" max="1" step="0.1" value={acfg.hazard_hunt?.hotspotOpacity!==undefined?acfg.hazard_hunt.hotspotOpacity:1} onChange={e=>saveAcfg("hazard_hunt",{hotspotOpacity:parseFloat(e.target.value)})} style={{flex:1,accentColor:"#FFD300"}}/>
+                        <span style={{fontFamily:FC,fontWeight:800,fontSize:13}}>{Math.round((acfg.hazard_hunt?.hotspotOpacity!==undefined?acfg.hazard_hunt.hotspotOpacity:1)*100)}%</span>
+                      </div>
+                    </div>
+                    <div style={{marginBottom:12}}><div style={subLabel}>QUESTION</div><input value={acfg.hazard_hunt?.openQuestion||"What's the first thing you'd say to your crew about what you just saw?"} onChange={e=>saveAcfg("hazard_hunt",{openQuestion:e.target.value})} style={inp}/></div>
+                    {/* Hotspot editor */}
+                    <div style={{marginBottom:8}}>
+                      {hotspotEditor?(<div>
+                        <div style={{position:"relative",height:220,borderRadius:12,overflow:"hidden",marginBottom:8}} ref={editorViewRef}>
+                          <PanoViewer imgSrc={acfg.hazard_hunt?.image||HAZARD_IMG} onYawPitch={(y,p)=>setEditorYP({yaw:y,pitch:p})}/>
+                          {(acfg.hazard_hunt?.zones||HAZARD_ZONES).map((z,zi)=>{const vw=editorViewRef.current?.clientWidth||400;const vh=220;const proj=projectToScreen(z.yaw,z.pitch,editorYP.yaw,editorYP.pitch,vw,vh);if(!proj)return null;const sz=14*proj.scale;const fb2=(acfg.hazard_hunt?.feedback||HAZARD_FEEDBACK)[z.id]||{};return <div key={z.id} style={{position:"absolute",left:proj.x-sz/2,top:proj.y-sz/2,width:sz,height:sz,borderRadius:"50%",background:fb2.hazard?"#007A33":"#E3000B",border:"2px solid #fff",zIndex:5,display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,color:"#fff",fontWeight:900}}>{zi+1}</div>;})}
+                          <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",zIndex:6,pointerEvents:"none",width:18,height:18,border:"2px solid #FFD300",borderRadius:"50%"}}/>
+                        </div>
+                        <div style={{display:"flex",gap:6}}>
+                          <button onClick={()=>addHotspot(editorYP.yaw,editorYP.pitch)} style={{...btnY,flex:1,fontSize:12,padding:"10px"}}>Drop Hotspot</button>
+                          <button onClick={()=>setHotspotEditor(false)} style={{...btnG,fontSize:12,padding:"10px"}}>Close</button>
+                        </div>
+                      </div>):(<button onClick={()=>setHotspotEditor(true)} style={{...btnB,width:"100%",fontSize:12}}>Open Hotspot Editor</button>)}
+                    </div>
+                    {/* Hotspot list */}
+                    {(acfg.hazard_hunt?.zones||HAZARD_ZONES).map((z,zi)=>{const fb2=(acfg.hazard_hunt?.feedback||HAZARD_FEEDBACK)[z.id]||{};return(
+                      <div key={z.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 0",borderTop:zi>0?"1px solid #e8e8e3":"none"}}>
+                        <span style={{fontFamily:FC,fontWeight:900,fontSize:12,background:fb2.hazard?"#007A33":"#E3000B",color:"#fff",width:22,height:22,borderRadius:11,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{zi+1}</span>
+                        <input value={fb2.title||""} onChange={e=>updateHotspotFb(z.id,"title",e.target.value)} style={{...inp,flex:1,fontSize:13,padding:"8px 12px"}} placeholder="Title"/>
+                        <button onClick={()=>updateHotspotFb(z.id,"hazard",!fb2.hazard)} style={{padding:"5px 10px",borderRadius:8,border:"none",background:fb2.hazard?"#007A33":"#E3000B",color:"#fff",fontSize:10,fontFamily:FC,fontWeight:700,cursor:"pointer",flexShrink:0}}>{fb2.hazard?"HAZ":"DEC"}</button>
+                        <button onClick={()=>removeHotspot(z.id)} style={{padding:"5px 8px",borderRadius:8,border:"none",background:"#f0f0eb",color:"#E3000B",fontSize:11,cursor:"pointer",flexShrink:0}}>X</button>
+                      </div>
+                    );})}
+                  </div>)}
+
+                  {/* Shift in Chaos specific */}
+                  {item.type==="shift_in_chaos"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Shift in Chaos Settings</div>
+                    <div style={{marginBottom:12}}><div style={subLabel}>BRIEFING</div><textarea value={acfg.shift_in_chaos?.briefing||"It's 12:05pm. Saturday. GYG is slammed. Everything below just happened in the last 10 minutes. Rank them 1-12 in order of what you deal with FIRST."} onChange={e=>saveAcfg("shift_in_chaos",{briefing:e.target.value})} rows={2} style={{...inp,resize:"vertical"}}/></div>
+                    <div style={{marginBottom:12}}><div style={subLabel}>PREVENTION QUESTION</div><textarea value={acfg.shift_in_chaos?.preventionQ||"What's one thing that would have prevented this shift from getting to this point?"} onChange={e=>saveAcfg("shift_in_chaos",{preventionQ:e.target.value})} rows={2} style={{...inp,resize:"vertical"}}/></div>
+                    <div style={subLabel}>PROBLEMS (expert order)</div>
+                    {(acfg.shift_in_chaos?.problems||CHAOS_PROBLEMS).map((p,pi)=>(
+                      <div key={p.id||pi} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"8px 0",borderTop:pi>0?"1px solid #e8e8e3":"none"}}>
+                        <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#1a1a1a",color:"#FFD300",width:22,height:22,borderRadius:11,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:8}}>{pi+1}</span>
+                        <textarea value={p.text} onChange={e=>updateChaosProb(pi,"text",e.target.value)} rows={2} style={{...inp,flex:1,resize:"vertical",fontSize:13,padding:"8px 12px"}}/>
+                        <div style={{display:"flex",flexDirection:"column",gap:2,flexShrink:0,marginTop:6}}>
+                          {["safety","operational","cosmetic"].map(cat=>(<button key={cat} onClick={()=>updateChaosProb(pi,"category",cat)} style={{padding:"3px 8px",borderRadius:6,border:"none",background:p.category===cat?(cat==="safety"?"#E3000B":cat==="operational"?"#FFD300":"#999"):"transparent",color:p.category===cat?"#fff":"#ccc",fontSize:9,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>{cat.slice(0,3).toUpperCase()}</button>))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>)}
+                </div>)}
+
+                {/* Activity info */}
+                {item.kind==="activity"&&(<div>
+                  <div style={{fontSize:13,color:"#888",fontFamily:FB,padding:"8px 0"}}>Activity type: <strong>{(item.type||"standard").replace(/_/g," ")}</strong>. Content is configured in the activity component.</div>
+                </div>)}
+              </div>
+            )}
+          </div>);
+        })}
+      </div>
+
+      {/* Batch controls */}
+      {progBatches.length>0&&(<div style={{marginTop:24}}>
+        <div style={secTitle}>Batch Controls</div>
+        {progBatches.map(b=>{
+          const batchUsers=us.filter(u=>u.batch===b);
+          const bk=(batchControl||{})[b]||{activeActivity:null,completedActivities:[],challengesUnlocked:false};
+          const acts=DEFAULT_ACTIVITIES[contentProg]||[];
+          const toggleAct=(actId,newState)=>{const updated={...(batchControl||{})};const nbk={...bk};
+            if(newState==="active"){nbk.activeActivity=actId;nbk.completedActivities=(nbk.completedActivities||[]).filter(id=>id!==actId);}
+            else if(newState==="completed"){nbk.activeActivity=nbk.activeActivity===actId?null:nbk.activeActivity;nbk.completedActivities=[...new Set([...(nbk.completedActivities||[]),actId])];}
+            else{nbk.activeActivity=nbk.activeActivity===actId?null:nbk.activeActivity;nbk.completedActivities=(nbk.completedActivities||[]).filter(id=>id!==actId);}
+            updated[b]=nbk;onUpdateBatchControl(updated);};
+          return(
+          <div key={b} style={card}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+              <div><div style={{fontFamily:FC,fontWeight:800,fontSize:16,letterSpacing:0.3}}>{b}</div><div style={{fontSize:13,color:"#999",fontFamily:FB}}>{batchUsers.length} participants</div></div>
+            </div>
+
+            <Toggle on={bk.skipActivities} onToggle={()=>{const updated={...(batchControl||{})};updated[b]={...bk,skipActivities:!bk.skipActivities};onUpdateBatchControl(updated);}} label="Skip Activities" sub="Send participants straight to challenges"/>
+            <Toggle on={bk.challengesUnlocked} onToggle={()=>{const updated={...(batchControl||{})};updated[b]={...bk,challengesUnlocked:!bk.challengesUnlocked};onUpdateBatchControl(updated);}} label="Unlock Challenges" sub="Allow weekly challenge submissions"/>
+
+            {acts.length>0&&!bk.skipActivities&&(<div style={{borderTop:"1px solid #f0f0eb",marginTop:8,paddingTop:12}}>
+              <div style={subLabel}>ACTIVITIES</div>
+              {acts.map(act=>{const isActive=bk.activeActivity===act.id;const isCompleted=(bk.completedActivities||[]).includes(act.id);const done=(activityComps||[]).filter(c=>c.batch===b&&c.activityId===act.id).length;return(
+                <div key={act.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0",borderBottom:"1px solid #f5f5f0"}}>
+                  <div><div style={{fontSize:14,fontWeight:600,fontFamily:FB}}>{act.title}</div><div style={{fontSize:12,color:"#999"}}>{done}/{batchUsers.length} done</div></div>
+                  <select value={isCompleted?"completed":isActive?"active":"locked"} onChange={e=>toggleAct(act.id,e.target.value)} style={{padding:"8px 12px",borderRadius:10,border:"1px solid #e8e8e3",fontFamily:FC,fontWeight:700,fontSize:12,background:isCompleted?"#007A33":isActive?"#FFD300":"#f5f5f0",color:isCompleted?"#fff":isActive?"#000":"#888",cursor:"pointer",outline:"none"}}>
+                    <option value="locked">Locked</option><option value="active">Live</option><option value="completed">Done</option>
+                  </select>
+                </div>
+              );})}
+            </div>)}
+          </div>);
+        })}
+      </div>)}
+    </div>);
+  };
 
   const renderActivities=()=>{
     const actTypes=[
@@ -2544,10 +2748,9 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
         {/* Content area */}
         <div style={{padding:isMobile?"16px":"28px 32px",flex:1,maxWidth:1100,width:"100%",boxSizing:"border-box",margin:isMobile?"0":"0 auto"}}>
           {tab==="overview"&&renderOverview()}
-          {tab==="activities"&&renderActivities()}
+          {tab==="content"&&renderContent()}
           {tab==="people"&&renderPeople()}
           {tab==="submissions"&&renderSubmissions()}
-          {tab==="challenges"&&renderChallenges()}
         </div>
       </div>
     </div>
