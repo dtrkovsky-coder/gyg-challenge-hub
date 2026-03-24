@@ -820,9 +820,9 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
       </div>
     )}
     {screen===2&&(
-      <div style={{padding:"12px 16px 24px",overflowY:"auto",maxHeight:"calc(100vh - 60px)",WebkitOverflowScrolling:"touch"}} onTouchMove={onDragMove} onTouchEnd={onDragEnd} onMouseMove={onDragMove} onMouseUp={onDragEnd}>
+      <div style={{padding:"12px 12px 24px",overflowY:"auto",overflowX:"hidden",maxHeight:"calc(100vh - 60px)",WebkitOverflowScrolling:"touch",boxSizing:"border-box"}} onTouchMove={onDragMove} onTouchEnd={onDragEnd} onMouseMove={onDragMove} onMouseUp={onDragEnd}>
         <div style={{fontSize:12,fontWeight:800,fontFamily:FC,color:"#999",letterSpacing:1,marginBottom:6,textAlign:"center"}}>HOLD AND DRAG TO REORDER</div>
-        <div ref={listRef} style={{position:"relative"}}>
+        <div ref={listRef} style={{position:"relative",overflow:"hidden"}}>
           {ranking.map((p,i)=>{
             const isDragging=dragIdx===i;
             const dragOffset=isDragging?dragY:0;
@@ -837,7 +837,7 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
             return(
             <div key={p.id}
               onTouchStart={e=>onDragStart(i,e)} onMouseDown={e=>onDragStart(i,e)}
-              style={{display:"flex",alignItems:"center",width:"100%",padding:"10px 12px",background:isDragging?"#FFF8E0":"#fff",border:isDragging?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:10,marginBottom:4,cursor:"grab",textAlign:"left",fontFamily:FB,color:"#1a1a1a",fontSize:12,
+              style={{display:"flex",alignItems:"center",width:"100%",padding:"10px 12px",background:isDragging?"#FFF8E0":"#fff",border:isDragging?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:10,marginBottom:4,cursor:"grab",textAlign:"left",fontFamily:FB,color:"#1a1a1a",fontSize:12,boxSizing:"border-box",overflow:"hidden",
                 transform:`translateY(${isDragging?dragOffset:shift*itemHeight}px)`,
                 transition:isDragging?"none":"transform 0.2s",
                 zIndex:isDragging?10:1,
@@ -850,7 +850,7 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
                 <div style={{width:14,height:2,background:"#999",borderRadius:1}}/>
               </div>
               <div style={{width:24,height:24,borderRadius:12,background:"#000",color:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:11,flexShrink:0,marginRight:8}}>{i+1}</div>
-              <div style={{flex:1,fontSize:12,lineHeight:1.3}}>{p.text}</div>
+              <div style={{flex:1,fontSize:12,lineHeight:1.3,minWidth:0,wordBreak:"break-word"}}>{p.text}</div>
               <div style={{width:10,height:10,borderRadius:5,background:catColor[p.category],flexShrink:0,marginLeft:8}}/>
             </div>);
           })}
