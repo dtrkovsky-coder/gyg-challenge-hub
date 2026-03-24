@@ -787,6 +787,9 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
   const listRef=useRef(null);
   const catColor={safety:"#E3000B",operational:"#FFD300",cosmetic:"#999"};
   const totalDistance=ranking.reduce((sum,p,i)=>{const expertIdx=EXPERT_ORDER.indexOf(p.id);return sum+Math.abs(i-expertIdx);},0);
+  const maxDistance=ranking.length*(ranking.length-1)/2;// theoretical max ~66 for 12 items
+  const accuracy=Math.max(0,Math.round((1-totalDistance/maxDistance)*100));
+  const earnedPts=Math.round(ch.points*(accuracy/100));
   const batchComps=comps.filter(c=>c.challengeId==="lse-w2"&&c.program==="lse");
   const distances=[...batchComps.map(c=>c.submission?.distanceFromExpert||999),totalDistance].sort((a,b)=>a-b);
   const isTop3=distances.indexOf(totalDistance)<3;
@@ -817,8 +820,8 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
       </div>
     )}
     {screen===2&&(
-      <div style={{padding:"16px 16px 24px"}} onTouchMove={onDragMove} onTouchEnd={onDragEnd} onMouseMove={onDragMove} onMouseUp={onDragEnd}>
-        <div style={{fontSize:12,fontWeight:800,fontFamily:FC,color:"#999",letterSpacing:1,marginBottom:8,textAlign:"center"}}>HOLD AND DRAG TO REORDER</div>
+      <div style={{padding:"12px 16px 24px",overflowY:"auto",maxHeight:"calc(100vh - 60px)",WebkitOverflowScrolling:"touch"}} onTouchMove={onDragMove} onTouchEnd={onDragEnd} onMouseMove={onDragMove} onMouseUp={onDragEnd}>
+        <div style={{fontSize:12,fontWeight:800,fontFamily:FC,color:"#999",letterSpacing:1,marginBottom:6,textAlign:"center"}}>HOLD AND DRAG TO REORDER</div>
         <div ref={listRef} style={{position:"relative"}}>
           {ranking.map((p,i)=>{
             const isDragging=dragIdx===i;
@@ -834,7 +837,7 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
             return(
             <div key={p.id}
               onTouchStart={e=>onDragStart(i,e)} onMouseDown={e=>onDragStart(i,e)}
-              style={{display:"flex",alignItems:"center",width:"100%",padding:"12px 14px",background:isDragging?"#FFF8E0":"#fff",border:isDragging?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,marginBottom:6,cursor:"grab",textAlign:"left",fontFamily:FB,color:"#1a1a1a",
+              style={{display:"flex",alignItems:"center",width:"100%",padding:"10px 12px",background:isDragging?"#FFF8E0":"#fff",border:isDragging?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:10,marginBottom:4,cursor:"grab",textAlign:"left",fontFamily:FB,color:"#1a1a1a",fontSize:12,
                 transform:`translateY(${isDragging?dragOffset:shift*itemHeight}px)`,
                 transition:isDragging?"none":"transform 0.2s",
                 zIndex:isDragging?10:1,
@@ -846,8 +849,8 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
                 <div style={{width:14,height:2,background:"#999",borderRadius:1}}/>
                 <div style={{width:14,height:2,background:"#999",borderRadius:1}}/>
               </div>
-              <div style={{width:28,height:28,borderRadius:14,background:"#000",color:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:13,flexShrink:0,marginRight:10}}>{i+1}</div>
-              <div style={{flex:1,fontSize:13,lineHeight:1.4}}>{p.text}</div>
+              <div style={{width:24,height:24,borderRadius:12,background:"#000",color:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:11,flexShrink:0,marginRight:8}}>{i+1}</div>
+              <div style={{flex:1,fontSize:12,lineHeight:1.3}}>{p.text}</div>
               <div style={{width:10,height:10,borderRadius:5,background:catColor[p.category],flexShrink:0,marginLeft:8}}/>
             </div>);
           })}
@@ -889,7 +892,9 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
           </div>
         );})}
         <div style={{textAlign:"center",marginTop:12,marginBottom:16}}>
-          <div style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#888"}}>TOTAL DISTANCE: {totalDistance}</div>
+          <div style={{fontSize:36,fontWeight:900,fontFamily:FC,color:accuracy>=80?"#007A33":accuracy>=50?"#FFD300":"#E3000B"}}>{accuracy}%</div>
+          <div style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#888"}}>ACCURACY</div>
+          <div style={{fontSize:20,fontWeight:900,fontFamily:FC,color:"#FFD300",marginTop:8}}>{earnedPts} PTS EARNED</div>
           {isTop3&&<div style={{fontSize:14,fontFamily:FC,fontWeight:800,color:"#FFD300",marginTop:4}}>&#9733; TOP 3 IN YOUR BATCH - BONUS EARNED!</div>}
         </div>
         <button style={{...BY,width:"100%"}} onClick={()=>setScreen(4)}>CONTINUE</button>
@@ -901,7 +906,7 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
         <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1,display:"block",marginBottom:6}}>WHAT'S ONE THING THAT WOULD HAVE PREVENTED THIS SHIFT FROM GETTING TO THIS POINT?</label>
         <p style={{fontSize:13,color:"#888",marginBottom:8}}>Be specific about when it should have happened and who should have done it.</p>
         <textarea style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,color:"#1a1a1a",fontSize:15,fontFamily:FB,outline:"none",height:120,resize:"vertical",boxSizing:"border-box"}} value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="Your response..."/>
-        <button style={{...BY,width:"100%",marginTop:16,opacity:answer.trim()?"1":"0.5"}} disabled={!answer.trim()} onClick={()=>{const matchedTop5=ranking.slice(0,5).filter(p=>EXPERT_ORDER.indexOf(p.id)<5).length;onS({text:answer,ranking:ranking.map(p=>p.id),distanceFromExpert:totalDistance,earnedBadge:isTop3,matchedTop5,claimedBonus:isTop3,autoBonus:isTop3,points:ch.points});}}>SUBMIT</button>
+        <button style={{...BY,width:"100%",marginTop:16,opacity:answer.trim()?"1":"0.5"}} disabled={!answer.trim()} onClick={()=>{const matchedTop5=ranking.slice(0,5).filter(p=>EXPERT_ORDER.indexOf(p.id)<5).length;onS({text:answer,ranking:ranking.map(p=>p.id),distanceFromExpert:totalDistance,accuracy,earnedBadge:isTop3,matchedTop5,claimedBonus:isTop3||accuracy>=80,autoBonus:isTop3||accuracy>=80,points:earnedPts});}}>SUBMIT</button>
       </div>
     )}
   </div>
