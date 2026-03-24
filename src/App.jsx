@@ -324,10 +324,10 @@ export default function App(){
     if(!user||comps.find(c=>c.userId===user.id&&c.challengeId===cid)){flash("Already submitted!",false);return;}
     const ch=((challenges||DEFAULT_CHALLENGES)[user.program]||[]).find(c=>c.id===cid);
     const nc={id:`c${Date.now()}`,userId:user.id,challengeId:cid,program:user.program,batch:user.batch,submission:s,claimedBonus:s.claimedBonus||false,points:s.points!==undefined?s.points:ch.points,bonusClaimed:!!s.claimedBonus,bonusApproved:!!s.autoBonus,bonusPoints:ch.bonusPoints,submittedAt:new Date().toISOString()};
-    await addCompletion(nc);setComps([...comps,nc]);flash(`+${nc.points} PTS!${nc.bonusClaimed?(nc.bonusApproved?" +"+nc.bonusPoints+" BONUS!":" Bonus pending review."):""}`,true);setView("dashboard");
+    await addCompletion(nc);setComps([...comps,nc]);flash(`+${nc.points} PTS!${nc.bonusClaimed?(nc.bonusApproved?" +"+nc.bonusPoints+" BONUS!":" Bonus pending review."):""}`,true);setView(prevView||"dashboard");setPrevView(null);
   };
   const pts=(uid,p)=>uid?comps.filter(c=>c.userId===uid&&c.program===p).reduce((s,c)=>s+c.points+(c.bonusApproved?c.bonusPoints||0:0),0):0;
-  const completeActivity=async(actId,data)=>{const nc={id:`ac${Date.now()}`,userId:user.id,activityId:actId,program:user.program,batch:user.batch,data,completedAt:new Date().toISOString()};await addActivityCompletion(nc);const newAc=[...activityComps,nc];setActivityComps(newAc);setView("activities");flash("Activity completed!");};
+  const completeActivity=async(actId,data)=>{const nc={id:`ac${Date.now()}`,userId:user.id,activityId:actId,program:user.program,batch:user.batch,data,completedAt:new Date().toISOString()};await addActivityCompletion(nc);const newAc=[...activityComps,nc];setActivityComps(newAc);setView(prevView||"activities");setPrevView(null);flash("Activity completed!");};
 
   if(loading) return (<div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100vh",background:"#f5f5f0"}}><img src={LOADING_GIF} alt="Loading" style={{width:280,maxWidth:"80vw",objectFit:"contain"}}/><link rel="preload" as="video" href="/splash-bg.mp4"/><video src="/splash-bg.mp4" preload="auto" muted style={{position:"absolute",width:0,height:0,opacity:0}}/></div>);
 
