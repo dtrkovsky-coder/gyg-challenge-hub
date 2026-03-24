@@ -1888,19 +1888,19 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
     {id:"challenges",label:"Challenges",icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>},
   ];
 
-  // Shared styles
-  const card={background:"#fff",borderRadius:14,border:"1px solid #e8e8e3",padding:isMobile?14:20,marginBottom:12};
-  const secTitle={fontFamily:FC,fontWeight:800,fontSize:13,letterSpacing:1,color:"#1a1a1a",marginBottom:12,textTransform:"uppercase"};
-  const subLabel={fontFamily:FC,fontWeight:700,fontSize:11,letterSpacing:1,color:"#999",marginBottom:6};
-  const btnY={padding:"10px 20px",background:"#FFD300",color:"#000",border:"none",borderRadius:10,fontFamily:FC,fontWeight:800,fontSize:13,letterSpacing:0.5,cursor:"pointer"};
-  const btnB={padding:"10px 20px",background:"#000",color:"#FFD300",border:"none",borderRadius:10,fontFamily:FC,fontWeight:800,fontSize:13,letterSpacing:0.5,cursor:"pointer"};
-  const btnR={padding:"10px 20px",background:"#E3000B",color:"#fff",border:"none",borderRadius:10,fontFamily:FC,fontWeight:800,fontSize:13,letterSpacing:0.5,cursor:"pointer"};
-  const btnG={padding:"10px 20px",background:"#f5f5f0",color:"#666",border:"1px solid #e0e0db",borderRadius:10,fontFamily:FC,fontWeight:700,fontSize:13,letterSpacing:0.5,cursor:"pointer"};
-  const inp={padding:"10px 14px",border:"1px solid #e0e0db",borderRadius:10,fontFamily:FB,fontSize:14,outline:"none",width:"100%",boxSizing:"border-box",background:"#fff"};
-  const pill=a=>({padding:"8px 16px",borderRadius:20,border:"none",background:a?"#FFD300":"#f5f5f0",color:a?"#000":"#888",fontFamily:FC,fontWeight:700,fontSize:12,letterSpacing:0.5,cursor:"pointer",whiteSpace:"nowrap"});
+  // Shared styles - Apple-inspired, GYG on brand
+  const card={background:"#fff",borderRadius:16,border:"none",padding:isMobile?16:24,marginBottom:16,boxShadow:"0 1px 3px rgba(0,0,0,0.04),0 4px 12px rgba(0,0,0,0.03)"};
+  const secTitle={fontFamily:FC,fontWeight:800,fontSize:15,letterSpacing:0.5,color:"#1a1a1a",marginBottom:16};
+  const subLabel={fontFamily:FC,fontWeight:700,fontSize:11,letterSpacing:1,color:"#999",marginBottom:8,textTransform:"uppercase"};
+  const btnY={padding:"11px 22px",background:"#FFD300",color:"#000",border:"none",borderRadius:12,fontFamily:FC,fontWeight:800,fontSize:13,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"};
+  const btnB={padding:"11px 22px",background:"#1a1a1a",color:"#FFD300",border:"none",borderRadius:12,fontFamily:FC,fontWeight:800,fontSize:13,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"};
+  const btnR={padding:"11px 22px",background:"#E3000B",color:"#fff",border:"none",borderRadius:12,fontFamily:FC,fontWeight:800,fontSize:13,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"};
+  const btnG={padding:"11px 22px",background:"#f5f5f0",color:"#555",border:"none",borderRadius:12,fontFamily:FC,fontWeight:700,fontSize:13,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"};
+  const inp={padding:"12px 16px",border:"1px solid #e8e8e3",borderRadius:12,fontFamily:FB,fontSize:14,outline:"none",width:"100%",boxSizing:"border-box",background:"#f8f8f5",transition:"border 0.2s,background 0.2s"};
+  const pill=a=>({padding:"9px 18px",borderRadius:24,border:"none",background:a?"#FFD300":"#f0f0eb",color:a?"#000":"#888",fontFamily:FC,fontWeight:700,fontSize:12,letterSpacing:0.5,cursor:"pointer",whiteSpace:"nowrap",transition:"all 0.2s"});
 
   // Stat card
-  const StatCard=({n,l,c})=>(<div style={{...card,textAlign:"center",padding:"20px 12px",flex:1,minWidth:isMobile?120:0}}><div style={{fontSize:isMobile?24:32,fontWeight:900,fontFamily:FC,color:c||"#000"}}>{n}</div><div style={{fontSize:11,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:0.5,marginTop:4}}>{l}</div></div>);
+  const StatCard=({n,l,c})=>(<div style={{...card,textAlign:"center",padding:isMobile?"18px 12px":"24px 16px",flex:1,minWidth:isMobile?100:0}}><div style={{fontSize:isMobile?26:36,fontWeight:900,fontFamily:FC,color:c||"#1a1a1a",lineHeight:1}}>{n}</div><div style={{fontSize:11,fontWeight:700,fontFamily:FC,color:"#aaa",letterSpacing:0.5,marginTop:6}}>{l}</div></div>);
 
   /* ═══ OVERVIEW ═══ */
   const renderOverview=()=>(<div>
@@ -2461,86 +2461,88 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
 
   /* ═══ LAYOUT ═══ */
   return(
-    <div style={{display:"flex",minHeight:"100vh",background:"#f5f5f0",fontFamily:FB,color:"#1a1a1a"}}>
+    <div style={{display:"flex",minHeight:"100vh",background:"#f8f8f5",fontFamily:FB,color:"#1a1a1a"}}>
       {/* Sidebar - desktop */}
       {!isMobile&&(
-        <div style={{width:220,background:"#000",position:"fixed",top:0,left:0,height:"100vh",display:"flex",flexDirection:"column",zIndex:50,overflowY:"auto"}}>
-          <div style={{padding:"20px 18px 16px",borderBottom:"1px solid #222"}}>
-            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
-              <img src={GYG_LOGO} alt="GYG" style={{width:30,height:30,objectFit:"contain"}}/>
-              <span style={{fontFamily:F107,fontWeight:900,fontSize:16,color:"#fff",letterSpacing:0.5}}>ADMIN</span>
+        <div style={{width:240,background:"#0a0a0a",position:"fixed",top:0,left:0,bottom:0,display:"flex",flexDirection:"column",zIndex:50,overflowY:"auto"}}>
+          <div style={{padding:"24px 20px 20px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:6}}>
+              <img src={GYG_LOGO} alt="GYG" style={{width:36,height:36,objectFit:"contain"}}/>
+              <div><div style={{fontFamily:F107,fontWeight:900,fontSize:18,color:"#fff",letterSpacing:0.5}}>ADMIN</div><div style={{fontSize:11,fontFamily:FC,fontWeight:600,color:"#555",letterSpacing:1}}>CHALLENGE HUB</div></div>
             </div>
-            <div style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#555",letterSpacing:1}}>CHALLENGE HUB</div>
           </div>
-          <div style={{flex:1,padding:"8px 0"}}>
+          <div style={{flex:1,padding:"4px 10px"}}>
             {navItems.map(n=>(
-              <button key={n.id} onClick={()=>sT(n.id)} style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"12px 18px",background:"none",border:"none",borderLeft:tab===n.id?"3px solid #FFD300":"3px solid transparent",color:tab===n.id?"#FFD300":"#666",fontFamily:FC,fontWeight:700,fontSize:12,letterSpacing:0.5,cursor:"pointer",textAlign:"left",transition:"all 0.15s"}}>{n.icon}<span>{n.label.toUpperCase()}</span></button>
+              <button key={n.id} onClick={()=>sT(n.id)} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"13px 14px",background:tab===n.id?"rgba(255,211,0,0.08)":"none",border:"none",borderRadius:12,color:tab===n.id?"#FFD300":"#777",fontFamily:FC,fontWeight:700,fontSize:13,letterSpacing:0.3,cursor:"pointer",textAlign:"left",transition:"all 0.2s",marginBottom:2}}>{n.icon}<span>{n.label}</span></button>
             ))}
           </div>
-          <div style={{padding:"12px 18px",borderTop:"1px solid #222"}}>
-            <div style={{marginBottom:10}}>
-              <select value={fp} onChange={e=>{sFp(e.target.value);sFb("all");}} style={{width:"100%",padding:"8px 10px",background:"#1a1a1a",border:"1px solid #333",borderRadius:8,color:"#ccc",fontSize:11,fontFamily:FC,fontWeight:700,letterSpacing:0.5,marginBottom:6}}>
-                <option value="all">ALL PROGRAMS</option>{[PROGRAMS.lse,PROGRAMS.essentials,PROGRAMS.nextgen,PROGRAMS.elite].map(p=><option key={p.id} value={p.id}>{p.short}</option>)}
+          <div style={{padding:"16px 20px",borderTop:"1px solid #1a1a1a"}}>
+            <div style={{marginBottom:12}}>
+              <div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#555",letterSpacing:1,marginBottom:6}}>FILTER</div>
+              <select value={fp} onChange={e=>{sFp(e.target.value);sFb("all");}} style={{width:"100%",padding:"10px 12px",background:"#151515",border:"1px solid #2a2a2a",borderRadius:10,color:"#aaa",fontSize:12,fontFamily:FC,fontWeight:600,marginBottom:6,outline:"none"}}>
+                <option value="all">All Programs</option>{[PROGRAMS.lse,PROGRAMS.essentials,PROGRAMS.nextgen,PROGRAMS.elite].map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
-              <select value={fb} onChange={e=>sFb(e.target.value)} style={{width:"100%",padding:"8px 10px",background:"#1a1a1a",border:"1px solid #333",borderRadius:8,color:"#ccc",fontSize:11,fontFamily:FC,fontWeight:700,letterSpacing:0.5}}>
-                <option value="all">ALL BATCHES</option>{batches.map(b=><option key={b} value={b}>{b}</option>)}
+              <select value={fb} onChange={e=>sFb(e.target.value)} style={{width:"100%",padding:"10px 12px",background:"#151515",border:"1px solid #2a2a2a",borderRadius:10,color:"#aaa",fontSize:12,fontFamily:FC,fontWeight:600,outline:"none"}}>
+                <option value="all">All Batches</option>{batches.map(b=><option key={b} value={b}>{b}</option>)}
               </select>
             </div>
-            <button onClick={onB} style={{width:"100%",padding:"10px",background:"none",border:"1px solid #333",borderRadius:8,color:"#888",fontFamily:FC,fontWeight:700,fontSize:12,letterSpacing:1,cursor:"pointer",transition:"all 0.15s"}}>LOGOUT</button>
+            <button onClick={onB} style={{width:"100%",padding:"11px",background:"#151515",border:"none",borderRadius:10,color:"#666",fontFamily:FC,fontWeight:700,fontSize:12,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"}}>Sign Out</button>
           </div>
         </div>
       )}
 
       {/* Main content */}
-      <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,marginLeft:isMobile?0:220}}>
+      <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,marginLeft:isMobile?0:240}}>
         {/* Mobile header */}
         {isMobile&&(
-          <div style={{position:"sticky",top:0,zIndex:100,background:"#000",padding:"12px 16px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <div style={{display:"flex",alignItems:"center",gap:8}}>
-              <img src={GYG_LOGO} alt="GYG" style={{width:26,height:26,objectFit:"contain"}}/>
-              <span style={{fontFamily:F107,fontWeight:900,fontSize:15,color:"#fff",letterSpacing:0.5}}>ADMIN</span>
+          <div style={{position:"sticky",top:0,zIndex:100,background:"#0a0a0a",padding:"14px 16px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <img src={GYG_LOGO} alt="GYG" style={{width:28,height:28,objectFit:"contain"}}/>
+              <span style={{fontFamily:F107,fontWeight:900,fontSize:16,color:"#fff",letterSpacing:0.5}}>ADMIN</span>
             </div>
-            <button onClick={()=>setSideOpen(!sideOpen)} style={{background:"none",border:"none",color:"#fff",padding:4,cursor:"pointer"}}>
-              {sideOpen?<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
-              :<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg>}
+            <button onClick={()=>setSideOpen(!sideOpen)} style={{background:"none",border:"none",color:"#fff",padding:6,cursor:"pointer"}}>
+              {sideOpen?<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+              :<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg>}
             </button>
           </div>
         )}
 
         {/* Mobile menu overlay */}
         {isMobile&&sideOpen&&(
-          <div style={{position:"fixed",top:50,left:0,right:0,bottom:0,background:"#000",zIndex:99,padding:"16px 20px",display:"flex",flexDirection:"column",overflowY:"auto"}}>
+          <div style={{position:"fixed",top:56,left:0,right:0,bottom:0,background:"#0a0a0a",zIndex:99,padding:"20px 20px",display:"flex",flexDirection:"column",overflowY:"auto"}}>
             {navItems.map(n=>(
-              <button key={n.id} onClick={()=>{sT(n.id);setSideOpen(false);}} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"16px 8px",background:"none",border:"none",borderBottom:"1px solid #222",color:tab===n.id?"#FFD300":"#888",fontFamily:FC,fontWeight:700,fontSize:14,letterSpacing:1,cursor:"pointer",textAlign:"left"}}>{n.icon}<span>{n.label.toUpperCase()}</span></button>
+              <button key={n.id} onClick={()=>{sT(n.id);setSideOpen(false);}} style={{display:"flex",alignItems:"center",gap:14,width:"100%",padding:"18px 12px",background:tab===n.id?"rgba(255,211,0,0.06)":"none",border:"none",borderRadius:12,color:tab===n.id?"#FFD300":"#888",fontFamily:FC,fontWeight:700,fontSize:15,letterSpacing:0.3,cursor:"pointer",textAlign:"left",marginBottom:2}}>{n.icon}<span>{n.label}</span></button>
             ))}
-            <div style={{marginTop:20}}>
-              <select value={fp} onChange={e=>{sFp(e.target.value);sFb("all");}} style={{width:"100%",padding:"12px",background:"#1a1a1a",border:"1px solid #333",borderRadius:10,color:"#ccc",fontSize:13,fontFamily:FC,fontWeight:700,letterSpacing:0.5,marginBottom:8}}>
-                <option value="all">ALL PROGRAMS</option>{[PROGRAMS.lse,PROGRAMS.essentials,PROGRAMS.nextgen,PROGRAMS.elite].map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+            <div style={{marginTop:24,paddingTop:20,borderTop:"1px solid #1a1a1a"}}>
+              <div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#555",letterSpacing:1,marginBottom:8}}>FILTER</div>
+              <select value={fp} onChange={e=>{sFp(e.target.value);sFb("all");}} style={{width:"100%",padding:"12px 14px",background:"#151515",border:"1px solid #2a2a2a",borderRadius:12,color:"#aaa",fontSize:13,fontFamily:FC,fontWeight:600,marginBottom:8,outline:"none"}}>
+                <option value="all">All Programs</option>{[PROGRAMS.lse,PROGRAMS.essentials,PROGRAMS.nextgen,PROGRAMS.elite].map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
-              <select value={fb} onChange={e=>sFb(e.target.value)} style={{width:"100%",padding:"12px",background:"#1a1a1a",border:"1px solid #333",borderRadius:10,color:"#ccc",fontSize:13,fontFamily:FC,fontWeight:700,letterSpacing:0.5}}>
-                <option value="all">ALL BATCHES</option>{batches.map(b=><option key={b} value={b}>{b}</option>)}
+              <select value={fb} onChange={e=>sFb(e.target.value)} style={{width:"100%",padding:"12px 14px",background:"#151515",border:"1px solid #2a2a2a",borderRadius:12,color:"#aaa",fontSize:13,fontFamily:FC,fontWeight:600,outline:"none"}}>
+                <option value="all">All Batches</option>{batches.map(b=><option key={b} value={b}>{b}</option>)}
               </select>
             </div>
-            <button onClick={onB} style={{marginTop:"auto",padding:"14px",background:"none",border:"1px solid #333",borderRadius:10,color:"#888",fontFamily:FC,fontWeight:700,fontSize:13,letterSpacing:1,cursor:"pointer"}}>LOGOUT</button>
+            <button onClick={onB} style={{marginTop:"auto",padding:"14px",background:"#151515",border:"none",borderRadius:12,color:"#666",fontFamily:FC,fontWeight:700,fontSize:13,letterSpacing:0.5,cursor:"pointer"}}>Sign Out</button>
           </div>
         )}
 
         {/* Mobile tab pills */}
         {isMobile&&!sideOpen&&(
-          <div style={{display:"flex",gap:6,padding:"10px 16px",overflowX:"auto",background:"#fff",borderBottom:"1px solid #e8e8e3",WebkitOverflowScrolling:"touch"}}>
-            {navItems.map(n=><button key={n.id} onClick={()=>sT(n.id)} style={pill(tab===n.id)}>{n.label.toUpperCase()}</button>)}
+          <div style={{display:"flex",gap:8,padding:"12px 16px",overflowX:"auto",background:"#fff",borderBottom:"1px solid #f0f0eb",WebkitOverflowScrolling:"touch"}}>
+            {navItems.map(n=><button key={n.id} onClick={()=>sT(n.id)} style={pill(tab===n.id)}>{n.label}</button>)}
           </div>
         )}
 
-        {/* Desktop stats bar */}
+        {/* Desktop header bar */}
         {!isMobile&&(
-          <div style={{padding:"12px 24px",background:"#fff",borderBottom:"1px solid #e8e8e3",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
-            <span style={{fontSize:12,color:"#888",fontFamily:FC,letterSpacing:1}}>{totalU} PARTICIPANTS &middot; {totalC} SUBMISSIONS</span>
+          <div style={{padding:"18px 32px",background:"#fff",borderBottom:"1px solid #f0f0eb",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
+            <div><div style={{fontFamily:FC,fontWeight:800,fontSize:20,letterSpacing:0.3}}>{navItems.find(n=>n.id===tab)?.label||"Overview"}</div><div style={{fontSize:13,color:"#999",fontFamily:FB,marginTop:2}}>{totalU} participants - {totalC} submissions</div></div>
+            <div style={{display:"flex",gap:8}}>{fp!=="all"&&<span style={{padding:"6px 14px",borderRadius:20,background:"#FFD300",fontFamily:FC,fontWeight:700,fontSize:12,color:"#000"}}>{PROGRAMS[fp]?.short}</span>}{fb!=="all"&&<span style={{padding:"6px 14px",borderRadius:20,background:"#1a1a1a",fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300"}}>{fb}</span>}</div>
           </div>
         )}
 
         {/* Content area */}
-        <div style={{padding:isMobile?"16px":"24px 32px",flex:1,maxWidth:1100,width:"100%",boxSizing:"border-box",margin:isMobile?"0":"0 auto"}}>
+        <div style={{padding:isMobile?"16px":"28px 32px",flex:1,maxWidth:1100,width:"100%",boxSizing:"border-box",margin:isMobile?"0":"0 auto"}}>
           {tab==="overview"&&renderOverview()}
           {tab==="activities"&&renderActivities()}
           {tab==="people"&&renderPeople()}
