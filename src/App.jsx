@@ -320,14 +320,17 @@ export default function App(){
     setUser(f);setSession({id:f.id});setView(getInitialView(f,batchControl,activityComps));flash(`Hola, ${f.name.split(" ")[0]}!`);
   };
   const logout=async()=>{setUser(null);setSession(null);setView("splash");};
+  const isTestAll=user?.id==="test-all";
+  const isDone=(cid)=>!isTestAll&&comps.some(c=>c.userId===user?.id&&c.challengeId===cid);
   const submit=async(cid,s)=>{
-    if(!user||comps.find(c=>c.userId===user.id&&c.challengeId===cid)){flash("Already submitted!",false);return;}
+    if(!user){flash("Not logged in",false);return;}
+    if(!isTestAll&&comps.find(c=>c.userId===user.id&&c.challengeId===cid)){flash("Already submitted!",false);return;}
     const ch=((challenges||DEFAULT_CHALLENGES)[user.program]||[]).find(c=>c.id===cid);
     const nc={id:`c${Date.now()}`,userId:user.id,challengeId:cid,program:user.program,batch:user.batch,submission:s,claimedBonus:s.claimedBonus||false,points:s.points!==undefined?s.points:ch.points,bonusClaimed:!!s.claimedBonus,bonusApproved:!!s.autoBonus,bonusPoints:ch.bonusPoints,submittedAt:new Date().toISOString()};
-    await addCompletion(nc);setComps([...comps,nc]);flash(`+${nc.points} PTS!${nc.bonusClaimed?(nc.bonusApproved?" +"+nc.bonusPoints+" BONUS!":" Bonus pending review."):""}`,true);setView(prevView||"dashboard");setPrevView(null);
+    if(!isTestAll)await addCompletion(nc);setComps([...comps,nc]);flash(`+${nc.points} PTS!${nc.bonusClaimed?(nc.bonusApproved?" +"+nc.bonusPoints+" BONUS!":" Bonus pending review."):""}`,true);setView(prevView||"dashboard");setPrevView(null);
   };
   const pts=(uid,p)=>uid?comps.filter(c=>c.userId===uid&&c.program===p).reduce((s,c)=>s+c.points+(c.bonusApproved?c.bonusPoints||0:0),0):0;
-  const completeActivity=async(actId,data)=>{const nc={id:`ac${Date.now()}`,userId:user.id,activityId:actId,program:user.program,batch:user.batch,data,completedAt:new Date().toISOString()};await addActivityCompletion(nc);const newAc=[...activityComps,nc];setActivityComps(newAc);setView(prevView||"activities");setPrevView(null);flash("Activity completed!");};
+  const completeActivity=async(actId,data)=>{const nc={id:`ac${Date.now()}`,userId:user.id,activityId:actId,program:user.program,batch:user.batch,data,completedAt:new Date().toISOString()};if(!isTestAll)await addActivityCompletion(nc);const newAc=[...activityComps,nc];setActivityComps(newAc);setView(prevView||"activities");setPrevView(null);flash("Activity completed!");};
 
   if(loading) return (<div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100vh",background:"#f5f5f0"}}><img src={LOADING_GIF} alt="Loading" style={{width:280,maxWidth:"80vw",objectFit:"contain"}}/><link rel="preload" as="video" href="/splash-bg.mp4"/><video src="/splash-bg.mp4" preload="auto" muted style={{position:"absolute",width:0,height:0,opacity:0}}/></div>);
 
@@ -341,13 +344,13 @@ export default function App(){
       {view==="register"&&<RegV onR={reg} onB={()=>setView("splash")} lunchConfig={lunchConfig} existingUsers={users}/>}
       {view==="dashboard"&&user&&user.id&&<DashV u={user} ch={(challenges||DEFAULT_CHALLENGES)[user.program]||[]} co={comps.filter(c=>c.userId===user.id)} wk={getUserWeek(user.createdAt)} sc={pts(user.id,user.program)} onCh={c=>{setSel(c);setView("challenge");}} onBd={()=>setView("leaderboard")} onPr={()=>setView("profile")} actComps={activityComps.filter(c=>c.userId===user.id)} acts={DEFAULT_ACTIVITIES[user.program]||[]}/>}
       {view==="challenge"&&sel&&user&&(
-        sel.type==="hazard_hunt"?<HazardHunt ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig.hazard_hunt}/>:
-        sel.type==="shift_in_chaos"?<ShiftInChaos ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users}/>:
-        sel.type==="spot_the_moment"?<SpotTheMoment ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users}/>:
-        sel.type==="thirty_second_sell"?<ThirtySecondSell ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
-        sel.type==="recovery_race"?<RecoveryRace ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
-        sel.type==="shift_leader_lens"?<ShiftLeaderLens ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
-        <ChV ch={sel} done={comps.some(c=>c.userId===user.id&&c.challengeId===sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}}/>
+        sel.type==="hazard_hunt"?<HazardHunt ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig.hazard_hunt}/>:
+        sel.type==="shift_in_chaos"?<ShiftInChaos ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users}/>:
+        sel.type==="spot_the_moment"?<SpotTheMoment ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users}/>:
+        sel.type==="thirty_second_sell"?<ThirtySecondSell ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
+        sel.type==="recovery_race"?<RecoveryRace ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
+        sel.type==="shift_leader_lens"?<ShiftLeaderLens ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
+        <ChV ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}}/>
       )}
       {view==="leaderboard"&&user&&<LbV us={users} co={comps} cu={user} onB={()=>setView("dashboard")} onP={()=>setView("profile")} defaultProg={user.program} defaultBatch={user.batch}/>}
       {view==="profile"&&user&&<PrV u={user} co={comps.filter(c=>c.userId===user.id)} sc={pts(user.id,user.program)} onO={logout} onB={()=>setView("dashboard")} onBd={()=>setView("leaderboard")}/>}
