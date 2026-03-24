@@ -2032,7 +2032,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                 <div style={{fontSize:13,color:"#999",fontFamily:FB,marginTop:1}}>{item.subtitle}</div>
               </div>
               <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-                <span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"4px 10px",borderRadius:8,background:item.kind==="activity"?"#FFF8E0":"#f5f5f0",color:item.kind==="activity"?"#B8860B":"#999"}}>{item.kind==="activity"?"ACTIVITY":(item.type&&item.type!=="standard")?item.type.toUpperCase().replace(/_/g," "):"CHALLENGE"}</span>
+                <span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"4px 10px",borderRadius:8,background:item.kind==="activity"?"#FFF8E0":"#f5f5f0",color:item.kind==="activity"?"#B8860B":"#999"}}>{item.kind==="activity"?"ACTIVITY":"CHALLENGE"}</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2" style={{transform:isOpen?"rotate(90deg)":"none",transition:"transform 0.2s"}}><path d="M9 18l6-6-6-6"/></svg>
               </div>
             </div>
@@ -2155,17 +2155,54 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
 
                 {item.kind==="activity"&&item.type==="coolroom_countdown"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
                   <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Cool Room Countdown Settings</div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
-                    <div><div style={subLabel}>TIMER (SEC)</div><input type="number" value={acfg.coolroom?.timerDuration||120} onChange={e=>saveAcfg("coolroom",{timerDuration:parseInt(e.target.value)||120})} style={{...inp,textAlign:"center"}}/></div>
-                    <div><div style={subLabel}>COMPARE TIME (SEC)</div><input type="number" value={acfg.coolroom?.compareTime||60} onChange={e=>saveAcfg("coolroom",{compareTime:parseInt(e.target.value)||60})} style={{...inp,textAlign:"center"}}/></div>
+
+                  {/* 360 Images */}
+                  <div style={{marginBottom:16}}>
+                    <div style={subLabel}>360 IMAGES</div>
+                    {[["imgA","Image A - Before Blackout",COOLROOM_IMG_A],["imgB","Image B - After Blackout",COOLROOM_IMG_B]].map(([key,label,fallback])=>{
+                      const currentImg=acfg.coolroom?.[key];
+                      return(<div key={key} style={{display:"flex",alignItems:"center",gap:12,marginBottom:10,background:"#fff",borderRadius:10,padding:10}}>
+                        <div style={{width:80,height:56,borderRadius:8,overflow:"hidden",flexShrink:0,background:"#222"}}>
+                          {(currentImg||fallback)?<img src={currentImg||fallback} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"#666",fontFamily:FC}}>NONE</div>}
+                        </div>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#555",marginBottom:6}}>{label}</div>
+                          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                            <label style={{...btnY,padding:"6px 12px",fontSize:11,display:"inline-flex",alignItems:"center",gap:4,cursor:"pointer"}}>
+                              UPLOAD<input type="file" accept="image/*" style={{display:"none"}} onChange={async e=>{const file=e.target.files[0];if(!file)return;const url=URL.createObjectURL(file);saveAcfg("coolroom",{[key]:url});flash("Image set - use public folder path for production",true);}}/></label>
+                            <input value={currentImg||fallback} onChange={e=>saveAcfg("coolroom",{[key]:e.target.value})} placeholder="/360-image.jpg" style={{...inp,flex:1,fontSize:11,padding:"6px 10px"}}/>
+                          </div>
+                        </div>
+                      </div>);
+                    })}
+                    <div style={{fontSize:11,color:"#999",fontFamily:FC}}>Enter a path like /360-fridge.jpg or upload. Per-batch overrides are in Batch Controls.</div>
                   </div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
-                    <div><div style={subLabel}>BLACKOUT AT (SEC LEFT)</div><input type="number" value={acfg.coolroom?.blackoutAt||60} onChange={e=>saveAcfg("coolroom",{blackoutAt:parseInt(e.target.value)||60})} style={{...inp,textAlign:"center"}}/></div>
-                    <div><div style={subLabel}>BLACKOUT DURATION (SEC)</div><input type="number" value={acfg.coolroom?.blackoutDur||3} onChange={e=>saveAcfg("coolroom",{blackoutDur:parseInt(e.target.value)||3})} style={{...inp,textAlign:"center"}}/></div>
+
+                  {/* Game Settings */}
+                  <div style={{marginBottom:16}}>
+                    <div style={subLabel}>GAME SETTINGS</div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
+                      <div><div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#aaa",letterSpacing:0.5}}>TIMER (SEC)</div><input type="number" value={acfg.coolroom?.timerDuration||120} onChange={e=>saveAcfg("coolroom",{timerDuration:parseInt(e.target.value)||120})} style={{...inp,textAlign:"center",marginTop:4}}/></div>
+                      <div><div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#aaa",letterSpacing:0.5}}>COMPARE TIME (SEC)</div><input type="number" value={acfg.coolroom?.compareTime||60} onChange={e=>saveAcfg("coolroom",{compareTime:parseInt(e.target.value)||60})} style={{...inp,textAlign:"center",marginTop:4}}/></div>
+                    </div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
+                      <div><div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#aaa",letterSpacing:0.5}}>BLACKOUT AT (SEC LEFT)</div><input type="number" value={acfg.coolroom?.blackoutAt||60} onChange={e=>saveAcfg("coolroom",{blackoutAt:parseInt(e.target.value)||60})} style={{...inp,textAlign:"center",marginTop:4}}/></div>
+                      <div><div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#aaa",letterSpacing:0.5}}>BLACKOUT DURATION (SEC)</div><input type="number" value={acfg.coolroom?.blackoutDur||3} onChange={e=>saveAcfg("coolroom",{blackoutDur:parseInt(e.target.value)||3})} style={{...inp,textAlign:"center",marginTop:4}}/></div>
+                    </div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                      <div><div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#aaa",letterSpacing:0.5}}>COUNT SHEET ROWS</div><input type="number" value={acfg.coolroom?.countRows||5} onChange={e=>saveAcfg("coolroom",{countRows:parseInt(e.target.value)||5})} style={{...inp,textAlign:"center",marginTop:4}}/></div>
+                      <div><div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#aaa",letterSpacing:0.5}}>TIMER WARN (SEC)</div><input type="number" value={acfg.coolroom?.timerWarn||30} onChange={e=>saveAcfg("coolroom",{timerWarn:parseInt(e.target.value)||30})} style={{...inp,textAlign:"center",marginTop:4}}/></div>
+                    </div>
                   </div>
-                  <div style={{marginBottom:12}}><div style={subLabel}>BRIEFING TEXT</div><textarea value={acfg.coolroom?.briefing||"You have 2 minutes. Count everything you can see. Product name, quantity, unit. The clock doesn't wait."} onChange={e=>saveAcfg("coolroom",{briefing:e.target.value})} rows={2} style={{...inp,resize:"vertical"}}/></div>
-                  <div style={{marginBottom:12}}><div style={subLabel}>REFLECTION QUESTION</div><input value={acfg.coolroom?.reflectionQ||"What will you do differently next time you count stock?"} onChange={e=>saveAcfg("coolroom",{reflectionQ:e.target.value})} style={inp}/></div>
-                  <div style={{fontSize:12,color:"#888",fontFamily:FC,padding:"8px 0"}}>360 images are configured per-batch in Batch Controls below.</div>
+
+                  {/* Content */}
+                  <div style={{marginBottom:12}}>
+                    <div style={subLabel}>CONTENT</div>
+                    <div style={{marginBottom:8}}><div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#aaa",letterSpacing:0.5,marginBottom:4}}>BRIEFING TEXT</div><textarea value={acfg.coolroom?.briefing||"You have 2 minutes. Count everything you can see. Product name, quantity, unit. The clock doesn't wait."} onChange={e=>saveAcfg("coolroom",{briefing:e.target.value})} rows={2} style={{...inp,resize:"vertical"}}/></div>
+                    <div style={{marginBottom:8}}><div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#aaa",letterSpacing:0.5,marginBottom:4}}>COMPARE PROMPT</div><input value={acfg.coolroom?.comparePrompt||"How many items did your partner count?"} onChange={e=>saveAcfg("coolroom",{comparePrompt:e.target.value})} style={inp}/></div>
+                    <div style={{marginBottom:8}}><div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#aaa",letterSpacing:0.5,marginBottom:4}}>REVEAL QUESTION</div><input value={acfg.coolroom?.revealQ||"Did you notice the change?"} onChange={e=>saveAcfg("coolroom",{revealQ:e.target.value})} style={inp}/></div>
+                    <div><div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#aaa",letterSpacing:0.5,marginBottom:4}}>REFLECTION QUESTION</div><input value={acfg.coolroom?.reflectionQ||"What will you do differently next time you count stock?"} onChange={e=>saveAcfg("coolroom",{reflectionQ:e.target.value})} style={inp}/></div>
+                  </div>
                 </div>)}
 
                 {item.kind==="activity"&&item.type==="roster_reality"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
