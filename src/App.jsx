@@ -44,7 +44,7 @@ const ICONS = {
 const DEFAULT_CHALLENGES = {
   nextgen: [
     { id: "ng-w1", week: 1, type: "shift_call", title: "SHIFT CALL", subtitle: "React or hold?", points: 100, bonusPoints: 50, bonusCondition: "Perfect round (8/8 correct)", description: "Mid-shift scenarios. Sales data, headcount, model. You have 10 seconds to decide: react or do nothing. Eight rounds. Speed matters.", deliverable: "8 scenario decisions with speed scores", tip: "The skill isn't always cutting. It's reading the data and knowing when to hold.", icon: "sticky_tape" },
-    { id: "ng-w2", week: 2, type: "swap_the_shift", title: "SWAP THE SHIFT", subtitle: "Five decisions. One roster.", points: 100, bonusPoints: 50, bonusCondition: "Hit the $37.10 AHR target", description: "A completed roster. 10 crew. 5 have a swap available. Tap to see the option. Approve or pass - each decision is final. See what your choices cost - or saved.", deliverable: "5 swap decisions with AHR and savings outcome", tip: "You cannot indefinitely defer the conversation. One tap, one decision.", icon: "fries" },
+    { id: "ng-w2", week: 2, type: "make_the_call", title: "MAKE THE CALL", subtitle: "Fill the shifts. Hold the line.", points: 100, bonusPoints: 50, bonusCondition: "All 6 correct - AHR stays under $37.10", description: "6 open shifts. 2 crew available for each. Tap to assign. Watch the AHR. Wrong calls blow the target. The rate and the hours both matter.", deliverable: "6 shift decisions with AHR outcome", tip: "Every shift has two costs: the rate and the hours. The hours column is as important as the rate column.", icon: "fries" },
     { id: "ng-w3", week: 3, type: "perm_or_pass", title: "PERM OR PASS", subtitle: "Have the conversation", points: 100, bonusPoints: 50, bonusCondition: "All 5 profiles answered correctly", description: "One crew profile per day for 5 days. Read their objection to going permanent. Tap your response. The app tells you if it lands - and why.", deliverable: "5 completed coaching scenarios", tip: "The honest answer is: base rate reduces, but they gain everything else. Show the full picture.", icon: "socks" },
     { id: "ng-w4", week: 4, type: "your_restaurant", title: "YOUR RESTAURANT, YOUR NUMBER", subtitle: "See your own data", points: 100, bonusPoints: 50, bonusCondition: "Completed initial assessment + 30-day check-in", description: "Enter your restaurant's data with sliders - no keyboard. The app calculates your best lever, ranks you against the cohort, and generates a shareable summary.", deliverable: "Restaurant assessment + recommended lever + cohort rank", tip: "By the time you read it on the P&L, the decision was made three weeks ago.", icon: "churros" },
   ],
@@ -278,8 +278,8 @@ export default function App(){
       // Force-update challenges if they don't have the new type field
       if(ch2.lse&&((!ch2.lse[0]?.type)||(ch2.lse[2]?.type==="standard"))){ch2.lse=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.lse));try{await dbSetChallenges(ch2);}catch(e){}}
       if(ch2.essentials&&ch2.essentials[0]&&!ch2.essentials[0].type){ch2.essentials=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.essentials));try{await dbSetChallenges(ch2);}catch(e){}}
-      // Force-update NGL challenges to new interactive types (also catch bench_builder->swap_the_shift)
-      if(ch2.nextgen&&ch2.nextgen[0]&&(!ch2.nextgen[0].type||ch2.nextgen.some(c=>c.type==="bench_builder"))){ch2.nextgen=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.nextgen));try{await dbSetChallenges(ch2);}catch(e){}}
+      // Force-update NGL challenges to new interactive types
+      if(ch2.nextgen&&ch2.nextgen[0]&&(!ch2.nextgen[0].type||ch2.nextgen.some(c=>c.type==="bench_builder"||c.type==="swap_the_shift"))){ch2.nextgen=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.nextgen));try{await dbSetChallenges(ch2);}catch(e){}}
       setChallenges(ch2);
     }else setChallenges(JSON.parse(JSON.stringify(DEFAULT_CHALLENGES)));const lc=await getLunchConfig();if(lc)setLunchConfigState(lc);let ac=await getActivityCompletions();if(ac.length)setActivityComps(ac);let bc=await getBatchControl();if(bc)setBatchControlState(bc);
     // Seed test users if not exist
@@ -356,6 +356,7 @@ export default function App(){
         sel.type==="teach_it"?<TeachIt ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
         sel.type==="shift_leader_lens"?<ShiftLeaderLens ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         sel.type==="shift_call"?<ShiftCall ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
+        sel.type==="make_the_call"?<MakeTheCall ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         sel.type==="swap_the_shift"?<SwapTheShift ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         sel.type==="bench_builder"?<BenchBuilder ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         sel.type==="perm_or_pass"?<PermOrPass ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
@@ -1875,6 +1876,185 @@ function BenchBuilder({ch,done,onS,onB,user,actCfg}){
         <div style={{fontSize:13,color:"#fff",fontFamily:FB,lineHeight:1.6}}>Casual 21+ to PT: saves <span style={{color:"#E3000B",fontWeight:900}}>$6.63/hr</span><br/>Casual 21+ to Casual 19: saves <span style={{color:"#E3000B",fontWeight:900}}>$6.67/hr</span><br/>Casual 21+ to Casual 16: saves <span style={{color:"#E3000B",fontWeight:900}}>$16.62/hr</span></div>
       </div>
       <button style={{...BY,width:"100%"}} onClick={()=>{const allBeat=levelResults.every(r=>r.beatTarget);const earnedPts=Math.round(ch.points*(levelResults.filter(r=>r.beatTarget).length/levels.length));onS({text:"Bench Builder completed",levels:levelResults,allUnderTarget:allBeat,claimedBonus:allBeat,autoBonus:allBeat,points:earnedPts});}}>SUBMIT</button>
+    </div>)}
+  </div>);
+}
+
+// ─── MAKE THE CALL (NGL Week 2) ─────────────────────────────────────────────
+const MTC_CREW=[
+  {id:"jordan",name:"Jordan",classification:"Casual 21+",rate:33.19,baseHours:36,status:"2 hrs left before overtime"},
+  {id:"mia",name:"Mia",classification:"Casual 19",rate:26.52,baseHours:28,status:"Available"},
+  {id:"tyler",name:"Tyler",classification:"Casual 21+",rate:33.19,baseHours:20,status:"Available"},
+  {id:"aisha",name:"Aisha",classification:"Casual 19",rate:26.52,baseHours:38,status:"At limit"},
+  {id:"luca",name:"Luca",classification:"Casual 16",rate:16.57,baseHours:16,status:"Available"},
+  {id:"ben",name:"Ben",classification:"PT/FT 21+",rate:26.56,baseHours:30,status:"Available"},
+  {id:"chloe",name:"Chloe",classification:"PT/FT 19",rate:21.24,baseHours:38,status:"At limit"},
+  {id:"noah",name:"Noah",classification:"Casual 21+",rate:33.19,baseHours:34,status:"4 hrs left before overtime"},
+  {id:"ruby",name:"Ruby",classification:"PT/FT 16",rate:13.26,baseHours:22,status:"Available"},
+  {id:"finn",name:"Finn",classification:"Casual 21+",rate:33.19,baseHours:12,status:"Available"},
+];
+const MTC_PENALTIES={casual_16:{saturday:1.2,sunday:1.2},casual_19:{saturday:1.4,sunday:1.4},casual_21:{saturday:1.4,sunday:1.4},ptft_16:{saturday:1.25,sunday:1.25},ptft_19:{saturday:1.25,sunday:1.5},ptft_21:{saturday:1.25,sunday:1.5}};
+const MTC_SHIFTS=[
+  {id:1,day:"Tuesday",time:"Lunch",duration:4,dayType:"weekday",optionA:{crewId:"jordan",desc:"Knows the lunch rush. Only 2 hrs until overtime kicks in."},optionB:{crewId:"finn",desc:"Less experience on lunch. Plenty of hours available."},correctPick:"finn",wrongLesson:"Jordan's experience costs $33.19 extra on this shift because of overtime. The hours column matters."},
+  {id:2,day:"Wednesday",time:"Dinner",duration:5,dayType:"weekday",optionA:{crewId:"mia",desc:"Available. Junior rate. 10 hrs left before overtime."},optionB:{crewId:"aisha",desc:"Same rate as Mia. Said she wants more hours this week."},correctPick:"mia",wrongLesson:"Aisha wants the hours but she's at 38. Every hour is overtime at $39.78. Mia at $26.52 base saves $66.30."},
+  {id:3,day:"Saturday",time:"Lunch",duration:6,dayType:"saturday",optionA:{crewId:"tyler",desc:"Casual adult. Saturday penalty applies."},optionB:{crewId:"luca",desc:"Junior. Saturday penalty applies. Trained and signed off."},correctPick:"luca",wrongLesson:"Weekend penalty amplifies the classification gap. Tyler at $46.47/hr vs Luca at $23.20/hr. That's $139 extra for one shift."},
+  {id:4,day:"Sunday",time:"Close",duration:4,dayType:"sunday",optionA:{crewId:"ben",desc:"Permanent adult. Sunday penalty applies."},optionB:{crewId:"ruby",desc:"Permanent junior. Sunday penalty applies. Available."},correctPick:"ruby",wrongLesson:"Sunday penalty on a 21+ permanent vs a 16 permanent: $39.84/hr vs $16.58/hr. That's $93 extra."},
+  {id:5,day:"Thursday",time:"Morning",duration:5,dayType:"weekday",optionA:{crewId:"noah",desc:"4 hrs left before overtime. Morning shift is 5 hrs."},optionB:{crewId:"mia",desc:"Junior rate. 5 hrs available before overtime."},correctPick:"mia",wrongLesson:"Even 1 hour of overtime matters. Noah at $36.51 effective vs Mia at $26.52. That's $49.95 extra."},
+  {id:6,day:"Friday",time:"Dinner",duration:4,dayType:"weekday",optionA:{crewId:"finn",desc:"Available. Adult casual rate."},optionB:{crewId:"luca",desc:"Junior. Available. No overtime risk."},correctPick:"luca",wrongLesson:"Same role, same shift. Finn at $33.19 vs Luca at $16.57. That's $66.48 extra. Classification is the lever when hours aren't a factor."},
+];
+const MTC_OT_THRESHOLD=38;const MTC_OT_MULT=1.5;const MTC_START_AHR=36.80;const MTC_TARGET=37.10;const MTC_EXISTING_HRS=546;
+
+function MakeTheCall({ch,done,onS,onB,user,actCfg}){
+  const crew=actCfg?.make_the_call?.crew||MTC_CREW;
+  const shifts=actCfg?.make_the_call?.shifts||MTC_SHIFTS;
+  const[screen,setScreen]=useState("brief");const[shiftIdx,setShiftIdx]=useState(0);const[decisions,setDecisions]=useState([]);const[selected,setSelected]=useState(null);const[flash,setFlash]=useState(null);
+  const[liveHours,setLiveHours]=useState(Object.fromEntries(crew.map(c=>[c.id,c.baseHours])));
+  const[displayAHR,setDisplayAHR]=useState(MTC_START_AHR);const[labourCost,setLabourCost]=useState(MTC_START_AHR*MTC_EXISTING_HRS);const[totalHrs,setTotalHrs]=useState(MTC_EXISTING_HRS);
+
+  const getClassKey=(cls)=>{const isPerm=cls.includes("PT")||cls.includes("FT");const age=cls.includes("16")?"16":cls.includes("19")?"19":"21";return(isPerm?"ptft_":"casual_")+age;};
+  const calcCost=(crewId,dur,dayType)=>{const c=crew.find(x=>x.id===crewId);if(!c)return{totalCost:0,effectiveRate:0,baseHrs:dur,otHrs:0,penalty:1};
+    const headroom=Math.max(0,MTC_OT_THRESHOLD-liveHours[crewId]);const baseH=Math.min(dur,headroom);const otH=Math.max(0,dur-headroom);
+    let pen=1;if(dayType==="saturday"||dayType==="sunday"){pen=MTC_PENALTIES[getClassKey(c.classification)]?.[dayType]||1;}
+    const cost=baseH*c.rate*pen+otH*c.rate*MTC_OT_MULT*pen;
+    return{totalCost:Math.round(cost*100)/100,effectiveRate:Math.round((cost/dur)*100)/100,baseHrs:baseH,otHrs:otH,penalty:pen};};
+
+  const animAHR=(from,to)=>{const steps=16;const sv=(to-from)/steps;let cur=from;let s=0;const iv=setInterval(()=>{s++;cur+=sv;setDisplayAHR(cur);if(s>=steps){clearInterval(iv);setDisplayAHR(to);}},50);};
+
+  const confirm=()=>{if(selected===null)return;const shift=shifts[shiftIdx];const chosenId=selected==="a"?shift.optionA.crewId:shift.optionB.crewId;const optimalId=shift.correctPick;
+    const chosenCost=calcCost(chosenId,shift.duration,shift.dayType);const optimalCost=calcCost(optimalId,shift.duration,shift.dayType);const correct=chosenId===optimalId;
+    const extraCost=correct?0:Math.round((chosenCost.totalCost-optimalCost.totalCost)*100)/100;
+    const dec={shiftId:shift.id,day:shift.day,time:shift.time,chosenCrewId:chosenId,chosenName:crew.find(c=>c.id===chosenId)?.name,correct,actualCost:chosenCost.totalCost,optimalCost:optimalCost.totalCost,extraCost,effectiveRate:chosenCost.effectiveRate,otHrs:chosenCost.otHrs,penalty:chosenCost.penalty};
+    setDecisions(p=>[...p,dec]);
+    setLiveHours(p=>({...p,[chosenId]:p[chosenId]+shift.duration}));
+    const newLabour=labourCost+chosenCost.totalCost;const newHrs=totalHrs+shift.duration;const newAHR=newLabour/newHrs;
+    setLabourCost(newLabour);setTotalHrs(newHrs);animAHR(displayAHR,newAHR);
+    setFlash({...dec,optimalName:crew.find(c=>c.id===optimalId)?.name,saving:extraCost});
+    setTimeout(()=>{setFlash(null);setSelected(null);if(shiftIdx<shifts.length-1)setShiftIdx(s=>s+1);else setScreen("results");},2000);};
+
+  const finalAHR=labourCost/totalHrs;const correctCount=decisions.filter(d=>d.correct).length;const wrongCount=decisions.filter(d=>!d.correct).length;
+  const totalActual=decisions.reduce((s,d)=>s+d.actualCost,0);const totalOptimal=decisions.reduce((s,d)=>s+d.optimalCost,0);const extraWeekly=Math.round((totalActual-totalOptimal)*100)/100;
+  const getVerdict=()=>{if(wrongCount===0)return"Clean week. You read classification and hours. That is the whole game.";
+    if(wrongCount<=2){const c=decisions.filter(d=>!d.correct).sort((a,b)=>b.extraCost-a.extraCost)[0];return`Mostly clean. ${c.day} ${c.time} cost you $${c.extraCost.toFixed(0)} extra. One conversation with ${c.chosenName} about hours load fixes that.`;}
+    if(wrongCount<=4)return"AHR is over target. Two of your errors came from overtime you could see coming. The hours column is as important as the rate column.";
+    return"Every shift has two costs: the rate and the hours. This week the hours got you. Look at the roster before you fill shifts, not after.";};
+
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+
+  return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+
+    {/* Brief */}
+    {screen==="brief"&&(<div style={{padding:"24px 20px"}}>
+      <div style={{background:"#000",borderRadius:16,padding:24,color:"#fff",marginBottom:20}}>
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,marginBottom:16}}>GYG HARRINGTON PARK</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+          <div style={{background:"#1a1a1a",borderRadius:12,padding:14,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:22,color:"#007A33"}}>${MTC_START_AHR.toFixed(2)}</div><div style={{fontSize:9,color:"#888",fontFamily:FC,marginTop:2}}>THIS WEEK'S AHR</div></div>
+          <div style={{background:"#1a1a1a",borderRadius:12,padding:14,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:22,color:"#FFD300"}}>${MTC_TARGET.toFixed(2)}</div><div style={{fontSize:9,color:"#888",fontFamily:FC,marginTop:2}}>TARGET</div></div>
+          <div style={{background:"#1a1a1a",borderRadius:12,padding:14,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:22}}>6</div><div style={{fontSize:9,color:"#888",fontFamily:FC,marginTop:2}}>OPEN SHIFTS</div></div>
+        </div>
+      </div>
+      <div style={{borderLeft:"4px solid #FFD300",background:"#fff",borderRadius:"0 14px 14px 0",padding:16,marginBottom:20}}>
+        <div style={{fontSize:14,fontFamily:FB,lineHeight:1.6,color:"#555"}}>You have 6 shifts to fill next week. Wrong calls will blow your AHR past target. The rate and the hours both matter.</div>
+      </div>
+      <button style={{...BY,width:"100%"}} onClick={()=>setScreen("crew")}>SEE YOUR CREW</button>
+    </div>)}
+
+    {/* Crew list */}
+    {screen==="crew"&&(<div style={{padding:"0 20px"}}>
+      <div style={{position:"sticky",top:56,background:"#f5f5f0",zIndex:10,padding:"12px 0",borderBottom:"1px solid #e8e8e3"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div><div style={{fontFamily:FC,fontWeight:900,fontSize:32,color:displayAHR<=MTC_TARGET?"#007A33":"#E3000B"}}>${displayAHR.toFixed(2)}</div><div style={{fontSize:10,color:"#888",fontFamily:FC}}>CURRENT AHR | Target: ${MTC_TARGET.toFixed(2)}</div></div>
+        </div>
+      </div>
+      <div style={{paddingTop:12}}>
+        {crew.map(c=>{const hrs=liveHours[c.id];const headroom=MTC_OT_THRESHOLD-hrs;const atLimit=headroom<=0;const nearOT=headroom>0&&headroom<=4;
+          return(<div key={c.id} style={{display:"flex",alignItems:"center",padding:"12px 14px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,marginBottom:4}}>
+            <div style={{width:36,height:36,borderRadius:18,background:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:16,color:"#000",marginRight:12,flexShrink:0}}>{c.name[0]}</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{c.name}</div>
+              <div style={{fontSize:12,color:"#888",fontFamily:FB}}>{c.classification} - {hrs} hrs</div>
+            </div>
+            <span style={{fontSize:10,fontFamily:FC,fontWeight:700,padding:"4px 8px",borderRadius:6,background:atLimit?"rgba(227,0,11,0.1)":nearOT?"rgba(255,211,0,0.2)":"#f5f5f0",color:atLimit?"#E3000B":nearOT?"#B8860B":"#999"}}>{atLimit?"AT LIMIT":nearOT?`${headroom} HRS LEFT`:"AVAILABLE"}</span>
+          </div>);})}
+      </div>
+      <button style={{...BY,width:"100%",marginTop:16,marginBottom:20}} onClick={()=>setScreen("shifts")}>FILL SHIFTS</button>
+    </div>)}
+
+    {/* Shift decisions */}
+    {screen==="shifts"&&!flash&&shifts[shiftIdx]&&(()=>{const shift=shifts[shiftIdx];const cA=crew.find(x=>x.id===shift.optionA.crewId);const cB=crew.find(x=>x.id===shift.optionB.crewId);
+      const hrsA=liveHours[shift.optionA.crewId];const hrsB=liveHours[shift.optionB.crewId];
+      const otRiskA=MTC_OT_THRESHOLD-hrsA<shift.duration;const otRiskB=MTC_OT_THRESHOLD-hrsB<shift.duration;
+      return(<div style={{padding:"16px 20px"}}>
+        {/* AHR header */}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+          <div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:displayAHR<=MTC_TARGET?"#007A33":"#E3000B"}}>${displayAHR.toFixed(2)}</div><div style={{fontSize:10,color:"#888",fontFamily:FC}}>AHR | Target: ${MTC_TARGET.toFixed(2)}</div></div>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#FFD300",background:"#000",padding:"8px 14px",borderRadius:10}}>{shifts.length-shiftIdx} LEFT</div>
+        </div>
+        {/* Shift header */}
+        <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:16,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div><div style={{fontFamily:FC,fontWeight:900,fontSize:18,color:"#fff"}}>{shift.day.toUpperCase()} {shift.time.toUpperCase()}</div><div style={{fontSize:13,color:"#888",fontFamily:FB,marginTop:2}}>{shift.duration} hours</div></div>
+          {shift.dayType!=="weekday"&&<span style={{fontFamily:FC,fontWeight:800,fontSize:10,color:"#000",background:"#FFD300",padding:"4px 10px",borderRadius:6}}>WEEKEND PENALTY</span>}
+        </div>
+        {/* Two options */}
+        <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:16}}>
+          {[["a",shift.optionA,cA,hrsA,otRiskA],["b",shift.optionB,cB,hrsB,otRiskB]].map(([key,opt,c,hrs,otRisk])=>(<button key={key} onClick={()=>setSelected(key)} style={{padding:16,background:"#fff",border:selected===key?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:14,textAlign:"left",cursor:"pointer",transition:"all 0.15s",position:"relative"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+              <span style={{fontFamily:FC,fontWeight:900,fontSize:16}}>{c?.name}</span>
+              <span style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#888"}}>{hrs} hrs this week</span>
+            </div>
+            <div style={{fontSize:12,fontFamily:FC,fontWeight:600,color:"#999",marginBottom:6}}>{c?.classification}</div>
+            <div style={{fontSize:13,fontFamily:FB,color:"#555",lineHeight:1.5}}>{opt.desc}</div>
+            {otRisk&&<div style={{marginTop:8,fontSize:10,fontFamily:FC,fontWeight:800,color:"#E3000B",background:"rgba(227,0,11,0.08)",padding:"4px 8px",borderRadius:6,display:"inline-block"}}>OVERTIME RISK</div>}
+          </button>))}
+        </div>
+        <button style={{...BY,width:"100%",opacity:selected?1:0.4}} disabled={!selected} onClick={confirm}>CONFIRM</button>
+      </div>);})()}
+
+    {/* Flash */}
+    {flash&&(<div style={{padding:"24px 20px",textAlign:"center"}}>
+      <div style={{background:flash.correct?"rgba(0,122,51,0.08)":"rgba(227,0,11,0.08)",border:`2px solid ${flash.correct?"#007A33":"#E3000B"}`,borderRadius:16,padding:24}}>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:flash.correct?"#007A33":"#E3000B",marginBottom:8}}>Shift assigned to {flash.chosenName}</div>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:"#000"}}>${flash.actualCost.toFixed(2)}</div>
+        <div style={{fontSize:12,color:"#888",fontFamily:FC,marginTop:2}}>${flash.effectiveRate.toFixed(2)}/hr effective</div>
+        {flash.otHrs>0&&<div style={{fontSize:12,color:"#E3000B",fontFamily:FC,fontWeight:700,marginTop:6}}>Includes {flash.otHrs} hrs overtime at 150%</div>}
+        {flash.penalty>1&&<div style={{fontSize:12,color:"#FFB800",fontFamily:FC,fontWeight:700,marginTop:4}}>Includes weekend penalty rate ({flash.penalty}x)</div>}
+        {!flash.correct&&<div style={{marginTop:10,fontSize:13,color:"#E3000B",fontFamily:FB}}>Optimal pick ({flash.optimalName}) would have saved ${flash.saving.toFixed(2)}</div>}
+      </div>
+    </div>)}
+
+    {/* Results */}
+    {screen==="results"&&(<div style={{padding:"24px 20px"}}>
+      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontSize:22,fontFamily:FC,fontWeight:900,letterSpacing:1}}>YOUR WEEK</div></div>
+      <div style={{background:"#000",borderRadius:16,padding:20,marginBottom:16,textAlign:"center"}}>
+        <div style={{fontSize:14,fontFamily:FC,color:"#888",textDecoration:"line-through"}}>${MTC_START_AHR.toFixed(2)}</div>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:44,color:finalAHR<=MTC_TARGET?"#007A33":"#E3000B",marginTop:4}}>${finalAHR.toFixed(2)}</div>
+        <div style={{fontSize:12,fontFamily:FC,color:"#888",marginTop:4}}>TARGET: ${MTC_TARGET.toFixed(2)}</div>
+        <div style={{marginTop:8}}><span style={{fontFamily:FC,fontWeight:800,fontSize:12,padding:"6px 14px",borderRadius:8,background:finalAHR<=MTC_TARGET?"rgba(0,122,51,0.2)":"rgba(227,0,11,0.2)",color:finalAHR<=MTC_TARGET?"#007A33":"#E3000B"}}>{finalAHR<=MTC_TARGET?"UNDER TARGET":"OVER TARGET"}</span></div>
+      </div>
+      {extraWeekly>0&&<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16}}>
+        <div style={{background:"#fff",borderRadius:14,padding:16,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:"#E3000B"}}>${extraWeekly.toFixed(0)}</div><div style={{fontSize:11,color:"#888",fontFamily:FC}}>EXTRA THIS WEEK</div></div>
+        <div style={{background:"#fff",borderRadius:14,padding:16,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:"#E3000B"}}>${Math.round(extraWeekly*52).toLocaleString()}</div><div style={{fontSize:11,color:"#888",fontFamily:FC}}>ANNUAL IMPACT</div></div>
+      </div>}
+      {decisions.map((d,i)=>(<div key={i} style={{borderLeft:`3px solid ${d.correct?"#007A33":"#E3000B"}`,background:"#fff",borderRadius:"0 12px 12px 0",padding:12,marginBottom:4}}>
+        <div style={{display:"flex",justifyContent:"space-between"}}>
+          <div><div style={{fontFamily:FC,fontWeight:700,fontSize:13}}>{d.day} {d.time}</div><div style={{fontSize:12,color:"#888"}}>{d.chosenName} - ${d.actualCost.toFixed(2)}</div></div>
+          {d.correct?<span style={{fontFamily:FC,fontWeight:800,fontSize:12,color:"#007A33"}}>CORRECT</span>
+          :<div style={{textAlign:"right"}}><span style={{fontFamily:FC,fontWeight:800,fontSize:12,color:"#E3000B"}}>+${d.extraCost.toFixed(0)} EXTRA</span><div style={{fontSize:10,color:"#888"}}>Optimal: ${d.optimalCost.toFixed(2)}</div></div>}
+        </div>
+      </div>))}
+      <div style={{background:"#f8f8f5",borderRadius:12,padding:14,marginTop:12,marginBottom:16,fontSize:13,fontFamily:FB,lineHeight:1.6,color:"#555"}}>
+        The best 6 decisions cost <strong>${totalOptimal.toFixed(0)}</strong>. You spent <strong>${totalActual.toFixed(0)}</strong>.{extraWeekly>0?<> That difference, run 52 weeks, is <strong style={{color:"#E3000B"}}>${Math.round(extraWeekly*52).toLocaleString()}</strong>.</>:" You found all of it."}
+      </div>
+      <button style={{...BY,width:"100%"}} onClick={()=>setScreen("verdict")}>SEE VERDICT</button>
+    </div>)}
+
+    {/* Verdict */}
+    {screen==="verdict"&&(<div style={{padding:"24px 20px",display:"flex",flexDirection:"column",justifyContent:"center",minHeight:"60vh"}}>
+      <div style={{background:"#000",borderRadius:16,padding:24,marginBottom:24}}>
+        <div style={{fontSize:16,fontFamily:FB,lineHeight:1.8,color:"#fff",textAlign:"center"}}>{getVerdict()}</div>
+      </div>
+      {correctCount===shifts.length&&<div style={{textAlign:"center",marginBottom:16,fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300"}}>BONUS EARNED +{ch.bonusPoints} PTS</div>}
+      <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"Make the Call completed",startingAHR:MTC_START_AHR,finalAHR,targetAHR:MTC_TARGET,hitTarget:finalAHR<=MTC_TARGET,correctCount,wrongCount,decisions,totalActualCost:totalActual,totalOptimalCost:totalOptimal,extraCostWeekly:extraWeekly,extraCostAnnual:Math.round(extraWeekly*52),claimedBonus:correctCount===shifts.length,autoBonus:correctCount===shifts.length,points:ch.points});}}>COMPLETE CHALLENGE</button>
     </div>)}
   </div>);
 }
@@ -3686,6 +3866,35 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                           <div style={{display:"flex",alignItems:"center",gap:4}}><span style={{fontSize:10,color:"#888",fontFamily:FC}}>Cost/day:</span><input type="number" value={sc.costDaily} onChange={e=>{const s=[...(acfg.shift_call?.scenarios||[...SHIFT_SCENARIOS])];s[si]={...s[si],costDaily:parseInt(e.target.value)||0};saveAcfg("shift_call",{scenarios:s});}} style={{...inp,width:60,fontSize:11,padding:"4px 6px",textAlign:"center"}}/></div>
                           <div style={{display:"flex",alignItems:"center",gap:4}}><span style={{fontSize:10,color:"#888",fontFamily:FC}}>Cost/yr:</span><input type="number" value={sc.costAnnual} onChange={e=>{const s=[...(acfg.shift_call?.scenarios||[...SHIFT_SCENARIOS])];s[si]={...s[si],costAnnual:parseInt(e.target.value)||0};saveAcfg("shift_call",{scenarios:s});}} style={{...inp,width:80,fontSize:11,padding:"4px 6px",textAlign:"center"}}/></div>
                         </div>
+                      </div>
+                    ))}
+                  </div>)}
+
+                  {/* Make the Call */}
+                  {item.type==="make_the_call"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Make the Call Settings</div>
+                    <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:12}}>6 shift decisions with live hours tracking and overtime mechanics. Starting AHR: $36.80, Target: $37.10.</div>
+                    <div style={subLabel}>CREW ({(acfg.make_the_call?.crew||MTC_CREW).length})</div>
+                    {(acfg.make_the_call?.crew||MTC_CREW).map((c,ci)=>(
+                      <div key={ci} style={{display:"flex",gap:6,alignItems:"center",marginBottom:3,background:"#fff",borderRadius:8,padding:"6px 10px"}}>
+                        <input value={c.name} onChange={e=>{const cr=[...(acfg.make_the_call?.crew||[...MTC_CREW])];cr[ci]={...cr[ci],name:e.target.value};saveAcfg("make_the_call",{crew:cr});}} style={{...inp,width:65,fontWeight:700,fontSize:12,padding:"4px 6px"}}/>
+                        <span style={{fontSize:10,color:"#888",fontFamily:FC}}>{c.classification}</span>
+                        <span style={{fontSize:10,color:"#888"}}>${c.rate}</span>
+                        <span style={{fontSize:10,color:"#888"}}>{c.baseHours}hrs</span>
+                        <span style={{fontSize:9,fontFamily:FC,fontWeight:700,color:c.status==="Available"?"#007A33":c.status.includes("limit")?"#E3000B":"#FFB800"}}>{c.status}</span>
+                      </div>
+                    ))}
+                    <div style={{...subLabel,marginTop:12}}>SHIFTS ({(acfg.make_the_call?.shifts||MTC_SHIFTS).length})</div>
+                    {(acfg.make_the_call?.shifts||MTC_SHIFTS).map((sh,si)=>(
+                      <div key={si} style={{background:"#fff",borderRadius:8,padding:10,marginBottom:4}}>
+                        <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
+                          <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:18,height:18,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{si+1}</span>
+                          <span style={{fontFamily:FC,fontWeight:700,fontSize:12}}>{sh.day} {sh.time}</span>
+                          <span style={{fontSize:10,color:"#888"}}>{sh.duration}hrs</span>
+                          {sh.dayType!=="weekday"&&<span style={{fontSize:9,fontFamily:FC,fontWeight:700,color:"#FFB800"}}>{sh.dayType.toUpperCase()}</span>}
+                          <span style={{fontSize:10,color:"#007A33",fontFamily:FC,fontWeight:700,marginLeft:"auto"}}>Correct: {crew.find(c=>c.id===sh.correctPick)?.name||sh.correctPick}</span>
+                        </div>
+                        <div style={{fontSize:10,color:"#888",fontFamily:FB}}>A: {crew.find(c=>c.id===sh.optionA.crewId)?.name||sh.optionA.crewId} | B: {crew.find(c=>c.id===sh.optionB.crewId)?.name||sh.optionB.crewId}</div>
                       </div>
                     ))}
                   </div>)}
