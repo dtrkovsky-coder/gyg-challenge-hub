@@ -3632,7 +3632,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
             <div style={{fontFamily:F107,fontWeight:900,fontSize:isMobile?20:24,letterSpacing:0.5}}>{prog?.name||contentProg.toUpperCase()}</div>
             <div style={{fontSize:13,color:"#888",fontFamily:FB,marginTop:4}}>{allItems.length} items - {progBatches.length} active batches</div>
           </div>
-          {LOGOS[contentProg]&&<img src={LOGOS[contentProg]} alt="" style={{height:contentProg==="essentials"?56:44,objectFit:"contain",opacity:0.9}}/>}
+          {LOGOS[contentProg]&&<img src={LOGOS[contentProg]} alt="" style={{height:contentProg==="essentials"?56:52,objectFit:"contain",opacity:0.9}}/>}
         </div>
       </div>
 
