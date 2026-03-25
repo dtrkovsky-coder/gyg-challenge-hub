@@ -2,3 +2,10 @@ node_modules
 dist
 .firebase
 *.log
+.DS_Store
+360 Final/
+*.mp4
+CLEAN_SPLASH*
+DEPLOYMENT-GUIDE.md
+GYG-Challenge-Hub-Deployment-Guide.docx
+.claude/
