@@ -346,7 +346,7 @@ export default function App(){
       {view==="challenge"&&sel&&user&&(
         sel.type==="hazard_hunt"?<HazardHunt ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig.hazard_hunt}/>:
         sel.type==="shift_in_chaos"?<ShiftInChaos ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users} actCfg={activityConfig.shift_in_chaos}/>:
-        sel.type==="spot_the_moment"?<SpotTheMoment ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users}/>:
+        sel.type==="spot_the_moment"?<SpotTheMoment ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users} actCfg={activityConfig}/>:
         sel.type==="thirty_second_sell"?<ThirtySecondSell ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
         sel.type==="recovery_race"?<RecoveryRace ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
         sel.type==="shift_leader_lens"?<ShiftLeaderLens ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
@@ -924,67 +924,206 @@ const SHOT_LIST=[
   {day:5,prompt:"The thing you walk past every shift but guests notice immediately"},
 ];
 const SWIPE_WORDS=["welcoming","messy","warm","flat","busy","alive","ignored","clean"];
-function SpotTheMoment({ch,done,onS,onB,user,comps,users}){
-  const[phase,setPhase]=useState("upload");// upload | swipe | reveal
+const DEFAULT_SEED_PHOTOS=[
+  {id:"sp1",url:"https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600&q=80",caption:"Restaurant entrance - warm lighting"},
+  {id:"sp2",url:"https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80",caption:"Dining area - busy evening"},
+  {id:"sp3",url:"https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80",caption:"Counter pickup area"},
+  {id:"sp4",url:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80",caption:"Menu board view"},
+  {id:"sp5",url:"https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=600&q=80",caption:"Kitchen pass - plating up"},
+];
+
+function SwipeCard({photo,caption,onSwipe,cardIdx,total}){
+  const cardRef=useRef(null);
+  const startX=useRef(0);const startY=useRef(0);const dx=useRef(0);const dragging=useRef(false);
+  const[offset,setOffset]=useState(0);
+  const[opacity,setOpacity]=useState(1);
+  const[exiting,setExiting]=useState(null);// "left"|"right"|null
+  const threshold=80;
+
+  const onStart=(x)=>{startX.current=x;dragging.current=true;};
+  const onMove=(x)=>{if(!dragging.current)return;dx.current=x-startX.current;setOffset(dx.current);};
+  const onEnd=()=>{
+    if(!dragging.current)return;dragging.current=false;
+    if(Math.abs(dx.current)>threshold){
+      const dir=dx.current>0?"right":"left";
+      setExiting(dir);setOffset(dir==="right"?400:-400);setOpacity(0);
+      setTimeout(()=>onSwipe(dir),250);
+    }else{setOffset(0);}
+    dx.current=0;
+  };
+
+  const rot=offset*0.08;
+  const showLeft=offset<-20;const showRight=offset>20;
+
+  if(exiting)return(
+    <div style={{position:"relative",height:380,transition:"all 0.25s ease-out",transform:`translateX(${offset}px) rotate(${rot}deg)`,opacity}}>
+      <div style={{width:"100%",height:"100%",borderRadius:20,overflow:"hidden",background:"#222"}}>
+        <img src={photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} crossOrigin="anonymous"/>
+      </div>
+    </div>
+  );
+
+  return(
+    <div ref={cardRef} style={{position:"relative",height:380,transform:`translateX(${offset}px) rotate(${rot}deg)`,transition:dragging.current?"none":"transform 0.2s ease-out",cursor:"grab",userSelect:"none",touchAction:"none"}}
+      onTouchStart={e=>onStart(e.touches[0].clientX)}
+      onTouchMove={e=>onMove(e.touches[0].clientX)}
+      onTouchEnd={onEnd}
+      onMouseDown={e=>{onStart(e.clientX);const mm=ev=>onMove(ev.clientX);const mu=()=>{onEnd();window.removeEventListener("mousemove",mm);window.removeEventListener("mouseup",mu);};window.addEventListener("mousemove",mm);window.addEventListener("mouseup",mu);}}>
+      {/* Card */}
+      <div style={{width:"100%",height:"100%",borderRadius:20,overflow:"hidden",background:"#222",boxShadow:"0 8px 30px rgba(0,0,0,0.15)",position:"relative"}}>
+        <img src={photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} crossOrigin="anonymous"/>
+        {/* Overlay labels */}
+        {showRight&&<div style={{position:"absolute",top:24,left:20,padding:"8px 18px",border:"3px solid #007A33",borderRadius:10,color:"#007A33",fontFamily:FC,fontWeight:900,fontSize:22,letterSpacing:2,transform:"rotate(-15deg)",background:"rgba(255,255,255,0.85)"}}>COME BACK</div>}
+        {showLeft&&<div style={{position:"absolute",top:24,right:20,padding:"8px 18px",border:"3px solid #E3000B",borderRadius:10,color:"#E3000B",fontFamily:FC,fontWeight:900,fontSize:22,letterSpacing:2,transform:"rotate(15deg)",background:"rgba(255,255,255,0.85)"}}>NOPE</div>}
+        {/* Caption bar */}
+        <div style={{position:"absolute",bottom:0,left:0,right:0,background:"linear-gradient(transparent,rgba(0,0,0,0.7))",padding:"40px 20px 20px"}}>
+          <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#fff"}}>{caption}</div>
+          <div style={{fontFamily:FB,fontSize:12,color:"rgba(255,255,255,0.7)",marginTop:4}}>{cardIdx+1} of {total}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
+  const[phase,setPhase]=useState("upload");// upload | swipe | word | reveal | done
   const[photos,setPhotos]=useState([null,null,null,null,null]);
-  const[currentDay,setCurrentDay]=useState(0);
   const[swipeIdx,setSwipeIdx]=useState(0);
   const[swipes,setSwipes]=useState([]);
-  const[wordPick,setWordPick]=useState(null);
-  const[showWord,setShowWord]=useState(false);
+  const[lastDir,setLastDir]=useState(null);
+  const[animPts,setAnimPts]=useState(null);
   const uploadCount=photos.filter(Boolean).length;
-  const batchPhotos=(comps||[]).filter(c=>c.challengeId==="le-w1"&&c.batch===user.batch&&c.userId!==user.id&&c.submission?.photos).flatMap(c=>(c.submission.photos||[]).map((p,i)=>({photo:p,userId:c.userId,idx:i})));
-  const canSwipe=uploadCount>=5&&batchPhotos.length>=3;
+
+  // Get photos to swipe - seed photos from admin + other users' photos
+  const seedPhotos=(actCfg?.spot_the_moment?.seedPhotos||DEFAULT_SEED_PHOTOS).map(p=>({photo:p.url||p.photo,caption:p.caption||"",userId:"seed",idx:p.id}));
+  const userPhotos=(comps||[]).filter(c=>c.challengeId===ch.id&&c.batch===user.batch&&c.userId!==user.id&&c.submission?.photos).flatMap(c=>(c.submission.photos||[]).filter(Boolean).map((p,i)=>({photo:p,caption:`Photo by ${(users||[]).find(u=>u.id===c.userId)?.name||"teammate"}`,userId:c.userId,idx:i})));
+  const allSwipePhotos=[...seedPhotos,...userPhotos];
+
   const compressPhoto=(file)=>new Promise(r=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,400/img.width);c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",0.7));};img.src=URL.createObjectURL(file);});
-  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div><div style={{fontSize:13,fontFamily:FC,fontWeight:600,color:"#888",marginTop:12}}>WEEK 2 UNLOCKS WHEN AVAILABLE</div></div></div>);
+
+  const handleSwipe=(dir)=>{
+    const card=allSwipePhotos[swipeIdx];
+    const newSwipe={...card,right:dir==="right",word:null};
+    setSwipes(p=>[...p,newSwipe]);
+    setLastDir(dir);
+    setPhase("word");
+  };
+
+  const handleWord=(w)=>{
+    const ns=[...swipes];ns[ns.length-1].word=w;setSwipes(ns);
+    setLastDir(null);
+    const nextIdx=swipeIdx+1;
+    if(nextIdx>=allSwipePhotos.length){setSwipeIdx(nextIdx);setPhase("reveal");}
+    else{setSwipeIdx(nextIdx);setPhase("swipe");}
+  };
+
+  // Calculate bonus - how many "come back" swipes on YOUR photos from others
+  const myPhotoSwipes=(comps||[]).filter(c=>c.challengeId===ch.id&&c.submission?.swipeResults).flatMap(c=>c.submission.swipeResults.filter(s=>s.userId===user.id));
+  const approvalRate=myPhotoSwipes.length>0?Math.round(myPhotoSwipes.filter(s=>s.right).length/myPhotoSwipes.length*100):0;
+  const bonusThreshold=actCfg?.spot_the_moment?.bonusThreshold||60;
+  const earnedBonus=approvalRate>=bonusThreshold;
+  const bonusPts=ch.bonusPoints||50;
+
+  const shotList=actCfg?.spot_the_moment?.shotList||SHOT_LIST;
+  const swipeWords=actCfg?.spot_the_moment?.words||SWIPE_WORDS;
+
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
-    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+
+    {/* Phase 1: Upload photos */}
     {phase==="upload"&&(<div style={{padding:"24px 20px"}}>
-      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
-      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
-      <div style={{display:"flex",justifyContent:"center",gap:8,marginBottom:24}}>{SHOT_LIST.map((_,i)=>(<div key={i} style={{width:12,height:12,borderRadius:6,background:photos[i]?"#007A33":"#ddd"}}/>))}</div>
-      {SHOT_LIST.map((shot,i)=>{const hasPhoto=!!photos[i];return(
-        <div key={i} style={{background:hasPhoto?"#f0f8f0":"#fff",border:hasPhoto?"1px solid #d4e8d4":"1px solid #e8e8e3",borderRadius:14,padding:16,marginBottom:10}}>
+      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:26,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>YOUR 5 SHOTS</h2>
+      <p style={{textAlign:"center",color:"#888",fontSize:14,fontFamily:FB,marginBottom:20}}>Capture what guests really see at your restaurant</p>
+      <div style={{display:"flex",justifyContent:"center",gap:8,marginBottom:24}}>{shotList.map((_,i)=>(<div key={i} style={{width:12,height:12,borderRadius:6,background:photos[i]?"#007A33":"#ddd",transition:"background 0.3s"}}/>))}</div>
+      {shotList.map((shot,i)=>{const hasPhoto=!!photos[i];return(
+        <div key={i} style={{background:hasPhoto?"#f0f8f0":"#fff",border:hasPhoto?"1px solid #d4e8d4":"1px solid #e8e8e3",borderRadius:14,padding:16,marginBottom:10,transition:"all 0.3s"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:800,fontSize:13,letterSpacing:0.5}}>DAY {shot.day}</div><div style={{fontSize:14,color:"#555",marginTop:4,fontFamily:FB}}>{shot.prompt}</div></div>
-            {hasPhoto?<div style={{width:56,height:56,borderRadius:10,overflow:"hidden",flexShrink:0,marginLeft:12}}><img src={photos[i]} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/></div>
+            {hasPhoto?<div style={{width:56,height:56,borderRadius:10,overflow:"hidden",flexShrink:0,marginLeft:12,position:"relative"}}>
+              <img src={photos[i]} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+              <button onClick={()=>{const np=[...photos];np[i]=null;setPhotos(np);}} style={{position:"absolute",top:-4,right:-4,width:20,height:20,borderRadius:10,background:"#E3000B",color:"#fff",border:"none",fontSize:11,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>x</button>
+            </div>
             :<label style={{...BY,padding:"10px 16px",fontSize:12,minWidth:0,cursor:"pointer",flexShrink:0,marginLeft:12}}>
               SNAP<input type="file" accept="image/*" capture="environment" style={{display:"none"}} onChange={async e=>{const f=e.target.files[0];if(!f)return;const b=await compressPhoto(f);const np=[...photos];np[i]=b;setPhotos(np);}}/>
             </label>}
           </div>
         </div>
       );})}
-      {uploadCount>=5&&(<button style={{...BY,width:"100%",marginTop:16}} onClick={()=>{if(canSwipe)setPhase("swipe");else onS({text:"Spot the Moment - photos uploaded",photos,claimedBonus:true,autoBonus:true,points:ch.points});}}>{canSwipe?"START SWIPE GAME":"SUBMIT PHOTOS"}</button>)}
+      {uploadCount>=5&&(<button style={{...BY,width:"100%",marginTop:16}} onClick={()=>{if(allSwipePhotos.length>0)setPhase("swipe");else onS({text:"Spot the Moment - photos uploaded",photos,claimedBonus:false,autoBonus:false,points:ch.points});}}>START THE SWIPE GAME</button>)}
+      {uploadCount<5&&uploadCount>0&&<div style={{textAlign:"center",fontSize:12,color:"#999",fontFamily:FC,marginTop:8}}>{5-uploadCount} more to go</div>}
     </div>)}
-    {phase==="swipe"&&(<div style={{padding:"24px 20px"}}>
-      {swipeIdx<Math.min(batchPhotos.length,20)?(
-        <div>
-          <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:12}}>{swipeIdx+1}/{Math.min(batchPhotos.length,20)} PHOTOS</div>
-          <div style={{borderRadius:16,overflow:"hidden",marginBottom:16,height:300,background:"#222"}}><img src={batchPhotos[swipeIdx].photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/></div>
-          {!showWord?(<div style={{display:"flex",gap:12}}>
-            <button onClick={()=>{setSwipes(p=>[...p,{...batchPhotos[swipeIdx],right:false,word:null}]);setShowWord(true);}} style={{flex:1,padding:"16px",background:"#E3000B",color:"#fff",border:"none",borderRadius:14,fontFamily:FC,fontWeight:800,fontSize:14,cursor:"pointer"}}>WOULDN'T COME BACK</button>
-            <button onClick={()=>{setSwipes(p=>[...p,{...batchPhotos[swipeIdx],right:true,word:null}]);setShowWord(true);}} style={{flex:1,padding:"16px",background:"#007A33",color:"#fff",border:"none",borderRadius:14,fontFamily:FC,fontWeight:800,fontSize:14,cursor:"pointer"}}>I'D COME BACK</button>
-          </div>):(<div>
-            <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:8}}>PICK ONE WORD</div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:6}}>{SWIPE_WORDS.map(w=>(<button key={w} onClick={()=>{const ns=[...swipes];ns[ns.length-1].word=w;setSwipes(ns);setShowWord(false);setSwipeIdx(si=>si+1);}} style={{padding:"10px 6px",borderRadius:10,border:wordPick===w?"2px solid #FFD300":"1px solid #e8e8e3",background:wordPick===w?"#FFF8E0":"#fff",fontFamily:FC,fontWeight:700,fontSize:12,cursor:"pointer"}}>{w}</button>))}</div>
-          </div>)}
-        </div>
-      ):(<div style={{textAlign:"center"}}>
-        <div style={{fontSize:20,fontFamily:FC,fontWeight:900,marginBottom:8}}>SWIPE COMPLETE</div>
-        <div style={{fontSize:14,color:"#888",marginBottom:20}}>You swiped on {swipes.length} photos</div>
-        <button style={{...BY,width:"100%"}} onClick={()=>setPhase("reveal")}>SEE YOUR RESULTS</button>
-      </div>)}
+
+    {/* Phase 2: Swipe cards */}
+    {phase==="swipe"&&swipeIdx<allSwipePhotos.length&&(<div style={{padding:"24px 20px"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+        <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999"}}>{swipeIdx+1}/{allSwipePhotos.length}</div>
+        <div style={{height:4,flex:1,marginLeft:12,background:"#e8e8e3",borderRadius:2,overflow:"hidden"}}><div style={{height:"100%",background:"#FFD300",borderRadius:2,width:`${(swipeIdx/allSwipePhotos.length)*100}%`,transition:"width 0.3s"}}/></div>
+      </div>
+      <SwipeCard photo={allSwipePhotos[swipeIdx].photo} caption={allSwipePhotos[swipeIdx].caption} onSwipe={handleSwipe} cardIdx={swipeIdx} total={allSwipePhotos.length}/>
+      <div style={{display:"flex",justifyContent:"center",gap:24,marginTop:20}}>
+        <button onClick={()=>handleSwipe("left")} style={{width:60,height:60,borderRadius:30,border:"2px solid #E3000B",background:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E3000B" strokeWidth="3" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        <button onClick={()=>handleSwipe("right")} style={{width:60,height:60,borderRadius:30,border:"2px solid #007A33",background:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </button>
+      </div>
+      <div style={{textAlign:"center",marginTop:12,fontSize:12,fontFamily:FC,fontWeight:600,color:"#bbb"}}>SWIPE OR TAP</div>
     </div>)}
+
+    {/* Phase 3: Pick a word */}
+    {phase==="word"&&(<div style={{padding:"24px 20px",textAlign:"center"}}>
+      <div style={{fontSize:48,marginBottom:12}}>{lastDir==="right"?"👍":"👎"}</div>
+      <div style={{fontFamily:FC,fontWeight:900,fontSize:20,marginBottom:4,color:lastDir==="right"?"#007A33":"#E3000B"}}>{lastDir==="right"?"I'D COME BACK":"WOULDN'T COME BACK"}</div>
+      <div style={{fontSize:14,color:"#888",fontFamily:FB,marginBottom:24}}>Now pick one word that describes this photo</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+        {swipeWords.map(w=>(<button key={w} className="btn-hover" onClick={()=>handleWord(w)} style={{padding:"14px",borderRadius:12,border:"1px solid #e8e8e3",background:"#fff",fontFamily:FC,fontWeight:700,fontSize:14,cursor:"pointer",transition:"all 0.15s"}}>{w}</button>))}
+      </div>
+    </div>)}
+
+    {/* Phase 4: Results */}
     {phase==="reveal"&&(<div style={{padding:"24px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontSize:28,fontFamily:FC,fontWeight:900,color:"#FFD300"}}>YOUR PHOTOS</div><div style={{fontSize:14,color:"#888"}}>How your cohort swiped on your shots</div></div>
-      {photos.map((p,i)=>{if(!p)return null;const mySwipes=swipes.filter(s=>s.userId===user.id);const approval=mySwipes.length?Math.round(mySwipes.filter(s=>s.right).length/mySwipes.length*100):75;return(
-        <div key={i} style={{background:"#fff",borderRadius:14,padding:14,marginBottom:10,display:"flex",gap:12,alignItems:"center"}}>
-          <div style={{width:64,height:64,borderRadius:10,overflow:"hidden",flexShrink:0}}><img src={p} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/></div>
-          <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:700,fontSize:13}}>DAY {i+1}</div><div style={{fontSize:12,color:"#888"}}>{SHOT_LIST[i].prompt}</div></div>
+      <div style={{textAlign:"center",marginBottom:24}}>
+        <div style={{fontSize:48,marginBottom:8}}>&#128248;</div>
+        <div style={{fontSize:28,fontFamily:FC,fontWeight:900,letterSpacing:1}}>SWIPE RESULTS</div>
+        <div style={{fontSize:14,color:"#888",fontFamily:FB,marginTop:4}}>You swiped on {swipes.length} photos</div>
+      </div>
+
+      {/* Stats */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:24}}>
+        <div style={{background:"#fff",borderRadius:14,padding:16,textAlign:"center"}}>
+          <div style={{fontSize:32,fontFamily:F107,fontWeight:900,color:"#007A33"}}>{swipes.filter(s=>s.right).length}</div>
+          <div style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#999",marginTop:4}}>COME BACK</div>
         </div>
-      );})}
-      <button style={{...BY,width:"100%",marginTop:16}} onClick={()=>{onS({text:"Spot the Moment completed",photos,swipeResults:swipes,claimedBonus:true,autoBonus:true,points:ch.points});}}>SUBMIT</button>
+        <div style={{background:"#fff",borderRadius:14,padding:16,textAlign:"center"}}>
+          <div style={{fontSize:32,fontFamily:F107,fontWeight:900,color:"#E3000B"}}>{swipes.filter(s=>!s.right).length}</div>
+          <div style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#999",marginTop:4}}>NOPE</div>
+        </div>
+      </div>
+
+      {/* Word cloud */}
+      <div style={{background:"#000",borderRadius:14,padding:20,marginBottom:24}}>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#FFD300",marginBottom:12}}>YOUR WORD PICKS</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+          {Object.entries(swipes.reduce((a,s)=>{if(s.word){a[s.word]=(a[s.word]||0)+1;}return a;},{})).sort((a,b)=>b[1]-a[1]).map(([w,c])=>(
+            <span key={w} style={{padding:"6px 14px",borderRadius:20,background:"rgba(255,211,0,0.15)",color:"#FFD300",fontFamily:FC,fontWeight:700,fontSize:c>2?16:13}}>{w} ({c})</span>
+          ))}
+        </div>
+      </div>
+
+      {/* Chain effect info */}
+      <div style={{background:"#f0f8f0",border:"1px solid #d4e8d4",borderRadius:14,padding:16,marginBottom:24}}>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#007A33",marginBottom:6}}>CHAIN EFFECT</div>
+        <div style={{fontSize:13,color:"#555",fontFamily:FB,lineHeight:1.5}}>Your photos are now in the deck for others to swipe. When {bonusThreshold}%+ of your batch swipes "come back" on your photos, you earn a +{bonusPts} bonus.</div>
+        {myPhotoSwipes.length>0&&<div style={{marginTop:8,fontFamily:FC,fontWeight:700,fontSize:13,color:earnedBonus?"#007A33":"#888"}}>Current approval: {approvalRate}% ({myPhotoSwipes.length} swipes received)</div>}
+      </div>
+
+      <button style={{...BY,width:"100%"}} onClick={()=>{
+        onS({text:"Spot the Moment completed",photos,swipeResults:swipes,comeBackCount:swipes.filter(s=>s.right).length,nopeCount:swipes.filter(s=>!s.right).length,wordPicks:swipes.map(s=>s.word).filter(Boolean),claimedBonus:earnedBonus,autoBonus:earnedBonus,points:ch.points});
+      }}>SUBMIT CHALLENGE</button>
     </div>)}
   </div>);
 }
@@ -2615,6 +2754,71 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                     ))}
                   </div>)}
                 </div>)}
+
+                  {/* Spot the Moment specific */}
+                  {item.type==="spot_the_moment"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Spot the Moment Settings</div>
+
+                    {/* Scoring */}
+                    <div style={{background:"#fff",borderRadius:12,padding:14,marginBottom:14}}>
+                      <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a",marginBottom:10}}>Bonus</div>
+                      <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:10,lineHeight:1.5}}>When this % of batch swipes "come back" on a participant's photos, they earn bonus points.</div>
+                      <div style={{display:"flex",alignItems:"center",gap:6}}>
+                        <div style={{fontSize:11,color:"#888",fontFamily:FC}}>Approval threshold</div>
+                        <input type="number" value={acfg.spot_the_moment?.bonusThreshold||60} onChange={e=>saveAcfg("spot_the_moment",{bonusThreshold:parseInt(e.target.value)||60})} style={{...inp,width:60,textAlign:"center",padding:"8px"}}/>
+                        <span style={{fontSize:12,color:"#999"}}>%</span>
+                      </div>
+                    </div>
+
+                    {/* Swipe words */}
+                    <div style={{background:"#fff",borderRadius:12,padding:14,marginBottom:14}}>
+                      <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a",marginBottom:10}}>Swipe Words</div>
+                      <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:10}}>After each swipe, participants pick one word to describe the photo.</div>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                        {(acfg.spot_the_moment?.words||SWIPE_WORDS).map((w,wi)=>(
+                          <div key={wi} style={{display:"flex",alignItems:"center",gap:4,background:"#f8f8f5",borderRadius:8,padding:"4px 8px"}}>
+                            <input value={w} onChange={e=>{const ws=[...(acfg.spot_the_moment?.words||[...SWIPE_WORDS])];ws[wi]=e.target.value;saveAcfg("spot_the_moment",{words:ws});}} style={{...inp,width:80,fontSize:12,padding:"4px 6px",border:"none",background:"transparent"}}/>
+                            <button onClick={()=>{const ws=[...(acfg.spot_the_moment?.words||[...SWIPE_WORDS])];ws.splice(wi,1);saveAcfg("spot_the_moment",{words:ws});}} style={{background:"none",border:"none",color:"#E3000B",cursor:"pointer",fontSize:11,padding:0}}>x</button>
+                          </div>
+                        ))}
+                        <button onClick={()=>{const ws=[...(acfg.spot_the_moment?.words||[...SWIPE_WORDS]),"new"];saveAcfg("spot_the_moment",{words:ws});}} style={{padding:"4px 12px",borderRadius:8,border:"1px dashed #ccc",background:"transparent",fontSize:11,fontFamily:FC,cursor:"pointer",color:"#888"}}>+ ADD</button>
+                      </div>
+                    </div>
+
+                    {/* Seed photos */}
+                    <div style={{background:"#fff",borderRadius:12,padding:14,marginBottom:14}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                        <div><div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a"}}>Seed Photos</div><div style={{fontSize:11,color:"#888",fontFamily:FB}}>Pre-loaded photos for first participants to swipe</div></div>
+                        <label style={{padding:"6px 14px",borderRadius:8,border:"none",background:"#FFD300",color:"#000",fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>
+                          + UPLOAD<input type="file" accept="image/*" style={{display:"none"}} onChange={async e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,600/img.width);c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);const b64=c.toDataURL("image/jpeg",0.7);const seeds=[...(acfg.spot_the_moment?.seedPhotos||[...DEFAULT_SEED_PHOTOS])];seeds.push({id:`sp${Date.now()}`,url:b64,caption:"Uploaded photo"});saveAcfg("spot_the_moment",{seedPhotos:seeds});};img.src=URL.createObjectURL(f);}}/>
+                        </label>
+                      </div>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+                        {(acfg.spot_the_moment?.seedPhotos||DEFAULT_SEED_PHOTOS).map((sp,si)=>(
+                          <div key={sp.id||si} style={{position:"relative",borderRadius:10,overflow:"hidden",aspectRatio:"1"}}>
+                            <img src={sp.url||sp.photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} crossOrigin="anonymous" onError={e=>{e.target.style.background="#ddd";e.target.alt="Failed to load";}}/>
+                            <button onClick={()=>{const seeds=[...(acfg.spot_the_moment?.seedPhotos||[...DEFAULT_SEED_PHOTOS])];seeds.splice(si,1);saveAcfg("spot_the_moment",{seedPhotos:seeds});}} style={{position:"absolute",top:4,right:4,width:20,height:20,borderRadius:10,background:"#E3000B",color:"#fff",border:"none",fontSize:10,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>x</button>
+                            <input value={sp.caption||""} onChange={e=>{const seeds=[...(acfg.spot_the_moment?.seedPhotos||[...DEFAULT_SEED_PHOTOS])];seeds[si]={...seeds[si],caption:e.target.value};saveAcfg("spot_the_moment",{seedPhotos:seeds});}} placeholder="Caption" style={{position:"absolute",bottom:0,left:0,right:0,background:"rgba(0,0,0,0.7)",color:"#fff",border:"none",padding:"4px 6px",fontSize:10,fontFamily:FB}}/>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Shot list */}
+                    <div style={{background:"#fff",borderRadius:12,padding:14}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a"}}>Shot Prompts</div>
+                        <button onClick={()=>{const sl=[...(acfg.spot_the_moment?.shotList||[...SHOT_LIST])];sl.push({day:sl.length+1,prompt:"New photo prompt"});saveAcfg("spot_the_moment",{shotList:sl});}} style={{padding:"4px 12px",borderRadius:8,border:"none",background:"#FFD300",color:"#000",fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>+ ADD</button>
+                      </div>
+                      {(acfg.spot_the_moment?.shotList||SHOT_LIST).map((shot,si)=>(
+                        <div key={si} style={{display:"flex",gap:6,alignItems:"center",marginBottom:6}}>
+                          <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#1a1a1a",color:"#FFD300",width:22,height:22,borderRadius:11,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{si+1}</span>
+                          <input value={shot.prompt} onChange={e=>{const sl=[...(acfg.spot_the_moment?.shotList||[...SHOT_LIST])];sl[si]={...sl[si],prompt:e.target.value};saveAcfg("spot_the_moment",{shotList:sl});}} style={{...inp,flex:1,fontSize:12,padding:"6px 10px"}}/>
+                          <button onClick={()=>{const sl=[...(acfg.spot_the_moment?.shotList||[...SHOT_LIST])];sl.splice(si,1);saveAcfg("spot_the_moment",{shotList:sl});}} style={{background:"none",border:"none",color:"#E3000B",cursor:"pointer",fontSize:11,padding:"4px",flexShrink:0}}>x</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>)}
 
                 {/* Activity editors */}
                 {item.kind==="activity"&&item.type==="huddle_builder"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
