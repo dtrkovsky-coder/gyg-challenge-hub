@@ -344,7 +344,7 @@ export default function App(){
   const[lunchConfig,setLunchConfigState]=useState(null);
   const[comps,setComps]=useState([]);
   const[sel,setSel]=useState(null);
-  useEffect(()=>{window.scrollTo(0,0);},[view,sel]);
+  useEffect(()=>{const scrollTop=()=>{window.scrollTo({top:0,left:0,behavior:"instant"});document.documentElement.scrollTop=0;document.body.scrollTop=0;};scrollTop();requestAnimationFrame(scrollTop);setTimeout(scrollTop,50);setTimeout(scrollTop,200);},[view,sel]);
   // Get challenges/activities for a program based on active quarter
   const getCh=(prog)=>{const q=activityConfig.activeQuarter?.[prog]||"Q1";const all=challenges||DEFAULT_CHALLENGES;if(q==="Q1")return all[prog]||[];const qKey=`${prog}_${q}`;return all[qKey]||DEFAULT_CHALLENGES[qKey]||all[prog]||[];};
   const getActs=(prog)=>{const q=activityConfig.activeQuarter?.[prog]||"Q1";if(q==="Q1")return DEFAULT_ACTIVITIES[prog]||[];const qKey=`${prog}_${q}`;return DEFAULT_ACTIVITIES[qKey]||DEFAULT_ACTIVITIES[prog]||[];};
