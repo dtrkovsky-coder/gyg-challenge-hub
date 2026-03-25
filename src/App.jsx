@@ -1006,17 +1006,16 @@ const ICON_SVG=(key,color="#333",size=24)=>{
 };
 
 // Helper: resolve icon for a challenge - checks ch.icon in ICON_LIBRARY, then CI[ch.type], then ICONS[ch.icon]
+// GYG food icons that were default placeholders - ignore these in favor of activity icons
+const GYG_FOOD_ICONS=new Set(["fries","churros","taco","burrito","bag","fire_burrito","socks","sticky_tape","churro","sundae","cap","lime","guac","avocado"]);
 const resolveChIcon=(ch)=>{
-  if(ch.icon&&ch.icon!=="none"){
-    // Check ICON_LIBRARY SVG first
+  // If admin explicitly set a non-food icon, use it
+  if(ch.icon&&ch.icon!=="none"&&!GYG_FOOD_ICONS.has(ch.icon)){
     const libSvg=ICON_SVG(ch.icon,"#FFD300",32);
     if(libSvg)return libSvg;
-    // Check GYG brand images
-    if(ICONS[ch.icon])return ICONS[ch.icon];
-    // Check custom icon
-    if(ch.customIcon)return ch.customIcon;
+    if(ch.customIcon)return <img src={ch.customIcon} alt="" style={{width:32,height:32,objectFit:"contain"}}/>;
   }
-  // Fallback to CI type-based icon
+  // Use type-based activity icon (always appropriate for the activity)
   return CI[ch.type]||null;
 };
 
@@ -2369,7 +2368,7 @@ function ChV({ch,done,onS,onB}){
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK {ch.week}</span><span style={{width:32}}/></div>
     <div style={{padding:"24px 20px 40px"}}>
-      <div style={{display:"flex",justifyContent:"center",marginBottom:16}}>{(()=>{const libSvg=ch.icon&&ch.icon!=="none"&&ICON_SVG(ch.icon,"#FFD300",48);if(libSvg)return<div style={{width:96,height:96,borderRadius:48,background:"#000",display:"flex",alignItems:"center",justifyContent:"center"}}>{libSvg}</div>;const src=ICONS[ch.icon]||ch.customIcon;if(src)return<div style={{width:96,height:96,borderRadius:48,background:"#000",display:"flex",alignItems:"center",justifyContent:"center"}}><img src={src} alt="" style={{width:64,height:64,objectFit:"contain"}}/></div>;return null;})()}</div>
+      <div style={{display:"flex",justifyContent:"center",marginBottom:16}}>{(()=>{const ri=resolveChIcon(ch);if(!ri)return null;return<div style={{width:96,height:96,borderRadius:48,background:"#000",display:"flex",alignItems:"center",justifyContent:"center"}}>{typeof ri==="string"?<img src={ri} alt="" style={{width:64,height:64,objectFit:"contain"}}/>:ri}</div>;})()}</div>
       <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
       <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:24}}>{ch.subtitle}</p>
       <div style={{marginBottom:20}}><div style={{fontFamily:FC,fontWeight:800,fontSize:12,color:"#FFD300",letterSpacing:1,marginBottom:8,background:"#000",display:"inline-block",padding:"4px 10px",borderRadius:4}}>THE CHALLENGE</div><p style={{fontSize:15,lineHeight:1.6,color:"#555",margin:0}}>{ch.description}</p></div>
@@ -4720,12 +4719,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                     <div><div style={subLabel}>BONUS PTS</div><input type="number" value={item.bonusPoints} onChange={e=>saveCh(contentProg,chIdx,"bonusPoints",parseInt(e.target.value)||0)} style={{...inp,textAlign:"center"}}/></div>
                     <div><div style={subLabel}>ICON</div>
                       <div style={{display:"flex",alignItems:"center",gap:8}}>
-                        {item.icon&&item.icon!=="none"&&(
-                          item.icon.startsWith("data:")?<img src={item.icon} alt="" style={{width:32,height:32,objectFit:"contain",borderRadius:6,background:"#fff",border:"1px solid #e8e8e3",padding:2}}/>
-                          :ICONS[item.icon]?<img src={ICONS[item.icon]} alt="" style={{width:32,height:32,objectFit:"contain",borderRadius:6,background:"#fff",border:"1px solid #e8e8e3",padding:2}}/>
-                          :ICON_SVG(item.icon)?<div style={{width:32,height:32,borderRadius:6,background:"#fff",border:"1px solid #e8e8e3",padding:2,display:"flex",alignItems:"center",justifyContent:"center"}}>{ICON_SVG(item.icon,"#333",24)}</div>
-                          :null
-                        )}
+                        {(()=>{const ri=resolveChIcon(item);return ri?<div style={{width:36,height:36,borderRadius:8,background:"#000",display:"flex",alignItems:"center",justifyContent:"center"}}>{typeof ri==="string"?<img src={ri} alt="" style={{width:24,height:24,objectFit:"contain"}}/>:ri}</div>:null;})()}
                         <button onClick={()=>{setIconPickerCurrent(item.icon||"");setIconPickerCb(()=>v=>saveCh(contentProg,chIdx,"icon",v));}} style={{...btnG,flex:1,fontSize:12,padding:"8px 14px",display:"flex",alignItems:"center",gap:6}}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
                           {item.icon&&item.icon!=="none"?(ICON_LIBRARY_DEFS[item.icon]?.label||item.icon.replace(/_/g," ").toUpperCase()):"CHOOSE ICON"}
@@ -5890,10 +5884,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
               ))}
               <div><label style={{fontSize:11,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:0.5}}>ICON</label>
                 <div style={{display:"flex",gap:8,alignItems:"center",marginTop:4,flexWrap:"wrap"}}>
-                  {c.customIcon?<img src={c.customIcon} alt="" style={{width:36,height:36,objectFit:"contain",background:"#000",borderRadius:8,padding:4}}/>
-                  :ICONS[c.icon]?<img src={ICONS[c.icon]} alt="" style={{width:36,height:36,objectFit:"contain",background:"#000",borderRadius:8,padding:4}}/>
-                  :ICON_SVG(c.icon)?<div style={{width:36,height:36,background:"#000",borderRadius:8,padding:4,display:"flex",alignItems:"center",justifyContent:"center"}}>{ICON_SVG(c.icon,"#FFD300",28)}</div>
-                  :null}
+                  {(()=>{const ri=resolveChIcon(c);return ri?<div style={{width:36,height:36,background:"#000",borderRadius:8,padding:4,display:"flex",alignItems:"center",justifyContent:"center"}}>{typeof ri==="string"?<img src={ri} alt="" style={{width:28,height:28,objectFit:"contain"}}/>:ri}</div>:null;})()}
                   <button onClick={()=>{setIconPickerCurrent(c.icon||"");setIconPickerCb(()=>v=>saveCh(progId,idx,"icon",v));}} style={{...btnG,flex:1,minWidth:0,maxWidth:200,padding:"10px 14px",fontSize:12,display:"flex",alignItems:"center",gap:6}}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
                     {c.icon&&c.icon!=="none"?(ICON_LIBRARY_DEFS[c.icon]?.label||c.icon.replace(/_/g," ").toUpperCase()):"CHOOSE ICON"}
