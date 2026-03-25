@@ -345,7 +345,7 @@ export default function App(){
       {view==="dashboard"&&user&&user.id&&<DashV u={user} ch={(challenges||DEFAULT_CHALLENGES)[user.program]||[]} co={comps.filter(c=>c.userId===user.id)} wk={getUserWeek(user.createdAt)} sc={pts(user.id,user.program)} onCh={c=>{setSel(c);setView("challenge");}} onBd={()=>setView("leaderboard")} onPr={()=>setView("profile")} actComps={activityComps.filter(c=>c.userId===user.id)} acts={DEFAULT_ACTIVITIES[user.program]||[]}/>}
       {view==="challenge"&&sel&&user&&(
         sel.type==="hazard_hunt"?<HazardHunt ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig.hazard_hunt}/>:
-        sel.type==="shift_in_chaos"?<ShiftInChaos ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users}/>:
+        sel.type==="shift_in_chaos"?<ShiftInChaos ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users} actCfg={activityConfig.shift_in_chaos}/>:
         sel.type==="spot_the_moment"?<SpotTheMoment ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users}/>:
         sel.type==="thirty_second_sell"?<ThirtySecondSell ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
         sel.type==="recovery_race"?<RecoveryRace ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
@@ -775,7 +775,7 @@ const CHAOS_PROBLEMS=[
   {id:12,text:"The menu board above the counter has a wrong price displayed",category:"cosmetic"},
 ];
 const EXPERT_ORDER=[1,2,3,4,5,6,7,8,9,10,11,12];
-function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
+function ShiftInChaos({ch,done,onS,onB,user,comps,users,actCfg}){
   const[screen,setScreen]=useState(1);
   const[ranking,setRanking]=useState(()=>{const shuffled=[...CHAOS_PROBLEMS];for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}return shuffled;});
   const[showConfirm,setShowConfirm]=useState(false);
@@ -792,7 +792,9 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
   const earnedPts=Math.round(ch.points*(accuracy/100));
   const batchComps=comps.filter(c=>c.challengeId==="lse-w2"&&c.program==="lse");
   const distances=[...batchComps.map(c=>c.submission?.distanceFromExpert||999),totalDistance].sort((a,b)=>a-b);
-  const isTop3=distances.indexOf(totalDistance)<3;
+  const topN=actCfg?.topN||3;
+  const bonusThresh=actCfg?.bonusThreshold||80;
+  const isTop3=distances.indexOf(totalDistance)<topN;
   const onDragStart=(i,e)=>{e.preventDefault();const t=e.touches?e.touches[0]:e;setDragIdx(i);setDragStartY(t.clientY);setDragY(0);
     if(listRef.current){const items=listRef.current.children;if(items[0])setItemHeight(items[0].getBoundingClientRect().height+6);}};
   const onDragMove=(e)=>{if(dragIdx===null)return;e.preventDefault();const t=e.touches?e.touches[0]:e;setDragY(t.clientY-dragStartY);};
@@ -895,7 +897,8 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
           <div style={{fontSize:36,fontWeight:900,fontFamily:FC,color:accuracy>=80?"#007A33":accuracy>=50?"#FFD300":"#E3000B"}}>{accuracy}%</div>
           <div style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#888"}}>ACCURACY</div>
           <div style={{fontSize:20,fontWeight:900,fontFamily:FC,color:"#FFD300",marginTop:8}}>{earnedPts} PTS EARNED</div>
-          {isTop3&&<div style={{fontSize:14,fontFamily:FC,fontWeight:800,color:"#FFD300",marginTop:4}}>&#9733; TOP 3 IN YOUR BATCH - BONUS EARNED!</div>}
+          {(isTop3||accuracy>=bonusThresh)&&<div style={{fontSize:14,fontFamily:FC,fontWeight:800,color:"#FFD300",marginTop:4}}>&#9733; BONUS EARNED! +{ch.bonusPoints} PTS{isTop3?` (Top ${topN} in batch)`:` (${accuracy}%+ accuracy)`}</div>}
+          {!isTop3&&accuracy<bonusThresh&&<div style={{fontSize:12,fontFamily:FC,fontWeight:600,color:"#888",marginTop:4}}>Bonus requires {bonusThresh}%+ accuracy or top {topN} in batch</div>}
         </div>
         <button style={{...BY,width:"100%"}} onClick={()=>setScreen(4)}>CONTINUE</button>
       </div>
@@ -906,7 +909,7 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users}){
         <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1,display:"block",marginBottom:6}}>WHAT'S ONE THING THAT WOULD HAVE PREVENTED THIS SHIFT FROM GETTING TO THIS POINT?</label>
         <p style={{fontSize:13,color:"#888",marginBottom:8}}>Be specific about when it should have happened and who should have done it.</p>
         <textarea style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,color:"#1a1a1a",fontSize:15,fontFamily:FB,outline:"none",height:120,resize:"vertical",boxSizing:"border-box"}} value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="Your response..."/>
-        <button style={{...BY,width:"100%",marginTop:16,opacity:answer.trim()?"1":"0.5"}} disabled={!answer.trim()} onClick={()=>{const matchedTop5=ranking.slice(0,5).filter(p=>EXPERT_ORDER.indexOf(p.id)<5).length;onS({text:answer,ranking:ranking.map(p=>p.id),distanceFromExpert:totalDistance,accuracy,earnedBadge:isTop3,matchedTop5,claimedBonus:isTop3||accuracy>=80,autoBonus:isTop3||accuracy>=80,points:earnedPts});}}>SUBMIT</button>
+        <button style={{...BY,width:"100%",marginTop:16,opacity:answer.trim()?"1":"0.5"}} disabled={!answer.trim()} onClick={()=>{const matchedTop5=ranking.slice(0,5).filter(p=>EXPERT_ORDER.indexOf(p.id)<5).length;onS({text:answer,ranking:ranking.map(p=>p.id),distanceFromExpert:totalDistance,accuracy,earnedBadge:isTop3,matchedTop5,claimedBonus:isTop3||accuracy>=bonusThresh,autoBonus:isTop3||accuracy>=bonusThresh,points:earnedPts});}}>SUBMIT</button>
       </div>
     )}
   </div>
@@ -2575,8 +2578,27 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                   {/* Shift in Chaos specific */}
                   {item.type==="shift_in_chaos"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
                     <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Shift in Chaos Settings</div>
-                    <div style={{marginBottom:12}}><div style={subLabel}>BRIEFING</div><textarea value={acfg.shift_in_chaos?.briefing||"It's 12:05pm. Saturday. GYG is slammed. Everything below just happened in the last 10 minutes. Rank them 1-12 in order of what you deal with FIRST."} onChange={e=>saveAcfg("shift_in_chaos",{briefing:e.target.value})} rows={2} style={{...inp,resize:"vertical"}}/></div>
-                    <div style={{marginBottom:12}}><div style={subLabel}>PREVENTION QUESTION</div><textarea value={acfg.shift_in_chaos?.preventionQ||"What's one thing that would have prevented this shift from getting to this point?"} onChange={e=>saveAcfg("shift_in_chaos",{preventionQ:e.target.value})} rows={2} style={{...inp,resize:"vertical"}}/></div>
+
+                    {/* Scoring */}
+                    <div style={{background:"#fff",borderRadius:12,padding:14,marginBottom:14}}>
+                      <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a",marginBottom:10}}>Scoring</div>
+                      <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:10,lineHeight:1.5}}>Points are awarded based on how close the ranking is to the expert order. Accuracy = percentage match. Points = base points x accuracy.</div>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                        <div><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Bonus threshold</div><div style={{display:"flex",alignItems:"center",gap:6}}><input type="number" value={acfg.shift_in_chaos?.bonusThreshold||80} onChange={e=>saveAcfg("shift_in_chaos",{bonusThreshold:parseInt(e.target.value)||80})} style={{...inp,width:60,textAlign:"center",padding:"8px"}}/><span style={{fontSize:12,color:"#999"}}>% accuracy</span></div></div>
+                        <div><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Top batch bonus</div><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:12,color:"#999"}}>Top</span><input type="number" value={acfg.shift_in_chaos?.topN||3} onChange={e=>saveAcfg("shift_in_chaos",{topN:parseInt(e.target.value)||3})} style={{...inp,width:50,textAlign:"center",padding:"8px"}}/><span style={{fontSize:12,color:"#999"}}>in batch</span></div></div>
+                      </div>
+                      <div style={{marginTop:10,padding:"10px 12px",background:"#f8f8f5",borderRadius:8,fontSize:12,color:"#666",fontFamily:FB}}>
+                        <strong>Example:</strong> 100 base pts, 75% accuracy = 75 pts earned. Bonus ({acfg.shift_in_chaos?.bonusThreshold||80}%+ or top {acfg.shift_in_chaos?.topN||3}) = +{ch?.bonusPoints||50} pts.
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div style={{background:"#fff",borderRadius:12,padding:14,marginBottom:14}}>
+                      <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a",marginBottom:10}}>Content</div>
+                      <div style={{marginBottom:10}}><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Scene briefing</div><textarea value={acfg.shift_in_chaos?.briefing||"It's 12:05pm. Saturday. GYG is slammed. Everything below just happened in the last 10 minutes. Rank them 1-12 in order of what you deal with FIRST."} onChange={e=>saveAcfg("shift_in_chaos",{briefing:e.target.value})} rows={2} style={{...inp,resize:"vertical"}}/></div>
+                      <div><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Prevention question</div><textarea value={acfg.shift_in_chaos?.preventionQ||"What's one thing that would have prevented this shift from getting to this point?"} onChange={e=>saveAcfg("shift_in_chaos",{preventionQ:e.target.value})} rows={2} style={{...inp,resize:"vertical"}}/></div>
+                    </div>
+
                     <div style={subLabel}>PROBLEMS (expert order)</div>
                     {(acfg.shift_in_chaos?.problems||CHAOS_PROBLEMS).map((p,pi)=>(
                       <div key={p.id||pi} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"8px 0",borderTop:pi>0?"1px solid #e8e8e3":"none"}}>
