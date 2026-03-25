@@ -446,7 +446,11 @@ export default function App(){
     if(!isTestAll)await addCompletion(nc);setComps([...comps,nc]);flash(`+${nc.points} PTS!${nc.bonusClaimed?(nc.bonusApproved?" +"+nc.bonusPoints+" BONUS!":" Bonus pending review."):""}`,true);setView(prevView||"dashboard");setPrevView(null);
   };
   const pts=(uid,p)=>uid?comps.filter(c=>c.userId===uid&&c.program===p).reduce((s,c)=>s+c.points+(c.bonusApproved?c.bonusPoints||0:0),0):0;
-  const completeActivity=async(actId,data)=>{const nc={id:`ac${Date.now()}`,userId:user.id,activityId:actId,program:user.program,batch:user.batch,data,completedAt:new Date().toISOString()};if(!isTestAll)await addActivityCompletion(nc);const newAc=[...activityComps,nc];setActivityComps(newAc);setView(prevView||"activities");setPrevView(null);flash("Activity completed!");};
+  const completeActivity=async(actId,data)=>{
+    // Prevent duplicate completions (unless test user)
+    if(!isTestAll&&activityComps.some(c=>c.userId===user.id&&c.activityId===actId)){setView(prevView||"activities");setPrevView(null);flash("Activity already completed!");return;}
+    const nc={id:`ac${Date.now()}`,userId:user.id,activityId:actId,program:user.program,batch:user.batch,data,completedAt:new Date().toISOString()};if(!isTestAll)await addActivityCompletion(nc);const newAc=[...activityComps,nc];setActivityComps(newAc);setView(prevView||"activities");setPrevView(null);flash("Activity completed!");
+  };
 
   if(loading) return (<div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100vh",background:"#f5f5f0"}}><img src={LOADING_GIF} alt="Loading" style={{width:280,maxWidth:"80vw",objectFit:"contain"}}/><link rel="preload" as="video" href="/splash-bg.mp4"/><video src="/splash-bg.mp4" preload="auto" muted style={{position:"absolute",width:0,height:0,opacity:0}}/></div>);
 
@@ -771,7 +775,8 @@ function DashV({u,ch,co,wk,sc,onCh,onBd,onPr,actComps,acts,activeQuarter}){const
       <div style={{borderTop:"1px solid #e8e8e3",paddingTop:16,marginBottom:8}}>
         <span style={{fontWeight:600,fontSize:15,color:"#999"}}>Workshop Activities</span>
       </div>
-      {doneActs.map(ac=>{const actDef=acts.find(a=>a.id===ac.activityId);const isOpen=expandedAct===ac.id;const d=ac.data||{};return (
+      {/* Deduplicate by activityId - show only the latest completion per activity */}
+      {Object.values(doneActs.reduce((acc,ac)=>{if(!acc[ac.activityId]||new Date(ac.completedAt)>new Date(acc[ac.activityId].completedAt))acc[ac.activityId]=ac;return acc;},{})).map(ac=>{const actDef=acts.find(a=>a.id===ac.activityId);const isOpen=expandedAct===ac.id;const d=ac.data||{};return (
         <div key={ac.id} style={{marginBottom:8}}>
           <button onClick={()=>setExpandedAct(isOpen?null:ac.id)} style={{display:"flex",alignItems:"center",width:"100%",padding:14,background:"#fff",border:"1px solid #e8e8e3",borderRadius:14,cursor:"pointer",textAlign:"left",fontFamily:FB,color:"#1a1a1a",opacity:0.7}}>
             <div style={{marginRight:14}}><div style={{width:36,height:36,borderRadius:18,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:800,fontSize:15,color:"#fff",background:"#007A33"}}>{"\u2713"}</div></div>
@@ -5537,12 +5542,12 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
               <div><div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontFamily:FC,fontWeight:800,fontSize:16,letterSpacing:0.3}}>{b}</span><span style={{fontSize:9,fontFamily:FC,fontWeight:700,padding:"3px 6px",borderRadius:4,background:"#FFD300",color:"#000"}}>{bk.quarter||"Q1"}</span></div><div style={{fontSize:13,color:"#999",fontFamily:FB}}>{batchUsers.length} participants</div></div>
             </div>
 
-            <Toggle on={bk.skipActivities} onToggle={()=>{const updated={...(batchControl||{})};updated[b]={...bk,skipActivities:!bk.skipActivities};onUpdateBatchControl(updated);}} label="Skip Activities" sub="Send participants straight to challenges"/>
+            <Toggle on={bk.skipActivities} onToggle={()=>{const updated={...(batchControl||{})};const newSkip=!bk.skipActivities;updated[b]={...bk,skipActivities:newSkip};if(newSkip)updated[b].challengesUnlocked=true;onUpdateBatchControl(updated);}} label="Skip Activities" sub="Send participants straight to challenges"/>
             <Toggle on={bk.challengesUnlocked} onToggle={()=>{const updated={...(batchControl||{})};updated[b]={...bk,challengesUnlocked:!bk.challengesUnlocked};onUpdateBatchControl(updated);}} label="Unlock Challenges" sub="Allow weekly challenge submissions"/>
 
             {acts.length>0&&!bk.skipActivities&&(<div style={{borderTop:"1px solid #f0f0eb",marginTop:8,paddingTop:12}}>
               <div style={subLabel}>ACTIVITIES</div>
-              {acts.map(act=>{const isActive=bk.activeActivity===act.id;const isCompleted=(bk.completedActivities||[]).includes(act.id);const done=(activityComps||[]).filter(c=>c.batch===b&&c.activityId===act.id).length;return(
+              {acts.map(act=>{const isActive=bk.activeActivity===act.id;const isCompleted=(bk.completedActivities||[]).includes(act.id);const done=new Set((activityComps||[]).filter(c=>c.batch===b&&c.activityId===act.id).map(c=>c.userId)).size;return(
                 <div key={act.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0",borderBottom:"1px solid #f5f5f0"}}>
                   <div><div style={{fontSize:14,fontWeight:600,fontFamily:FB}}>{act.title}</div><div style={{fontSize:12,color:"#999"}}>{done}/{batchUsers.length} done</div></div>
                   <select value={isCompleted?"completed":isActive?"active":"locked"} onChange={e=>toggleAct(act.id,e.target.value)} style={{padding:"8px 12px",borderRadius:10,border:"1px solid #e8e8e3",fontFamily:FC,fontWeight:700,fontSize:12,background:isCompleted?"#007A33":isActive?"#FFD300":"#f5f5f0",color:isCompleted?"#fff":isActive?"#000":"#888",cursor:"pointer",outline:"none"}}>
@@ -5701,7 +5706,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
         else if(newState==="completed"){nbk.activeActivity=nbk.activeActivity===actId?null:nbk.activeActivity;nbk.completedActivities=[...new Set([...(nbk.completedActivities||[]),actId])];}
         else{nbk.activeActivity=nbk.activeActivity===actId?null:nbk.activeActivity;nbk.completedActivities=(nbk.completedActivities||[]).filter(id=>id!==actId);}
         updated[b]=nbk;onUpdateBatchControl(updated);};
-      const completedCount=actId=>(activityComps||[]).filter(c=>c.batch===b&&c.activityId===actId).length;
+      const completedCount=actId=>new Set((activityComps||[]).filter(c=>c.batch===b&&c.activityId===actId).map(c=>c.userId)).size;
       return(
         <div key={b} style={{...card,border:"2px solid #e8e8e3"}}>
           <div style={{marginBottom:16}}>
@@ -5712,7 +5717,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
 
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",marginBottom:16,background:bk.skipActivities?"#FFF8E0":"#f8f8f5",borderRadius:12,border:bk.skipActivities?"2px solid #FFD300":"2px solid #f0f0eb"}}>
             <div><div style={{fontSize:12,fontWeight:900,fontFamily:FC,letterSpacing:1}}>SKIP ACTIVITIES</div><div style={{fontSize:11,color:"#999",fontFamily:FC,marginTop:2}}>Send straight to challenges</div></div>
-            <button onClick={()=>{const updated={...(batchControl||{})};updated[b]={...bk,skipActivities:!bk.skipActivities};onUpdateBatchControl(updated);}} style={{padding:"8px 18px",borderRadius:8,border:"none",background:bk.skipActivities?"#FFD300":"#e8e8e3",color:bk.skipActivities?"#000":"#999",fontSize:12,fontWeight:800,fontFamily:FC,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"}}>{bk.skipActivities?"ON":"OFF"}</button>
+            <button onClick={()=>{const updated={...(batchControl||{})};const newSkip=!bk.skipActivities;updated[b]={...bk,skipActivities:newSkip};if(newSkip)updated[b].challengesUnlocked=true;onUpdateBatchControl(updated);}} style={{padding:"8px 18px",borderRadius:8,border:"none",background:bk.skipActivities?"#FFD300":"#e8e8e3",color:bk.skipActivities?"#000":"#999",fontSize:12,fontWeight:800,fontFamily:FC,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"}}>{bk.skipActivities?"ON":"OFF"}</button>
           </div>
 
           {!bk.skipActivities&&<>{acts.map(act=>{
