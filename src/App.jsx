@@ -489,7 +489,7 @@ export default function App(){
       {view==="leaderboard"&&user&&<LbV us={users} co={comps} cu={user} onB={()=>setView("dashboard")} onP={()=>setView("profile")} defaultProg={user.program} defaultBatch={user.batch}/>}
       {view==="profile"&&user&&<PrV u={user} co={comps.filter(c=>c.userId===user.id)} sc={pts(user.id,user.program)} onO={logout} onB={()=>setView("dashboard")} onBd={()=>setView("leaderboard")}/>}
       {view==="activities"&&user&&<ActivitiesV u={user} acts={getActs(user.program)||[]} batchControl={batchControl} actComps={activityComps.filter(c=>c.userId===user.id)} onAct={a=>{setSel(a);setView("activity");}} onB={logout}/>}
-      {view==="activity"&&sel&&user&&sel.type==="self_assessment"&&<SelfAssessment act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}}/>}
+      {view==="activity"&&sel&&user&&sel.type==="self_assessment"&&<SelfAssessment act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}} actCfg={activityConfig}/>}
       {view==="activity"&&sel&&user&&sel.type==="huddle_builder"&&<HuddleBuilder act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}}/>}
       {view==="activity"&&sel&&user&&sel.type==="coolroom_countdown"&&<CoolRoomCountdown act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}} coolroomImgs={coolroomImgs[user.batch]}/>}
       {view==="activity"&&sel&&user&&sel.type==="roster_reality"&&<RosterReality act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}}/>}
@@ -922,7 +922,17 @@ const SCORE_BANDS = [
   {min:55,max:81,color:"#007A33",title:"High level of proficiency, reliability, and consistency - competent and reliable leaders with some opportunity.",feedback:["Ensure consistent support and encouragement to individuals on the team for their growth and development.","Maintain a high standard in handling conflicts diplomatically and actively promote a positive, inclusive work environment.","Embrace a continuous improvement mindset, consistently seek ways to further enhance leadership.","Actively set strategic goals that contribute to the growth of GYG.","Consistently demonstrate the ability to drive initiatives that align with GYG Aspirations, including follow up."]},
 ];
 
-function SelfAssessment({act,u,onComplete,onB}){
+function SelfAssessment({act,u,onComplete,onB,actCfg}){
+  const cfg=actCfg?.self_assessment||{};
+  const cats=cfg.categories||ASSESSMENT_CATEGORIES;
+  const bands=cfg.bands||SCORE_BANDS;
+  const instructions=cfg.instructions||[
+    {bold:"Read each statement carefully.",desc:"Take your time to understand the specific statement."},
+    {bold:"Evaluate yourself.",desc:"Select the number that most reflects your behaviour (1: never, 2: sometimes, 3: always)."},
+    {bold:"Be Honest.",desc:"Evaluate yourself based on your experiences as a leader. Consider how you demonstrate each behaviour."},
+    {bold:"Be Open to Feedback.",desc:"Consider seeking input from peers, mentors, or supervisors to gain additional perspectives on your leadership style."},
+  ];
+  const rqs=cfg.reflectionQs||{};
   const[screen,setScreen]=useState(1);
   const[scores,setScores]=useState({});
   const[q1,setQ1]=useState("");
@@ -933,16 +943,17 @@ function SelfAssessment({act,u,onComplete,onB}){
   useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[screen]);
 
   const totalScore=Object.values(scores).reduce((s,v)=>s+v,0);
-  const band=SCORE_BANDS.find(b=>totalScore>=b.min&&totalScore<=b.max)||SCORE_BANDS[0];
-  const catScores=ASSESSMENT_CATEGORIES.map(cat=>({id:cat.id,title:cat.title,score:cat.items.reduce((s,it)=>s+(scores[it.id]||0),0),max:cat.items.length*3}));
-  const allItems=ASSESSMENT_CATEGORIES.flatMap(c=>c.items);
+  const maxScore=cats.reduce((s,c)=>s+c.items.length*3,0);
+  const band=bands.find(b=>totalScore>=b.min&&totalScore<=b.max)||bands[0];
+  const catScores=cats.map(cat=>({id:cat.id,title:cat.title,score:cat.items.reduce((s,it)=>s+(scores[it.id]||0),0),max:cat.items.length*3}));
+  const allItems=cats.flatMap(c=>c.items);
   const allDone=allItems.every(it=>scores[it.id]);
 
   // Screen 1: Instructions
   if(screen===1)return(
     <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
       <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{act.title}</span><span style={{width:32}}/></div>
-      <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:`${(1/12)*100}%`,transition:"width 0.3s"}}/></div>
+      <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:`${(1/(cats.length+3))*100}%`,transition:"width 0.3s"}}/></div>
       <div style={{padding:"28px 28px",display:"flex",flexDirection:"column",alignItems:"center",gap:18,maxWidth:440,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
         <div style={{width:72,height:72,borderRadius:36,background:"#000",display:"flex",alignItems:"center",justifyContent:"center"}}>{CI.self_assessment}</div>
         <div style={{textAlign:"center"}}>
@@ -950,15 +961,10 @@ function SelfAssessment({act,u,onComplete,onB}){
           <div style={{fontFamily:FC,fontWeight:600,fontSize:14,color:"#888",marginTop:6}}>{act.subtitle}</div>
         </div>
         <div style={{width:"100%",background:"#fff",border:"1px solid #e8e8e3",borderRadius:14,padding:"20px"}}>
-          {[
-            ["Read each statement carefully.","Take your time to understand the specific statement."],
-            ["Evaluate yourself.","Select the number that most reflects your behaviour (1: never, 2: sometimes, 3: always)."],
-            ["Be Honest.","Evaluate yourself based on your experiences as a leader. Consider how you demonstrate each behaviour."],
-            ["Be Open to Feedback.","Consider seeking input from peers, mentors, or supervisors to gain additional perspectives on your leadership style."],
-          ].map(([bold,desc],i)=>(
-            <div key={i} style={{marginBottom:i<3?16:0,display:"flex",gap:12,alignItems:"flex-start"}}>
+          {instructions.map((inst,i)=>(
+            <div key={i} style={{marginBottom:i<instructions.length-1?16:0,display:"flex",gap:12,alignItems:"flex-start"}}>
               <div style={{width:28,height:28,borderRadius:14,background:"#000",color:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:13,flexShrink:0,marginTop:2}}>{i+1}</div>
-              <div><span style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{bold}</span><span style={{fontFamily:FB,fontSize:14,color:"#555"}}> {desc}</span></div>
+              <div><span style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{inst.bold}</span><span style={{fontFamily:FB,fontSize:14,color:"#555"}}> {inst.desc}</span></div>
             </div>
           ))}
         </div>
@@ -968,14 +974,14 @@ function SelfAssessment({act,u,onComplete,onB}){
   );
 
   // Screens 2-10: Categories
-  if(screen>=2&&screen<=10){
+  if(screen>=2&&screen<=cats.length+1){
     const catIdx=screen-2;
-    const cat=ASSESSMENT_CATEGORIES[catIdx];
+    const cat=cats[catIdx];
     const catComplete=cat.items.every(it=>scores[it.id]);
     return(
     <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
-      <div style={TBar}><button style={BA} onClick={()=>setScreen(screen-1)}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{catIdx+1} OF 9</span><span style={{width:32}}/></div>
-      <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:`${((screen)/12)*100}%`,transition:"width 0.3s"}}/></div>
+      <div style={TBar}><button style={BA} onClick={()=>setScreen(screen-1)}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{catIdx+1} OF {cats.length}</span><span style={{width:32}}/></div>
+      <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:`${((screen)/(cats.length+3))*100}%`,transition:"width 0.3s"}}/></div>
       <div style={{padding:"20px",maxWidth:440,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
         <div style={{fontFamily:F107,fontWeight:900,fontSize:20,letterSpacing:0.5,marginBottom:4}}>{cat.title.toUpperCase()}</div>
         <div style={{fontSize:13,color:"#888",fontFamily:FC,fontWeight:600,marginBottom:16}}>{cat.items.length} statements</div>
@@ -1006,7 +1012,7 @@ function SelfAssessment({act,u,onComplete,onB}){
         ))}
 
         <button style={{...BY,width:"100%",marginTop:16,opacity:catComplete?1:0.4}} disabled={!catComplete} onClick={()=>setScreen(screen+1)}>
-          {screen<10?"NEXT":"SEE RESULTS"}
+          {screen<cats.length+1?"NEXT":"SEE RESULTS"}
         </button>
         <button onClick={()=>{const newScores={...scores};cat.items.forEach(it=>delete newScores[it.id]);setScores(newScores);}} style={{background:"none",border:"none",color:"#999",fontFamily:FC,fontWeight:600,fontSize:12,letterSpacing:0.5,cursor:"pointer",display:"block",margin:"12px auto 0",padding:"8px 16px"}}>CLEAR RESPONSES</button>
       </div>
@@ -1014,15 +1020,16 @@ function SelfAssessment({act,u,onComplete,onB}){
   }
 
   // Screen 11: Results
-  if(screen===11)return(
+  const resultsScreen=cats.length+2;const reflectionScreen=cats.length+3;const totalScreens=cats.length+3;
+  if(screen===resultsScreen)return(
     <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
-      <div style={TBar}><button style={BA} onClick={()=>setScreen(10)}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>YOUR RESULTS</span><span style={{width:32}}/></div>
-      <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:`${(11/12)*100}%`,transition:"width 0.3s"}}/></div>
+      <div style={TBar}><button style={BA} onClick={()=>setScreen(cats.length+1)}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>YOUR RESULTS</span><span style={{width:32}}/></div>
+      <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:`${((resultsScreen)/totalScreens)*100}%`,transition:"width 0.3s"}}/></div>
       <div style={{padding:"24px 20px",maxWidth:440,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
         {/* Score display */}
         <div style={{background:"#000",borderRadius:14,padding:"24px 20px",textAlign:"center",marginBottom:20}}>
           <div style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#888",letterSpacing:1,marginBottom:8}}>YOUR SCORE</div>
-          <div><span style={{fontFamily:FC,fontWeight:900,fontSize:56,color:band.color}}>{totalScore}</span><span style={{fontFamily:FC,fontWeight:600,fontSize:24,color:"#666"}}>/81</span></div>
+          <div><span style={{fontFamily:FC,fontWeight:900,fontSize:56,color:band.color}}>{totalScore}</span><span style={{fontFamily:FC,fontWeight:600,fontSize:24,color:"#666"}}>/{maxScore}</span></div>
         </div>
 
         {/* Score bands */}
@@ -1060,7 +1067,7 @@ function SelfAssessment({act,u,onComplete,onB}){
           ))}
         </div>
 
-        <button style={{...BY,width:"100%",marginTop:20}} onClick={()=>setScreen(12)}>CONTINUE TO REFLECTION</button>
+        <button style={{...BY,width:"100%",marginTop:20}} onClick={()=>setScreen(reflectionScreen)}>CONTINUE TO REFLECTION</button>
       </div>
     </div>
   );
@@ -1068,42 +1075,34 @@ function SelfAssessment({act,u,onComplete,onB}){
   // Screen 12: Reflection
   return(
     <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column",paddingBottom:40}}>
-      <div style={TBar}><button style={BA} onClick={()=>setScreen(11)}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>REFLECTION</span><span style={{width:32}}/></div>
+      <div style={TBar}><button style={BA} onClick={()=>setScreen(resultsScreen)}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>REFLECTION</span><span style={{width:32}}/></div>
       <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:"100%"}}/></div>
       <div style={{padding:"24px 20px",maxWidth:440,margin:"0 auto",width:"100%",boxSizing:"border-box",display:"flex",flexDirection:"column",gap:18}}>
         <div style={{background:"#000",borderRadius:14,padding:"14px 16px",display:"flex",alignItems:"center",gap:10}}>
-          <span style={{fontFamily:FC,fontWeight:900,fontSize:24,color:band.color}}>{totalScore}/81</span>
+          <span style={{fontFamily:FC,fontWeight:900,fontSize:24,color:band.color}}>{totalScore}/{maxScore}</span>
           <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888"}}>YOUR SCORE</span>
         </div>
 
-        <div>
-          <label style={{fontFamily:FC,fontWeight:700,fontSize:13,color:"#333",display:"block",marginBottom:6,lineHeight:1.5}}>I believe <span style={{fontFamily:FC,fontWeight:900,color:"#000"}}>my two strengths</span> are (based on the self-assessment or your own conclusion) and why:</label>
-          <textarea value={q1} onChange={e=>setQ1(e.target.value)} rows={4} placeholder="Your two strengths and why..." style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:15,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
-        </div>
-
-        <div>
-          <label style={{fontFamily:FC,fontWeight:700,fontSize:13,color:"#333",display:"block",marginBottom:6,lineHeight:1.5}}>How does this make me feel? Are your results a surprise to you?</label>
-          <textarea value={q2} onChange={e=>setQ2(e.target.value)} rows={3} placeholder="Your honest reflection..." style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:15,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
-        </div>
-
-        <div>
-          <label style={{fontFamily:FC,fontWeight:700,fontSize:13,color:"#333",display:"block",marginBottom:6,lineHeight:1.5}}>I believe <span style={{fontFamily:FC,fontWeight:900,color:"#000"}}>my two opportunities</span> are (based on the self-assessment or your own conclusion) and why:</label>
-          <textarea value={q3} onChange={e=>setQ3(e.target.value)} rows={4} placeholder="Your two opportunities and why..." style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:15,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
-        </div>
-
-        <div>
-          <label style={{fontFamily:FC,fontWeight:700,fontSize:13,color:"#333",display:"block",marginBottom:6,lineHeight:1.5}}>How does this make me feel? Are your results a surprise to you?</label>
-          <textarea value={q4} onChange={e=>setQ4(e.target.value)} rows={3} placeholder="Your honest reflection..." style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:15,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
-        </div>
+        {[
+          {val:q1,set:setQ1,label:rqs.q1||'I believe my two strengths are (based on the self-assessment or your own conclusion) and why:',rows:4,ph:"Your two strengths and why..."},
+          {val:q2,set:setQ2,label:rqs.q2||'How does this make me feel? Are your results a surprise to you?',rows:3,ph:"Your honest reflection..."},
+          {val:q3,set:setQ3,label:rqs.q3||'I believe my two opportunities are (based on the self-assessment or your own conclusion) and why:',rows:4,ph:"Your two opportunities and why..."},
+          {val:q4,set:setQ4,label:rqs.q4||'How does this make me feel? Are your results a surprise to you?',rows:3,ph:"Your honest reflection..."},
+        ].map((q,qi)=>(
+          <div key={qi}>
+            <label style={{fontFamily:FC,fontWeight:700,fontSize:13,color:"#333",display:"block",marginBottom:6,lineHeight:1.5}}>{q.label}</label>
+            <textarea value={q.val} onChange={e=>q.set(e.target.value)} rows={q.rows} placeholder={q.ph} style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:15,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+          </div>
+        ))}
 
         <button style={{...BY,width:"100%",opacity:(q1.trim()&&q2.trim()&&q3.trim()&&q4.trim())?1:0.4}} disabled={!(q1.trim()&&q2.trim()&&q3.trim()&&q4.trim())} onClick={()=>{
           const categoryBreakdown={};
-          ASSESSMENT_CATEGORIES.forEach(cat=>{categoryBreakdown[cat.id]=cat.items.reduce((s,it)=>s+(scores[it.id]||0),0);});
+          cats.forEach(cat=>{categoryBreakdown[cat.id]=cat.items.reduce((s,it)=>s+(scores[it.id]||0),0);});
           onComplete({
             type:"self_assessment",
             scores,
             totalScore,
-            maxScore:81,
+            maxScore,
             band:band.title,
             bandColor:band.color,
             categoryScores:categoryBreakdown,
@@ -5046,6 +5045,93 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                   <div style={{marginBottom:12}}><div style={subLabel}>SCENARIO 3 TITLE</div><input value={acfg.roster?.s3Title||"The Mid-Shift Moment"} onChange={e=>saveAcfg("roster",{s3Title:e.target.value})} style={inp}/></div>
                   <div style={{marginBottom:12}}><div style={subLabel}>SCENARIO 3 DESCRIPTION</div><textarea value={acfg.roster?.s3Desc||"Tuesday 2pm. Floor is quiet. 3 crew on. None are casuals."} onChange={e=>saveAcfg("roster",{s3Desc:e.target.value})} rows={2} style={{...inp,resize:"vertical"}}/></div>
                   <div style={{marginBottom:12}}><div style={subLabel}>FINAL REFLECTION QUESTION</div><input value={acfg.roster?.reflectionQ||"What's the one thing you'll do differently on your next roster?"} onChange={e=>saveAcfg("roster",{reflectionQ:e.target.value})} style={inp}/></div>
+                </div>)}
+
+                {item.kind==="activity"&&item.type==="self_assessment"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                  <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Self Assessment Settings</div>
+
+                  {/* Instruction text */}
+                  <div style={{background:"#fff",borderRadius:12,padding:14,marginBottom:14}}>
+                    <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a",marginBottom:10}}>Instructions</div>
+                    <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:8}}>These 4 instructions are shown before the assessment begins.</div>
+                    {(acfg.self_assessment?.instructions||[
+                      {bold:"Read each statement carefully.",desc:"Take your time to understand the specific statement."},
+                      {bold:"Evaluate yourself.",desc:"Select the number that most reflects your behaviour (1: never, 2: sometimes, 3: always)."},
+                      {bold:"Be Honest.",desc:"Evaluate yourself based on your experiences as a leader."},
+                      {bold:"Be Open to Feedback.",desc:"Consider seeking input from peers, mentors, or supervisors."},
+                    ]).map((inst,ii)=>(
+                      <div key={ii} style={{display:"flex",gap:8,marginBottom:8,alignItems:"flex-start"}}>
+                        <span style={{fontFamily:FC,fontWeight:800,fontSize:12,color:"#FFD300",background:"#000",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}>{ii+1}</span>
+                        <div style={{flex:1}}>
+                          <input value={inst.bold} onChange={e=>{const insts=[...(acfg.self_assessment?.instructions||[{bold:"Read each statement carefully.",desc:"Take your time to understand the specific statement."},{bold:"Evaluate yourself.",desc:"Select the number that most reflects your behaviour (1: never, 2: sometimes, 3: always)."},{bold:"Be Honest.",desc:"Evaluate yourself based on your experiences as a leader."},{bold:"Be Open to Feedback.",desc:"Consider seeking input from peers, mentors, or supervisors."}])];insts[ii]={...insts[ii],bold:e.target.value};saveAcfg("self_assessment",{instructions:insts});}} style={{...inp,fontWeight:700,fontSize:13,padding:"6px 10px",marginBottom:4}}/>
+                          <input value={inst.desc} onChange={e=>{const insts=[...(acfg.self_assessment?.instructions||[{bold:"Read each statement carefully.",desc:"Take your time to understand the specific statement."},{bold:"Evaluate yourself.",desc:"Select the number that most reflects your behaviour (1: never, 2: sometimes, 3: always)."},{bold:"Be Honest.",desc:"Evaluate yourself based on your experiences as a leader."},{bold:"Be Open to Feedback.",desc:"Consider seeking input from peers, mentors, or supervisors."}])];insts[ii]={...insts[ii],desc:e.target.value};saveAcfg("self_assessment",{instructions:insts});}} style={{...inp,fontSize:12,padding:"6px 10px",color:"#666"}}/>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Categories and statements */}
+                  <div style={{background:"#fff",borderRadius:12,padding:14,marginBottom:14}}>
+                    <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a",marginBottom:6}}>Categories {"&"} Statements ({(acfg.self_assessment?.categories||ASSESSMENT_CATEGORIES).reduce((s,c)=>s+c.items.length,0)} total)</div>
+                    <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:10}}>Edit category titles and individual statement text. Statements are rated 1 (Never) to 3 (Always).</div>
+                    {(acfg.self_assessment?.categories||ASSESSMENT_CATEGORIES).map((cat,ci)=>(
+                      <div key={cat.id} style={{marginBottom:12,borderBottom:ci<(acfg.self_assessment?.categories||ASSESSMENT_CATEGORIES).length-1?"1px solid #f0f0eb":"none",paddingBottom:8}}>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                          <input value={cat.title} onChange={e=>{const cats=JSON.parse(JSON.stringify(acfg.self_assessment?.categories||ASSESSMENT_CATEGORIES));cats[ci].title=e.target.value;saveAcfg("self_assessment",{categories:cats});}} style={{...inp,fontWeight:800,fontSize:13,flex:1,padding:"6px 10px"}}/>
+                          <span style={{fontFamily:FC,fontWeight:700,fontSize:11,color:"#999",marginLeft:8,flexShrink:0}}>{cat.items.length} items</span>
+                        </div>
+                        {cat.items.map((item,ii)=>(
+                          <div key={item.id} style={{display:"flex",gap:6,marginBottom:4,alignItems:"center"}}>
+                            <span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#bbb",width:16,flexShrink:0}}>{ii+1}</span>
+                            <input value={item.text} onChange={e=>{const cats=JSON.parse(JSON.stringify(acfg.self_assessment?.categories||ASSESSMENT_CATEGORIES));cats[ci].items[ii].text=e.target.value;saveAcfg("self_assessment",{categories:cats});}} style={{...inp,fontSize:12,padding:"5px 8px",flex:1}}/>
+                            <button onClick={()=>{const cats=JSON.parse(JSON.stringify(acfg.self_assessment?.categories||ASSESSMENT_CATEGORIES));cats[ci].items.splice(ii,1);saveAcfg("self_assessment",{categories:cats});}} style={{background:"none",border:"none",color:"#E3000B",cursor:"pointer",fontSize:14,padding:"2px 6px",fontWeight:700}}>x</button>
+                          </div>
+                        ))}
+                        <button onClick={()=>{const cats=JSON.parse(JSON.stringify(acfg.self_assessment?.categories||ASSESSMENT_CATEGORIES));cats[ci].items.push({id:`${cat.id}_${Date.now()}`,text:"New statement"});saveAcfg("self_assessment",{categories:cats});}} style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#007A33",background:"none",border:"none",cursor:"pointer",padding:"4px 0",letterSpacing:0.5}}>+ ADD STATEMENT</button>
+                      </div>
+                    ))}
+                    <button onClick={()=>{const cats=JSON.parse(JSON.stringify(acfg.self_assessment?.categories||ASSESSMENT_CATEGORIES));cats.push({id:`cat_${Date.now()}`,title:"New Category",items:[{id:`item_${Date.now()}`,text:"New statement"}]});saveAcfg("self_assessment",{categories:cats});}} style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#FFD300",background:"#000",border:"none",borderRadius:8,padding:"8px 14px",cursor:"pointer",letterSpacing:0.5,marginTop:4}}>+ ADD CATEGORY</button>
+                  </div>
+
+                  {/* Score bands */}
+                  <div style={{background:"#fff",borderRadius:12,padding:14,marginBottom:14}}>
+                    <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a",marginBottom:6}}>Score Bands</div>
+                    <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:10}}>Max score = statements x 3. Adjust band ranges and feedback text.</div>
+                    {(acfg.self_assessment?.bands||SCORE_BANDS).map((b,bi)=>(
+                      <div key={bi} style={{borderLeft:`4px solid ${b.color}`,padding:"10px 12px",marginBottom:8,background:"#f8f8f5",borderRadius:"0 10px 10px 0"}}>
+                        <div style={{display:"flex",gap:8,marginBottom:6}}>
+                          <div><div style={{fontSize:10,color:"#888",fontFamily:FC}}>MIN</div><input type="number" value={b.min} onChange={e=>{const bands=JSON.parse(JSON.stringify(acfg.self_assessment?.bands||SCORE_BANDS));bands[bi].min=parseInt(e.target.value)||0;saveAcfg("self_assessment",{bands});}} style={{...inp,width:50,padding:"4px 6px",textAlign:"center",fontSize:13}}/></div>
+                          <div><div style={{fontSize:10,color:"#888",fontFamily:FC}}>MAX</div><input type="number" value={b.max} onChange={e=>{const bands=JSON.parse(JSON.stringify(acfg.self_assessment?.bands||SCORE_BANDS));bands[bi].max=parseInt(e.target.value)||0;saveAcfg("self_assessment",{bands});}} style={{...inp,width:50,padding:"4px 6px",textAlign:"center",fontSize:13}}/></div>
+                        </div>
+                        <div style={{marginBottom:6}}><div style={{fontSize:10,color:"#888",fontFamily:FC}}>TITLE</div><input value={b.title} onChange={e=>{const bands=JSON.parse(JSON.stringify(acfg.self_assessment?.bands||SCORE_BANDS));bands[bi].title=e.target.value;saveAcfg("self_assessment",{bands});}} style={{...inp,fontSize:12,padding:"5px 8px"}}/></div>
+                        <div style={{fontSize:10,color:"#888",fontFamily:FC,marginBottom:4}}>FEEDBACK POINTS</div>
+                        {b.feedback.map((f,fi)=>(
+                          <div key={fi} style={{display:"flex",gap:4,marginBottom:3}}>
+                            <input value={f} onChange={e=>{const bands=JSON.parse(JSON.stringify(acfg.self_assessment?.bands||SCORE_BANDS));bands[bi].feedback[fi]=e.target.value;saveAcfg("self_assessment",{bands});}} style={{...inp,fontSize:11,padding:"4px 6px",flex:1}}/>
+                            <button onClick={()=>{const bands=JSON.parse(JSON.stringify(acfg.self_assessment?.bands||SCORE_BANDS));bands[bi].feedback.splice(fi,1);saveAcfg("self_assessment",{bands});}} style={{background:"none",border:"none",color:"#E3000B",cursor:"pointer",fontSize:12,padding:"2px 4px"}}>x</button>
+                          </div>
+                        ))}
+                        <button onClick={()=>{const bands=JSON.parse(JSON.stringify(acfg.self_assessment?.bands||SCORE_BANDS));bands[bi].feedback.push("New feedback point");saveAcfg("self_assessment",{bands});}} style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#007A33",background:"none",border:"none",cursor:"pointer",padding:"2px 0"}}>+ ADD FEEDBACK</button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Reflection questions */}
+                  <div style={{background:"#fff",borderRadius:12,padding:14}}>
+                    <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a",marginBottom:6}}>Reflection Questions</div>
+                    <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:10}}>Shown after results. All 4 are required before completing.</div>
+                    {[
+                      {key:"q1",label:"Question 1 (Strengths)",def:'I believe my two strengths are (based on the self-assessment or your own conclusion) and why:'},
+                      {key:"q2",label:"Question 2 (Strengths feel)",def:'How does this make me feel? Are your results a surprise to you?'},
+                      {key:"q3",label:"Question 3 (Opportunities)",def:'I believe my two opportunities are (based on the self-assessment or your own conclusion) and why:'},
+                      {key:"q4",label:"Question 4 (Opportunities feel)",def:'How does this make me feel? Are your results a surprise to you?'},
+                    ].map(q=>(
+                      <div key={q.key} style={{marginBottom:8}}>
+                        <div style={{fontSize:10,color:"#888",fontFamily:FC,marginBottom:3}}>{q.label.toUpperCase()}</div>
+                        <textarea value={acfg.self_assessment?.reflectionQs?.[q.key]||q.def} onChange={e=>{const rqs={...(acfg.self_assessment?.reflectionQs||{}),[q.key]:e.target.value};saveAcfg("self_assessment",{reflectionQs:rqs});}} rows={2} style={{...inp,fontSize:12,resize:"vertical",padding:"6px 8px"}}/>
+                      </div>
+                    ))}
+                  </div>
                 </div>)}
 
                 {item.kind==="activity"&&!["huddle_builder","coolroom_countdown","roster_reality","self_assessment"].includes(item.type)&&(<div>
