@@ -2588,7 +2588,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                         <div><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Top batch bonus</div><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:12,color:"#999"}}>Top</span><input type="number" value={acfg.shift_in_chaos?.topN||3} onChange={e=>saveAcfg("shift_in_chaos",{topN:parseInt(e.target.value)||3})} style={{...inp,width:50,textAlign:"center",padding:"8px"}}/><span style={{fontSize:12,color:"#999"}}>in batch</span></div></div>
                       </div>
                       <div style={{marginTop:10,padding:"10px 12px",background:"#f8f8f5",borderRadius:8,fontSize:12,color:"#666",fontFamily:FB}}>
-                        <strong>Example:</strong> 100 base pts, 75% accuracy = 75 pts earned. Bonus ({acfg.shift_in_chaos?.bonusThreshold||80}%+ or top {acfg.shift_in_chaos?.topN||3}) = +{ch?.bonusPoints||50} pts.
+                        <strong>Example:</strong> 100 base pts, 75% accuracy = 75 pts earned. Bonus ({acfg.shift_in_chaos?.bonusThreshold||80}%+ or top {acfg.shift_in_chaos?.topN||3}) = +{item?.bonusPoints||50} pts.
                       </div>
                     </div>
 
