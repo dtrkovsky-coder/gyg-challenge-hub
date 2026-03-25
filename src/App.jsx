@@ -136,7 +136,27 @@ const DEFAULT_ACTIVITIES = {
   nextgen: [
     { id: "ng-act-1", type: "coolroom_countdown", title: "COOL ROOM COUNTDOWN", subtitle: "Can you count under pressure?" },
     { id: "ng-act-2", type: "roster_reality", title: "ROSTER REALITY", subtitle: "Three decisions. One restaurant." }
-  ]
+  ],
+  // Q2 activities
+  essentials_Q2: [
+    { id: "le-q2-act-1", type: "huddle_builder", title: "THE TRAINING HUDDLE", subtitle: "Build a 5-minute training moment" }
+  ],
+  nextgen_Q2: [
+    { id: "ng-q2-act-1", type: "coolroom_countdown", title: "STOCK ACCURACY CHECK", subtitle: "Count under pressure - training edition" }
+  ],
+  elite_Q2: [
+    { id: "el-q2-act-1", type: "huddle_builder", title: "THE COACHING FRAMEWORK", subtitle: "Structure your coaching conversations" }
+  ],
+  // Q3 activities
+  essentials_Q3: [
+    { id: "le-q3-act-1", type: "huddle_builder", title: "THE RECOGNITION HUDDLE", subtitle: "Lead with positivity" }
+  ],
+  nextgen_Q3: [
+    { id: "ng-q3-act-1", type: "roster_reality", title: "PERFORMANCE SCENARIO", subtitle: "Three crew. Three conversations." }
+  ],
+  elite_Q3: [
+    { id: "el-q3-act-1", type: "huddle_builder", title: "THE INFLUENCE PITCH", subtitle: "Sell your idea in 2 minutes" }
+  ],
 };
 
 const HUDDLE_FOCUSES = {
@@ -325,8 +345,9 @@ export default function App(){
   const[comps,setComps]=useState([]);
   const[sel,setSel]=useState(null);
   useEffect(()=>{window.scrollTo(0,0);},[view,sel]);
-  // Get challenges for a program based on active quarter
+  // Get challenges/activities for a program based on active quarter
   const getCh=(prog)=>{const q=activityConfig.activeQuarter?.[prog]||"Q1";const all=challenges||DEFAULT_CHALLENGES;if(q==="Q1")return all[prog]||[];const qKey=`${prog}_${q}`;return all[qKey]||DEFAULT_CHALLENGES[qKey]||all[prog]||[];};
+  const getActs=(prog)=>{const q=activityConfig.activeQuarter?.[prog]||"Q1";if(q==="Q1")return DEFAULT_ACTIVITIES[prog]||[];const qKey=`${prog}_${q}`;return DEFAULT_ACTIVITIES[qKey]||DEFAULT_ACTIVITIES[prog]||[];};
   const[loading,setLoading]=useState(true);
   const[toast,setToast]=useState(null);
   const flash=useCallback((m,ok=true)=>{setToast({m,ok});setTimeout(()=>setToast(null),3000);},[]);
@@ -334,7 +355,7 @@ export default function App(){
   const[batchControl,setBatchControlState]=useState(null);
   const[coolroomImgs,setCoolroomImgs]=useState({});
   const[activityConfig,setActivityConfigState]=useState({});
-  const getInitialView=(u,bc,ac)=>{const acts=DEFAULT_ACTIVITIES[u.program];if(!acts||!acts.length)return "dashboard";const bk=(bc||{})[u.batch];if(!bk)return "activities";if(bk.skipActivities)return "dashboard";const userDone=(ac||[]).filter(c=>c.userId===u.id).map(c=>c.activityId);const allDone=acts.every(a=>userDone.includes(a.id));if(!allDone)return "activities";if(!bk.challengesUnlocked)return "waiting";return "dashboard";};
+  const getInitialView=(u,bc,ac)=>{const acts=getActs(u.program);if(!acts||!acts.length)return "dashboard";const bk=(bc||{})[u.batch];if(!bk)return "activities";if(bk.skipActivities)return "dashboard";const userDone=(ac||[]).filter(c=>c.userId===u.id).map(c=>c.activityId);const allDone=acts.every(a=>userDone.includes(a.id));if(!allDone)return "activities";if(!bk.challengesUnlocked)return "waiting";return "dashboard";};
 
   useEffect(()=>{(async()=>{let u=await getUsers(),c=await getCompletions(),s=getSession();if(u.length)setUsers(u);if(c.length)setComps(c);const ch2=await getChallenges();if(ch2){
       // Force-update challenges if they don't have the new type field
@@ -385,6 +406,12 @@ export default function App(){
     if(un==="test-all"&&pw==="test"){setUser({id:"test-all",name:"Test All",program:"lse",batch:"TEST",position:"Tester",restaurant:"Test"});setView("testbed");return;}
     const f=users.find(u=>u.username===un&&u.password===pw);
     if(!f){flash("Invalid credentials",false);return;}
+    // Check if quarter changed since last login - re-trigger lunch order
+    const currentQ=activityConfig.activeQuarter?.[f.program]||"Q1";
+    if(f.lastQuarter&&f.lastQuarter!==currentQ&&lunchConfig?.[f.program]?.enabled!==false){
+      setUser(f);setSession({id:f.id});setView("reorder_lunch");flash(`Welcome back, ${f.name.split(" ")[0]}! New quarter - please update your lunch order.`);return;
+    }
+    if(!f.lastQuarter||f.lastQuarter!==currentQ){updateUser({...f,lastQuarter:currentQ});}
     setUser(f);setSession({id:f.id});setView(getInitialView(f,batchControl,activityComps));flash(`Hola, ${f.name.split(" ")[0]}!`);
   };
   const logout=async()=>{setUser(null);setSession(null);setView("splash");};
@@ -410,7 +437,16 @@ export default function App(){
       {view==="splash"&&<SplashV onL={()=>setView("login")} onR={()=>setView("register")}/>}
       {view==="login"&&<LoginV onL={login} onB={()=>setView("splash")}/>}
       {view==="register"&&<RegV onR={reg} onB={()=>setView("splash")} lunchConfig={lunchConfig} existingUsers={users}/>}
-      {view==="dashboard"&&user&&user.id&&<DashV u={user} ch={getCh(user.program)||[]} co={comps.filter(c=>c.userId===user.id)} wk={getUserWeek(user.createdAt)} sc={pts(user.id,user.program)} onCh={c=>{setSel(c);setView("challenge");}} onBd={()=>setView("leaderboard")} onPr={()=>setView("profile")} actComps={activityComps.filter(c=>c.userId===user.id)} acts={DEFAULT_ACTIVITIES[user.program]||[]} activeQuarter={activityConfig.activeQuarter?.[user.program]||"Q1"}/>}
+      {view==="reorder_lunch"&&user&&(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",padding:"24px 20px"}}>
+        <div style={TBar}><span style={{width:32}}/><span style={TT}>LUNCH ORDER</span><span style={{width:32}}/></div>
+        <div style={{textAlign:"center",marginBottom:20,marginTop:60}}>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:22,letterSpacing:1}}>NEW QUARTER</div>
+          <div style={{fontSize:14,color:"#888",fontFamily:FB,marginTop:4}}>Welcome back! Please update your lunch order for this session.</div>
+        </div>
+        <LunchReorder user={user} lunchConfig={lunchConfig} onDone={async(lt,lf)=>{const updated={...user,lunchType:lt,lunchFilling:lf,lastQuarter:activityConfig.activeQuarter?.[user.program]||"Q1"};await updateUser(updated);setUser(updated);setView(getInitialView(updated,batchControl,activityComps));flash("Lunch order updated!");}}/>
+      </div>)}
+
+      {view==="dashboard"&&user&&user.id&&<DashV u={user} ch={getCh(user.program)||[]} co={comps.filter(c=>c.userId===user.id)} wk={getUserWeek(user.createdAt)} sc={pts(user.id,user.program)} onCh={c=>{setSel(c);setView("challenge");}} onBd={()=>setView("leaderboard")} onPr={()=>setView("profile")} actComps={activityComps.filter(c=>c.userId===user.id)} acts={getActs(user.program)||[]} activeQuarter={activityConfig.activeQuarter?.[user.program]||"Q1"}/>}
       {view==="challenge"&&sel&&user&&(
         sel.type==="hazard_hunt"?<HazardHunt ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig.hazard_hunt}/>:
         sel.type==="shift_in_chaos"?<ShiftInChaos ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users} actCfg={activityConfig.shift_in_chaos}/>:
@@ -430,7 +466,7 @@ export default function App(){
       )}
       {view==="leaderboard"&&user&&<LbV us={users} co={comps} cu={user} onB={()=>setView("dashboard")} onP={()=>setView("profile")} defaultProg={user.program} defaultBatch={user.batch}/>}
       {view==="profile"&&user&&<PrV u={user} co={comps.filter(c=>c.userId===user.id)} sc={pts(user.id,user.program)} onO={logout} onB={()=>setView("dashboard")} onBd={()=>setView("leaderboard")}/>}
-      {view==="activities"&&user&&<ActivitiesV u={user} acts={DEFAULT_ACTIVITIES[user.program]||[]} batchControl={batchControl} actComps={activityComps.filter(c=>c.userId===user.id)} onAct={a=>{setSel(a);setView("activity");}} onB={logout}/>}
+      {view==="activities"&&user&&<ActivitiesV u={user} acts={getActs(user.program)||[]} batchControl={batchControl} actComps={activityComps.filter(c=>c.userId===user.id)} onAct={a=>{setSel(a);setView("activity");}} onB={logout}/>}
       {view==="activity"&&sel&&user&&sel.type==="huddle_builder"&&<HuddleBuilder act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}}/>}
       {view==="activity"&&sel&&user&&sel.type==="coolroom_countdown"&&<CoolRoomCountdown act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}} coolroomImgs={coolroomImgs[user.batch]}/>}
       {view==="activity"&&sel&&user&&sel.type==="roster_reality"&&<RosterReality act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}}/>}
@@ -445,9 +481,9 @@ export default function App(){
         </div>
         <div style={{padding:"16px 16px 0"}}>
           {/* Activities */}
-          {(DEFAULT_ACTIVITIES[user.program]||[]).length>0&&(<>
+          {(getActs(user.program)||[]).length>0&&(<>
             <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:0.5,color:"#999",marginBottom:10}}>ACTIVITIES</div>
-            {(DEFAULT_ACTIVITIES[user.program]||[]).map(act=>(<button key={act.id} onClick={()=>{setSel(act);setPrevView("testbed");setView("activity");}} style={{display:"flex",alignItems:"center",width:"100%",padding:16,background:"#fff",borderRadius:14,marginBottom:8,border:"none",cursor:"pointer",textAlign:"left",fontFamily:FB,boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
+            {(getActs(user.program)||[]).map(act=>(<button key={act.id} onClick={()=>{setSel(act);setPrevView("testbed");setView("activity");}} style={{display:"flex",alignItems:"center",width:"100%",padding:16,background:"#fff",borderRadius:14,marginBottom:8,border:"none",cursor:"pointer",textAlign:"left",fontFamily:FB,boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
               <div style={{width:36,height:36,borderRadius:10,background:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
               <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:800,fontSize:15}}>{act.title}</div><div style={{fontSize:13,color:"#888",marginTop:2}}>{act.subtitle}</div></div>
               <span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"4px 10px",borderRadius:8,background:"#FFF8E0",color:"#B8860B"}}>ACTIVITY</span>
@@ -526,6 +562,30 @@ function LoginV({onL,onB}){const[un,sU]=useState("");const[pw,sP]=useState("");r
 );}
 
 // ─── REGISTER ────────────────────────────────────────────────────────────────
+function LunchReorder({user,lunchConfig,onDone}){
+  const[lt,setLt]=useState(user.lunchType||"");const[lf,setLf]=useState(user.lunchFilling||"");
+  const lc=lunchConfig||{};const progCfg=lc[user.program]||{};
+  const enabledTypes=(progCfg.types||LUNCH_MENU.types.map(t=>t.id)).filter(tid=>LUNCH_MENU.types.some(t=>t.id===tid));
+  const enabledFillings=(progCfg.fillings||LUNCH_MENU.fillings.map(fl=>fl.id)).filter(fid=>LUNCH_MENU.fillings.some(fl=>fl.id===fid));
+  const visTypes=LUNCH_MENU.types.filter(t=>enabledTypes.includes(t.id));
+  const visFillings=LUNCH_MENU.fillings.filter(fl=>enabledFillings.includes(fl.id));
+  return(<div>
+    <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:12}}>WHAT WOULD YOU LIKE FOR LUNCH?</div>
+    <div style={{display:"grid",gridTemplateColumns:`repeat(${visTypes.length},1fr)`,gap:10,marginBottom:16}}>
+      {visTypes.map(t=>(<button key={t.id} onClick={()=>setLt(t.id)} style={{padding:"18px 12px",background:lt===t.id?"#FFFDE6":"#fff",border:`2px solid ${lt===t.id?"#FFD300":"#e0e0db"}`,borderRadius:14,cursor:"pointer",textAlign:"center"}}>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:16}}>{t.name}</div>
+      </button>))}
+    </div>
+    {lt&&<div style={{display:"flex",flexDirection:"column",gap:6}}>
+      <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:4}}>CHOOSE YOUR FILLING</div>
+      {visFillings.map((fl,i)=>(<button key={fl.id} onClick={()=>setLf(fl.id)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px",background:lf===fl.id?"#FFFDE6":"#fff",border:"none",borderBottom:i<visFillings.length-1?"1px solid #f0f0eb":"none",cursor:"pointer",width:"100%",textAlign:"left"}}>
+        <span style={{fontSize:16,fontFamily:FB}}>{fl.name}</span>
+        {lf===fl.id&&<span style={{color:"#FFD300",fontSize:18,fontWeight:900}}>&#10003;</span>}
+      </button>))}
+    </div>}
+    <button style={{...BY,width:"100%",marginTop:16,opacity:lt&&lf?1:0.4}} disabled={!lt||!lf} onClick={()=>onDone(lt,lf)}>UPDATE ORDER</button>
+  </div>);
+}
 function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);const[f,sF]=useState({name:"",email:"",username:"",password:"",position:"",program:"",restaurant:"",lunchType:"",lunchFilling:""});const[err,setErr]=useState("");const u=(k,v)=>sF(p=>({...p,[k]:v}));
   const pos=["Crew Member","Crew Trainer","Cook","Senior Cook","Head Cook","Shift Leader","Assistant Restaurant Manager","Restaurant Manager"];
   const previewBatch=f.program?generateBatch(f.program):null;
@@ -3676,7 +3736,8 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
     const activeQW=QUARTERLY_WORKSHOPS[contentProg]?.[activeQ]||null;
     const chKey=activeQ==="Q1"?contentProg:`${contentProg}_${activeQ}`;
     const progChallenges=(challenges||DEFAULT_CHALLENGES)[chKey]||DEFAULT_CHALLENGES[chKey]||[];
-    const progActivities=DEFAULT_ACTIVITIES[contentProg]||[];
+    const progActQ=acfg.activeQuarter?.[contentProg]||"Q1";const progActKey=progActQ==="Q1"?contentProg:`${contentProg}_${progActQ}`;
+    const progActivities=DEFAULT_ACTIVITIES[progActKey]||DEFAULT_ACTIVITIES[contentProg]||[];
     // All content items for this program
     const allItems=[
       ...progActivities.map(a=>({...a,kind:"activity",label:"Activity"})),
@@ -4279,7 +4340,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
         {progBatches.map(b=>{
           const batchUsers=us.filter(u=>u.batch===b);
           const bk=(batchControl||{})[b]||{activeActivity:null,completedActivities:[],challengesUnlocked:false};
-          const acts=DEFAULT_ACTIVITIES[contentProg]||[];
+          const aqx=acfg.activeQuarter?.[contentProg]||"Q1";const akx=aqx==="Q1"?contentProg:`${contentProg}_${aqx}`;const acts=DEFAULT_ACTIVITIES[akx]||DEFAULT_ACTIVITIES[contentProg]||[];
           const toggleAct=(actId,newState)=>{const updated={...(batchControl||{})};const nbk={...bk};
             if(newState==="active"){nbk.activeActivity=actId;nbk.completedActivities=(nbk.completedActivities||[]).filter(id=>id!==actId);}
             else if(newState==="completed"){nbk.activeActivity=nbk.activeActivity===actId?null:nbk.activeActivity;nbk.completedActivities=[...new Set([...(nbk.completedActivities||[]),actId])];}
@@ -4448,7 +4509,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
     <div style={secTitle}>Batch Controls</div>
     {batches.map(b=>{
       const batchUsers=us.filter(u=>u.batch===b);if(!batchUsers.length)return null;
-      const prog=batchUsers[0]?.program;const acts=DEFAULT_ACTIVITIES[prog];if(!acts||!acts.length)return null;
+      const prog=batchUsers[0]?.program;const aq=acfg.activeQuarter?.[prog]||"Q1";const actKey=aq==="Q1"?prog:`${prog}_${aq}`;const acts=DEFAULT_ACTIVITIES[actKey]||DEFAULT_ACTIVITIES[prog];if(!acts||!acts.length)return null;
       const bk=(batchControl||{})[b]||{activeActivity:null,completedActivities:[],challengesUnlocked:false};
       const toggleAct=(actId,newState)=>{const updated={...(batchControl||{})};const nbk={...bk};
         if(newState==="active"){nbk.activeActivity=actId;nbk.completedActivities=(nbk.completedActivities||[]).filter(id=>id!==actId);}
@@ -4510,7 +4571,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
         </div>
       );
     })}
-    {batches.filter(b=>{const bu=us.filter(u=>u.batch===b);const prog=bu[0]?.program;return DEFAULT_ACTIVITIES[prog]?.length>0;}).length===0&&<div style={{fontSize:14,color:"#999",textAlign:"center",padding:40,fontFamily:FC}}>No batches with activities found.</div>}
+    {batches.filter(b=>{const bu=us.filter(u=>u.batch===b);const prog=bu[0]?.program;const aq2=acfg.activeQuarter?.[prog]||"Q1";const ak2=aq2==="Q1"?prog:`${prog}_${aq2}`;return(DEFAULT_ACTIVITIES[ak2]||DEFAULT_ACTIVITIES[prog])?.length>0;}).length===0&&<div style={{fontSize:14,color:"#999",textAlign:"center",padding:40,fontFamily:FC}}>No batches with activities found.</div>}
   </div>);};
 
   /* ═══ PEOPLE ═══ */
