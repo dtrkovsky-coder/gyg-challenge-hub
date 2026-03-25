@@ -348,7 +348,7 @@ export default function App(){
         sel.type==="shift_in_chaos"?<ShiftInChaos ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users} actCfg={activityConfig.shift_in_chaos}/>:
         sel.type==="spot_the_moment"?<SpotTheMoment ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users} actCfg={activityConfig}/>:
         sel.type==="thirty_second_sell"?<ThirtySecondSell ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
-        sel.type==="recovery_race"?<RecoveryRace ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
+        sel.type==="recovery_race"?<RecoveryRace ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         sel.type==="shift_leader_lens"?<ShiftLeaderLens ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
         <ChV ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}}/>
       )}
@@ -1172,7 +1172,7 @@ function ThirtySecondSell({ch,done,onS,onB,user,actCfg}){
 
   const startCamera=async()=>{
     try{
-      const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:720},height:{ideal:1280}},audio:true});
+      const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:360},height:{ideal:640}},audio:true});
       streamRef.current=stream;
       if(videoRef.current){videoRef.current.srcObject=stream;videoRef.current.play();}
       chunksRef.current=[];
@@ -1329,7 +1329,10 @@ const RECOVERY_SCENARIOS=[
         {id:"c",text:"Move on - it's handled",outcome:"bad",next:"Same mistake happens next Tuesday."}]}
     ],resultGood:{guest:"Posts thanking the restaurant",cpt:"-1.0"},resultBad:{guest:"Reports to food authority",cpt:"+3.0"}},
 ];
-function RecoveryRace({ch,done,onS,onB,user}){
+function RecoveryRace({ch,done,onS,onB,user,actCfg}){
+  const scenarios=actCfg?.recovery_race?.scenarios||RECOVERY_SCENARIOS;
+  const bonusThreshold=actCfg?.recovery_race?.bonusThreshold||75;
+  const decisionTimerDefault=actCfg?.recovery_race?.decisionTimer||8;
   const[screen,setScreen]=useState("intro");// intro | play | result | complete
   const[scenIdx,setScenIdx]=useState(0);
   const[decIdx,setDecIdx]=useState(0);
@@ -1338,11 +1341,11 @@ function RecoveryRace({ch,done,onS,onB,user}){
   const[allResults,setAllResults]=useState([]);
   const[lastOutcome,setLastOutcome]=useState(null);
   const timerRef=useRef(null);
-  const scen=RECOVERY_SCENARIOS[scenIdx]||null;
+  const scen=scenarios[scenIdx]||null;
   const dec=scen?.decisions[decIdx]||null;
   useEffect(()=>{if(screen==="play"&&dec&&decTimer>0){timerRef.current=setInterval(()=>setDecTimer(t=>{if(t<=1){clearInterval(timerRef.current);return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}return()=>clearInterval(timerRef.current);},[screen,decIdx,decTimer]);
   const choose=(opt)=>{clearInterval(timerRef.current);setDecTimer(0);setChoices(p=>[...p,opt.outcome]);setLastOutcome(opt);
-    if(decIdx<(scen?.decisions.length||4)-1){setTimeout(()=>{setDecIdx(d=>d+1);const nextT=scen?.decisions[decIdx+1]?.timer||8;setDecTimer(nextT);setLastOutcome(null);},2000);}
+    if(decIdx<(scen?.decisions.length||4)-1){setTimeout(()=>{setDecIdx(d=>d+1);const nextT=scen?.decisions[decIdx+1]?.timer||decisionTimerDefault;setDecTimer(nextT);setLastOutcome(null);},2000);}
     else{const goods=choices.filter(c=>c==="good").length+(opt.outcome==="good"?1:0);const total=choices.length+1;setAllResults(p=>[...p,{scenId:scen.id,title:scen.title,goods,total,score:Math.round(goods/total*100)}]);setTimeout(()=>setScreen("result"),2000);}};
   if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 3</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
   return(
@@ -1353,10 +1356,10 @@ function RecoveryRace({ch,done,onS,onB,user}){
       <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
       <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
       <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:20,color:"#fff"}}>
-        <div style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#FFD300",letterSpacing:1,marginBottom:8}}>{RECOVERY_SCENARIOS.length} SCENARIOS</div>
-        {RECOVERY_SCENARIOS.map((s,i)=>(<div key={s.id} style={{fontSize:13,color:"#ccc",marginBottom:4}}>{i+1}. {s.title}</div>))}
+        <div style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#FFD300",letterSpacing:1,marginBottom:8}}>{scenarios.length} SCENARIOS</div>
+        {scenarios.map((s,i)=>(<div key={s.id} style={{fontSize:13,color:"#ccc",marginBottom:4}}>{i+1}. {s.title}</div>))}
       </div>
-      <button style={{...BY,width:"100%"}} onClick={()=>{setScreen("play");setDecTimer(scen?.decisions[0]?.timer||8);}}>START SCENARIO 1</button>
+      <button style={{...BY,width:"100%"}} onClick={()=>{setScreen("play");setDecTimer(scen?.decisions[0]?.timer||decisionTimerDefault);}}>START SCENARIO 1</button>
     </div>)}
     {screen==="play"&&scen&&dec&&(<div style={{padding:"24px 20px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
@@ -1381,8 +1384,8 @@ function RecoveryRace({ch,done,onS,onB,user}){
         <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{allResults[allResults.length-1]?.score||0}%</div>
         <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888"}}>RECOVERY SCORE</div>
       </div>
-      {scenIdx<RECOVERY_SCENARIOS.length-1?(
-        <button style={{...BY,width:"100%"}} onClick={()=>{setScenIdx(s=>s+1);setDecIdx(0);setChoices([]);setLastOutcome(null);setScreen("play");setDecTimer(RECOVERY_SCENARIOS[scenIdx+1]?.decisions[0]?.timer||8);}}>NEXT SCENARIO: {RECOVERY_SCENARIOS[scenIdx+1]?.title.toUpperCase()}</button>
+      {scenIdx<scenarios.length-1?(
+        <button style={{...BY,width:"100%"}} onClick={()=>{setScenIdx(s=>s+1);setDecIdx(0);setChoices([]);setLastOutcome(null);setScreen("play");setDecTimer(scenarios[scenIdx+1]?.decisions[0]?.timer||decisionTimerDefault);}}>NEXT SCENARIO: {scenarios[scenIdx+1]?.title.toUpperCase()}</button>
       ):(
         <button style={{...BY,width:"100%"}} onClick={()=>setScreen("complete")}>VIEW FINAL RESULTS</button>
       )}
@@ -1391,14 +1394,14 @@ function RecoveryRace({ch,done,onS,onB,user}){
       <div style={{textAlign:"center",marginBottom:20}}><div style={{fontSize:24,fontFamily:FC,fontWeight:900}}>RECOVERY RACE COMPLETE</div></div>
       {allResults.map((r,i)=>(<div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{r.title}</div><div style={{fontSize:12,color:"#888"}}>{r.goods}/{r.total} good choices</div></div><div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:r.score>=75?"#007A33":r.score>=50?"#FFB800":"#E3000B"}}>{r.score}%</div></div>))}
       <div style={{textAlign:"center",marginTop:16}}><div style={{fontSize:16,fontFamily:FC,fontWeight:800,color:"#000"}}>AVG: {Math.round(allResults.reduce((s,r)=>s+r.score,0)/allResults.length)}%</div></div>
-      {(()=>{const avg=Math.round(allResults.reduce((s,r)=>s+r.score,0)/allResults.length);const earnedPts=Math.round(ch.points*(avg/100));const bonusEarned=avg>=75;return(<>
+      {(()=>{const avg=Math.round(allResults.reduce((s,r)=>s+r.score,0)/allResults.length);const earnedPts=Math.round(ch.points*(avg/100));const bonusEarned=avg>=bonusThreshold;return(<>
         <div style={{background:"#000",borderRadius:14,padding:16,marginTop:16,marginBottom:16}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <div><div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",letterSpacing:0.5}}>POINTS EARNED</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:"#fff",marginTop:4}}>{earnedPts}<span style={{fontSize:14,color:"#888"}}>/{ch.points}</span></div></div>
-            <div style={{textAlign:"right"}}><div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",letterSpacing:0.5}}>ACCURACY</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:avg>=75?"#007A33":avg>=50?"#FFB800":"#E3000B",marginTop:4}}>{avg}%</div></div>
+            <div style={{textAlign:"right"}}><div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",letterSpacing:0.5}}>ACCURACY</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:avg>=bonusThreshold?"#007A33":avg>=50?"#FFB800":"#E3000B",marginTop:4}}>{avg}%</div></div>
           </div>
-          {bonusEarned&&<div style={{marginTop:10,padding:"8px 12px",background:"rgba(255,211,0,0.15)",borderRadius:8,fontFamily:FC,fontWeight:800,fontSize:13,color:"#FFD300",textAlign:"center"}}>BONUS EARNED +{ch.bonusPoints} PTS (75%+ accuracy)</div>}
-          {!bonusEarned&&<div style={{marginTop:10,fontSize:12,color:"#888",fontFamily:FB,textAlign:"center"}}>75%+ accuracy needed for +{ch.bonusPoints} bonus</div>}
+          {bonusEarned&&<div style={{marginTop:10,padding:"8px 12px",background:"rgba(255,211,0,0.15)",borderRadius:8,fontFamily:FC,fontWeight:800,fontSize:13,color:"#FFD300",textAlign:"center"}}>BONUS EARNED +{ch.bonusPoints} PTS ({bonusThreshold}%+ accuracy)</div>}
+          {!bonusEarned&&<div style={{marginTop:10,fontSize:12,color:"#888",fontFamily:FB,textAlign:"center"}}>{bonusThreshold}%+ accuracy needed for +{ch.bonusPoints} bonus</div>}
         </div>
         <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"Recovery Race completed",scenarios:allResults,avgScore:avg,claimedBonus:bonusEarned,autoBonus:bonusEarned,points:earnedPts});}}>SUBMIT</button>
       </>);})()}
@@ -3538,6 +3541,46 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                     </div>
                   ))}
                   <button onClick={()=>{const items=[...(acfg.thirty_second_sell?.items||[...SELL_ITEMS]),{id:`item_${Date.now()}`,name:"New Item"}];saveAcfg("thirty_second_sell",{items});}} style={{width:"100%",padding:"8px",background:"#fff",border:"1px dashed #ccc",borderRadius:8,fontFamily:FC,fontWeight:700,fontSize:12,cursor:"pointer",marginTop:4}}>+ ADD ITEM</button>
+                </div>
+              )}
+              {c.type==="recovery_race"&&(
+                <div style={{marginTop:16,borderTop:"1px solid #e8e8e3",paddingTop:16}}>
+                  <div style={{...subLabel,fontSize:12,fontWeight:900,color:"#000"}}>RECOVERY RACE CONFIG</div>
+                  <div style={{marginBottom:16,background:"#f8f8f5",borderRadius:12,padding:14}}>
+                    <div style={{...subLabel,marginBottom:8}}>SCORING</div>
+                    <div style={{display:"flex",gap:12,marginBottom:10}}>
+                      <div><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Decision timer</div><div style={{display:"flex",alignItems:"center",gap:4}}><input type="number" value={acfg.recovery_race?.decisionTimer||8} onChange={e=>saveAcfg("recovery_race",{decisionTimer:parseInt(e.target.value)||8})} style={{...inp,width:60,textAlign:"center",padding:"8px"}}/><span style={{fontSize:11,color:"#999"}}>sec</span></div></div>
+                      <div><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Bonus threshold</div><div style={{display:"flex",alignItems:"center",gap:4}}><input type="number" value={acfg.recovery_race?.bonusThreshold||75} onChange={e=>saveAcfg("recovery_race",{bonusThreshold:parseInt(e.target.value)||75})} style={{...inp,width:60,textAlign:"center",padding:"8px"}}/><span style={{fontSize:11,color:"#999"}}>%</span></div></div>
+                    </div>
+                    <div style={{fontSize:11,color:"#888",fontFamily:FB,lineHeight:1.4}}>Points = base x accuracy%. Bonus earned at {acfg.recovery_race?.bonusThreshold||75}%+ accuracy.</div>
+                  </div>
+                  <div style={{...subLabel,marginBottom:8}}>SCENARIOS ({(acfg.recovery_race?.scenarios||RECOVERY_SCENARIOS).length})</div>
+                  {(acfg.recovery_race?.scenarios||RECOVERY_SCENARIOS).map((scen,si)=>(
+                    <div key={scen.id||si} style={{background:"#f8f8f5",borderRadius:10,padding:12,marginBottom:8}}>
+                      <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:8}}>
+                        <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{si+1}</span>
+                        <input value={scen.title} onChange={e=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s[si]={...s[si],title:e.target.value};saveAcfg("recovery_race",{scenarios:s});}} style={{...inp,flex:1,fontWeight:700,fontSize:13,padding:"6px 10px"}}/>
+                        <button onClick={()=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s.splice(si,1);saveAcfg("recovery_race",{scenarios:s});}} style={{width:24,height:24,borderRadius:12,background:"#E3000B",color:"#fff",border:"none",fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>x</button>
+                      </div>
+                      <div style={{marginBottom:8}}><div style={{fontSize:10,color:"#888",fontFamily:FC,marginBottom:2}}>SETUP</div><textarea value={scen.setup} onChange={e=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s[si]={...s[si],setup:e.target.value};saveAcfg("recovery_race",{scenarios:s});}} rows={2} style={{...inp,resize:"vertical",fontSize:12,padding:"6px 10px"}}/></div>
+                      <div style={{fontSize:10,color:"#888",fontFamily:FC,marginBottom:4}}>DECISIONS ({scen.decisions.length})</div>
+                      {scen.decisions.map((dec,di)=>(
+                        <div key={di} style={{background:"#fff",borderRadius:6,padding:8,marginBottom:4,borderLeft:"3px solid #FFD300"}}>
+                          <div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#999",marginBottom:4}}>STEP {di+1}</div>
+                          {dec.situation&&<textarea value={dec.situation} onChange={e=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s[si]={...s[si],decisions:[...s[si].decisions]};s[si].decisions[di]={...s[si].decisions[di],situation:e.target.value};saveAcfg("recovery_race",{scenarios:s});}} rows={1} style={{...inp,resize:"vertical",fontSize:11,padding:"4px 8px",marginBottom:4}}/>}
+                          {dec.options.map((opt,oi)=>(
+                            <div key={oi} style={{display:"flex",alignItems:"center",gap:4,marginBottom:2}}>
+                              <span style={{width:8,height:8,borderRadius:4,background:opt.outcome==="good"?"#007A33":opt.outcome==="neutral"?"#FFB800":"#E3000B",flexShrink:0}}/>
+                              <input value={opt.text} onChange={e=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s[si]={...s[si],decisions:[...s[si].decisions]};s[si].decisions[di]={...s[si].decisions[di],options:[...s[si].decisions[di].options]};s[si].decisions[di].options[oi]={...opt,text:e.target.value};saveAcfg("recovery_race",{scenarios:s});}} style={{...inp,flex:1,fontSize:11,padding:"4px 8px"}}/>
+                              <select value={opt.outcome} onChange={e=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s[si]={...s[si],decisions:[...s[si].decisions]};s[si].decisions[di]={...s[si].decisions[di],options:[...s[si].decisions[di].options]};s[si].decisions[di].options[oi]={...opt,outcome:e.target.value};saveAcfg("recovery_race",{scenarios:s});}} style={{...inp,width:70,fontSize:10,padding:"4px"}}>
+                                <option value="good">Good</option><option value="neutral">Okay</option><option value="bad">Bad</option>
+                              </select>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
                 </div>
               )}
               {c.type==="shift_in_chaos"&&(
