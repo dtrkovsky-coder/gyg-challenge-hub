@@ -63,8 +63,8 @@ const DEFAULT_CHALLENGES = {
   lse: [
     { id: "lse-w1", week: 1, type: "hazard_hunt", title: "HAZARD HUNT", subtitle: "Find the dangers", points: 100, bonusPoints: 50, bonusCondition: "All 5 found under 60 seconds + decoy avoided", description: "A 360-degree kitchen image loads on screen. 90-second timer starts. Six hazards are hidden - five real, one decoy. Tap every hazard you can find before the clock runs out.", deliverable: "Hazard taps + open text response", tip: "The standard you walk past is the standard you accept. Go right, not just fast.", icon: "fire_burrito" },
     { id: "lse-w2", week: 2, type: "shift_in_chaos", title: "SHIFT IN CHAOS", subtitle: "Prioritise under pressure", points: 100, bonusPoints: 50, bonusCondition: "Top 3 closest to expert ranking", description: "It's 12:05pm Saturday. 12 real operational problems appear. Drag and rank them 1-12 in order of urgency. Once submitted, you can't change it. Then see how the whole cohort ranked them.", deliverable: "Priority ranking + prevention question", tip: "Crew safety always comes before operational issues. Always.", icon: "taco" },
-    { id: "lse-w3", week: 3, type: "standard", title: "WASTE NOTHING", subtitle: "Your shift, your numbers", points: 70, bonusPoints: 30, bonusCondition: "Question 3 names a specific action at a specific time", description: "Complete the actual GYG wastage sheet and POS recording on a real closing shift. Photograph both. Upload and answer three questions about what you found.", deliverable: "Wastage sheet photo + POS recording photo + 3 answers", tip: "A strong answer to the fix question names a specific action at a specific time. 'Prep less chicken' won't cut it.", icon: "fries" },
-    { id: "lse-w4", week: 4, type: "standard", title: "TEACH IT TO OWN IT", subtitle: "Train one crew member", points: 70, bonusPoints: 30, bonusCondition: "Names a specific behaviour gap + describes explain-show-practise sequence", description: "Pick one LSE skill. Find one crew member who genuinely needs it. Train them properly. Film 20-30 seconds of it happening - both people visible, real training, not a selfie.", deliverable: "20-30 second video + topic selection + 2 answers", tip: "You can sit in a room and nod. You cannot stand in front of someone and teach something you don't understand.", icon: "socks" },
+    { id: "lse-w3", week: 3, type: "waste_audit", title: "WASTE NOTHING", subtitle: "Your shift, your numbers", points: 70, bonusPoints: 30, bonusCondition: "Question 3 names a specific action at a specific time", description: "Log your wastage items, snap photos of the wastage sheet and POS, then answer three targeted questions about what you found.", deliverable: "Wastage log + photos + 3 answers", tip: "A strong answer to the fix question names a specific action at a specific time. 'Prep less chicken' won't cut it.", icon: "fries" },
+    { id: "lse-w4", week: 4, type: "teach_it", title: "TEACH IT TO OWN IT", subtitle: "Train one crew member", points: 70, bonusPoints: 30, bonusCondition: "Names a specific behaviour gap + describes explain-show-practise sequence", description: "Pick a skill, find a crew member, train them properly, and record 20-30 seconds of real training.", deliverable: "Skill selection + video + structured reflection", tip: "You can sit in a room and nod. You cannot stand in front of someone and teach something you don't understand.", icon: "socks" },
   ],
 };
 
@@ -275,7 +275,7 @@ export default function App(){
 
   useEffect(()=>{(async()=>{let u=await getUsers(),c=await getCompletions(),s=getSession();if(u.length)setUsers(u);if(c.length)setComps(c);const ch2=await getChallenges();if(ch2){
       // Force-update challenges if they don't have the new type field
-      if(ch2.lse&&ch2.lse[0]&&!ch2.lse[0].type){ch2.lse=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.lse));try{await dbSetChallenges(ch2);}catch(e){}}
+      if(ch2.lse&&((!ch2.lse[0]?.type)||(ch2.lse[2]?.type==="standard"))){ch2.lse=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.lse));try{await dbSetChallenges(ch2);}catch(e){}}
       if(ch2.essentials&&ch2.essentials[0]&&!ch2.essentials[0].type){ch2.essentials=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.essentials));try{await dbSetChallenges(ch2);}catch(e){}}
       // Force-update NGL challenges to new interactive types (also catch bench_builder->swap_the_shift)
       if(ch2.nextgen&&ch2.nextgen[0]&&(!ch2.nextgen[0].type||ch2.nextgen.some(c=>c.type==="bench_builder"))){ch2.nextgen=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.nextgen));try{await dbSetChallenges(ch2);}catch(e){}}
@@ -351,6 +351,8 @@ export default function App(){
         sel.type==="spot_the_moment"?<SpotTheMoment ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users} actCfg={activityConfig}/>:
         sel.type==="thirty_second_sell"?<ThirtySecondSell ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         sel.type==="recovery_race"?<RecoveryRace ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
+        sel.type==="waste_audit"?<WasteAudit ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
+        sel.type==="teach_it"?<TeachIt ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
         sel.type==="shift_leader_lens"?<ShiftLeaderLens ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         sel.type==="shift_call"?<ShiftCall ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         sel.type==="swap_the_shift"?<SwapTheShift ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
@@ -1402,6 +1404,184 @@ function RecoveryRace({ch,done,onS,onB,user,actCfg}){
         <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"Recovery Race completed",scenarios:allResults,avgScore:avg,claimedBonus:bonusEarned,autoBonus:bonusEarned,points:earnedPts});}}>SUBMIT</button>
       </>);})()}
     </div>)}
+  </div>);
+}
+
+// ─── WASTE NOTHING (LSE Week 3) ──────────────────────────────────────────────
+const WASTE_CATEGORIES=["Protein","Salsa/Sauce","Rice/Beans","Wraps/Shells","Produce","Other"];
+const WASTE_QUESTIONS=[
+  {id:"q1",text:"What was the single biggest waste item tonight?",placeholder:"e.g. Grilled chicken - 1.2kg left over from the lunch prep"},
+  {id:"q2",text:"Why did it happen?",placeholder:"e.g. Over-prepped for forecast - Tuesday lunch only did 140 transactions vs 180 forecast"},
+  {id:"q3",text:"What specific action will you take, and when?",placeholder:"e.g. Check Power BI at 10am before the 11am prep call - adjust chicken prep down 20% on Tuesdays"},
+];
+function WasteAudit({ch,done,onS,onB,user}){
+  const[step,setStep]=useState(1);// 1=log, 2=photos, 3=questions, 4=review
+  const[items,setItems]=useState([]);const[newItem,setNewItem]=useState({name:"",category:"Protein",qty:"",unit:"kg"});
+  const[photos,setPhotos]=useState({wastageSheet:null,pos:null});const[answers,setAnswers]=useState(["","",""]);
+  const addItem=()=>{if(!newItem.name.trim()||!newItem.qty)return;setItems(p=>[...p,{...newItem,id:Date.now()}]);setNewItem({name:"",category:newItem.category,qty:"",unit:"kg"});};
+  const compressImg=(file)=>new Promise(r=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,800/img.width);c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",0.6));};img.src=URL.createObjectURL(file);});
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+    <div style={{padding:"24px 20px"}}>
+      {/* Progress dots */}
+      <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:20}}>{[1,2,3,4].map(s=>(<div key={s} style={{width:12,height:12,borderRadius:6,background:s<step?"#007A33":s===step?"#FFD300":"#ddd"}}/>))}</div>
+
+      {/* Step 1: Wastage log */}
+      {step===1&&(<div>
+        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:24,textAlign:"center",margin:"0 0 4px"}}>{ch.title}</h2>
+        <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>Log what got wasted on your closing shift</p>
+        {/* Add item form */}
+        <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:16}}>
+          <input value={newItem.name} onChange={e=>setNewItem(p=>({...p,name:e.target.value}))} placeholder="Item name (e.g. Grilled chicken)" style={{width:"100%",padding:"12px 14px",background:"#1a1a1a",border:"1px solid #333",borderRadius:10,color:"#fff",fontSize:14,fontFamily:FB,outline:"none",marginBottom:8,boxSizing:"border-box"}}/>
+          <div style={{display:"flex",gap:8}}>
+            <select value={newItem.category} onChange={e=>setNewItem(p=>({...p,category:e.target.value}))} style={{flex:1,padding:"10px",background:"#1a1a1a",border:"1px solid #333",borderRadius:10,color:"#fff",fontSize:13,fontFamily:FC}}>
+              {WASTE_CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}
+            </select>
+            <input type="number" value={newItem.qty} onChange={e=>setNewItem(p=>({...p,qty:e.target.value}))} placeholder="Qty" style={{width:60,padding:"10px",background:"#1a1a1a",border:"1px solid #333",borderRadius:10,color:"#fff",fontSize:14,textAlign:"center"}}/>
+            <select value={newItem.unit} onChange={e=>setNewItem(p=>({...p,unit:e.target.value}))} style={{width:60,padding:"10px",background:"#1a1a1a",border:"1px solid #333",borderRadius:10,color:"#fff",fontSize:13}}>
+              <option value="kg">kg</option><option value="L">L</option><option value="pcs">pcs</option><option value="trays">trays</option>
+            </select>
+          </div>
+          <button onClick={addItem} style={{...BY,width:"100%",marginTop:8,opacity:newItem.name.trim()&&newItem.qty?1:0.4}} disabled={!newItem.name.trim()||!newItem.qty}>ADD ITEM</button>
+        </div>
+        {/* Items list */}
+        {items.length>0&&<div style={{marginBottom:16}}>
+          <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",marginBottom:8}}>{items.length} ITEMS LOGGED</div>
+          {items.map(it=>(<div key={it.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",background:"#fff",borderRadius:10,marginBottom:4,border:"1px solid #e8e8e3"}}>
+            <div><div style={{fontFamily:FC,fontWeight:700,fontSize:13}}>{it.name}</div><div style={{fontSize:11,color:"#888"}}>{it.category}</div></div>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <span style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#E3000B"}}>{it.qty} {it.unit}</span>
+              <button onClick={()=>setItems(p=>p.filter(x=>x.id!==it.id))} style={{width:20,height:20,borderRadius:10,background:"#f0f0eb",border:"none",fontSize:10,cursor:"pointer",color:"#999"}}>x</button>
+            </div>
+          </div>))}
+        </div>}
+        <button style={{...BY,width:"100%",opacity:items.length>=1?1:0.4}} disabled={items.length<1} onClick={()=>setStep(2)}>NEXT - TAKE PHOTOS</button>
+      </div>)}
+
+      {/* Step 2: Photos */}
+      {step===2&&(<div>
+        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:22,textAlign:"center",margin:"0 0 16px"}}>PHOTO EVIDENCE</h2>
+        {[["wastageSheet","Wastage Sheet","Your completed wastage sheet"],["pos","POS Recording","POS screen showing wastage entry"]].map(([key,label,desc])=>(
+          <div key={key} style={{background:"#fff",borderRadius:14,padding:16,marginBottom:12,border:"1px solid #e8e8e3"}}>
+            <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:4}}>{label}</div>
+            <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:12}}>{desc}</div>
+            {photos[key]?<div style={{position:"relative"}}><img src={photos[key]} alt="" style={{width:"100%",borderRadius:10,maxHeight:200,objectFit:"cover"}}/><button onClick={()=>setPhotos(p=>({...p,[key]:null}))} style={{position:"absolute",top:8,right:8,width:28,height:28,borderRadius:14,background:"#E3000B",color:"#fff",border:"none",fontSize:14,cursor:"pointer"}}>x</button></div>
+            :<label style={{display:"flex",alignItems:"center",justifyContent:"center",padding:24,border:"2px dashed #ddd",borderRadius:12,cursor:"pointer"}}>
+              <div style={{textAlign:"center"}}><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",marginTop:4}}>TAP TO SNAP</div></div>
+              <input type="file" accept="image/*" capture="environment" style={{display:"none"}} onChange={async e=>{const f=e.target.files[0];if(!f)return;const b=await compressImg(f);setPhotos(p=>({...p,[key]:b}));}}/>
+            </label>}
+          </div>
+        ))}
+        <button style={{...BY,width:"100%",opacity:photos.wastageSheet&&photos.pos?1:0.4}} disabled={!photos.wastageSheet||!photos.pos} onClick={()=>setStep(3)}>NEXT - ANSWER QUESTIONS</button>
+      </div>)}
+
+      {/* Step 3: Questions */}
+      {step===3&&(<div>
+        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:22,textAlign:"center",margin:"0 0 16px"}}>WHAT DID YOU FIND?</h2>
+        {WASTE_QUESTIONS.map((q,i)=>(<div key={q.id} style={{background:"#fff",borderRadius:14,padding:16,marginBottom:12,border:"1px solid #e8e8e3"}}>
+          <div style={{fontFamily:FC,fontWeight:800,fontSize:13,marginBottom:8}}>{q.text}</div>
+          <textarea value={answers[i]} onChange={e=>{const a=[...answers];a[i]=e.target.value;setAnswers(a);}} placeholder={q.placeholder} rows={3} style={{width:"100%",padding:"12px 14px",background:"#f5f5f0",border:"1px solid #e0e0db",borderRadius:10,fontSize:14,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+        </div>))}
+        <button style={{...BY,width:"100%",opacity:answers.every(a=>a.trim())?1:0.4}} disabled={!answers.every(a=>a.trim())} onClick={()=>setStep(4)}>REVIEW & SUBMIT</button>
+      </div>)}
+
+      {/* Step 4: Review */}
+      {step===4&&(<div>
+        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:22,textAlign:"center",margin:"0 0 16px"}}>REVIEW</h2>
+        <div style={{background:"#000",borderRadius:14,padding:16,color:"#fff",marginBottom:16}}>
+          <div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300",marginBottom:8}}>{items.length} WASTE ITEMS LOGGED</div>
+          {items.map(it=>(<div key={it.id} style={{fontSize:13,color:"#ccc",marginBottom:2}}>{it.name} - {it.qty} {it.unit} ({it.category})</div>))}
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:16}}>
+          {photos.wastageSheet&&<img src={photos.wastageSheet} alt="" style={{width:"100%",borderRadius:10,aspectRatio:"4/3",objectFit:"cover"}}/>}
+          {photos.pos&&<img src={photos.pos} alt="" style={{width:"100%",borderRadius:10,aspectRatio:"4/3",objectFit:"cover"}}/>}
+        </div>
+        <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"Waste Nothing completed",items,photos:{wastageSheet:!!photos.wastageSheet,pos:!!photos.pos},answers:WASTE_QUESTIONS.map((q,i)=>({question:q.text,answer:answers[i]})),files:[photos.wastageSheet&&{name:"wastage_sheet.jpg",type:"image/jpeg",data:photos.wastageSheet},photos.pos&&{name:"pos_recording.jpg",type:"image/jpeg",data:photos.pos}].filter(Boolean),claimedBonus:answers[2]?.length>50,autoBonus:false,points:ch.points});}}>SUBMIT CHALLENGE</button>
+      </div>)}
+    </div>
+  </div>);
+}
+
+// ─── TEACH IT TO OWN IT (LSE Week 4) ────────────────────────────────────────
+const TEACH_SKILLS=["Portion Control","Handwashing Procedure","Drive-thru Speed","Upselling Technique","Station Setup","Closing Checklist","Guest Greeting","Food Safety Temps"];
+function TeachIt({ch,done,onS,onB,user}){
+  const[step,setStep]=useState(1);// 1=select, 2=record, 3=reflect, 4=submit
+  const[skill,setSkill]=useState(null);const[crewName,setCrewName]=useState("");const[gap,setGap]=useState("");
+  const[videoRecorded,setVideoRecorded]=useState(false);const[duration,setDuration]=useState(0);
+  const[reflect,setReflect]=useState(["",""]);
+  const videoRef=useRef(null);const mediaRef=useRef(null);const streamRef=useRef(null);const chunksRef=useRef([]);const timerRef=useRef(null);const[recording,setRecording]=useState(false);const[recTime,setRecTime]=useState(0);
+  const startRec=async()=>{try{const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment",width:{ideal:480}},audio:true});streamRef.current=stream;if(videoRef.current){videoRef.current.srcObject=stream;videoRef.current.play();}
+    chunksRef.current=[];const mr=new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported("video/webm;codecs=vp9")?"video/webm;codecs=vp9":"video/webm"});mr.ondataavailable=e=>{if(e.data.size>0)chunksRef.current.push(e.data);};
+    mr.onstop=()=>{setDuration(recTime);setVideoRecorded(true);setRecording(false);};mediaRef.current=mr;mr.start(100);setRecording(true);setRecTime(0);
+    timerRef.current=setInterval(()=>setRecTime(t=>t+1),1000);}catch(err){console.error("Camera:",err);}};
+  const stopRec=()=>{clearInterval(timerRef.current);if(mediaRef.current&&mediaRef.current.state!=="inactive")mediaRef.current.stop();if(streamRef.current)streamRef.current.getTracks().forEach(t=>t.stop());streamRef.current=null;};
+  useEffect(()=>()=>{clearInterval(timerRef.current);if(streamRef.current)streamRef.current.getTracks().forEach(t=>t.stop());},[]);
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+    <div style={{padding:"24px 20px"}}>
+      <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:20}}>{[1,2,3,4].map(s=>(<div key={s} style={{width:12,height:12,borderRadius:6,background:s<step?"#007A33":s===step?"#FFD300":"#ddd"}}/>))}</div>
+
+      {/* Step 1: Select skill + crew */}
+      {step===1&&(<div>
+        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:24,textAlign:"center",margin:"0 0 4px"}}>{ch.title}</h2>
+        <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>Pick a skill. Pick a crew member. Train them for real.</p>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:8}}>WHICH SKILL?</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:20}}>
+          {TEACH_SKILLS.map(s=>(<button key={s} onClick={()=>setSkill(s)} style={{padding:"14px 12px",borderRadius:12,border:skill===s?"2px solid #FFD300":"1px solid #e8e8e3",background:skill===s?"#FFF8E0":"#fff",fontFamily:FC,fontWeight:700,fontSize:13,cursor:"pointer",textAlign:"left"}}>{s}</button>))}
+        </div>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:8}}>WHO ARE YOU TRAINING?</div>
+        <input value={crewName} onChange={e=>setCrewName(e.target.value)} placeholder="Crew member's first name" style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:14,fontFamily:FB,outline:"none",marginBottom:12,boxSizing:"border-box"}}/>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:8}}>WHAT'S THE GAP?</div>
+        <textarea value={gap} onChange={e=>setGap(e.target.value)} placeholder="What specific behaviour are you trying to fix? e.g. Skipping handwash between stations" rows={2} style={{width:"100%",padding:"12px 14px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:14,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+        <button style={{...BY,width:"100%",marginTop:16,opacity:skill&&crewName.trim()&&gap.trim()?1:0.4}} disabled={!skill||!crewName.trim()||!gap.trim()} onClick={()=>setStep(2)}>NEXT - RECORD THE TRAINING</button>
+      </div>)}
+
+      {/* Step 2: Record */}
+      {step===2&&(<div>
+        <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:16,color:"#fff"}}>
+          <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:4}}>TRAINING</div>
+          <div style={{fontSize:16,fontFamily:FC,fontWeight:800}}>{skill}</div>
+          <div style={{fontSize:13,color:"#888",marginTop:4}}>with {crewName}</div>
+        </div>
+        {!videoRecorded&&!recording&&(<div style={{textAlign:"center"}}>
+          <div style={{fontSize:14,color:"#555",fontFamily:FB,lineHeight:1.6,marginBottom:20}}>Record 20-30 seconds of real training. Both people visible. Back camera recommended. Explain, show, then let them practise.</div>
+          <button style={{...BY,width:"100%"}} onClick={startRec}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{verticalAlign:"middle",marginRight:8}}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>START RECORDING
+          </button>
+        </div>)}
+        {recording&&(<div>
+          <div style={{borderRadius:16,overflow:"hidden",marginBottom:12,position:"relative",background:"#000"}}>
+            <video ref={videoRef} autoPlay playsInline muted style={{width:"100%",height:280,objectFit:"cover"}}/>
+            <div style={{position:"absolute",top:12,left:12,display:"flex",alignItems:"center",gap:6,background:"rgba(227,0,11,0.9)",padding:"6px 12px",borderRadius:20}}>
+              <div style={{width:8,height:8,borderRadius:4,background:"#fff",animation:"pulse 1s infinite"}}/><span style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#fff"}}>REC {recTime}s</span>
+            </div>
+          </div>
+          <button style={{...BO,width:"100%"}} onClick={stopRec}>STOP RECORDING</button>
+        </div>)}
+        {videoRecorded&&(<div style={{textAlign:"center"}}>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:8}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <div style={{fontFamily:FC,fontWeight:800,fontSize:16,color:"#007A33"}}>RECORDED - {duration}s</div>
+          <div style={{fontSize:13,color:"#888",fontFamily:FB,marginTop:4,marginBottom:20}}>Training with {crewName} on {skill}</div>
+          <button style={{...BY,width:"100%"}} onClick={()=>setStep(3)}>NEXT - REFLECT</button>
+        </div>)}
+      </div>)}
+
+      {/* Step 3: Reflection */}
+      {step===3&&(<div>
+        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:22,textAlign:"center",margin:"0 0 16px"}}>REFLECTION</h2>
+        <div style={{background:"#fff",borderRadius:14,padding:16,marginBottom:12,border:"1px solid #e8e8e3"}}>
+          <div style={{fontFamily:FC,fontWeight:800,fontSize:13,marginBottom:8}}>Did they get it? How do you know?</div>
+          <textarea value={reflect[0]} onChange={e=>setReflect(p=>[e.target.value,p[1]])} placeholder="e.g. Yes - they repeated the correct portion weight back to me and did it unassisted on the next serve" rows={3} style={{width:"100%",padding:"12px 14px",background:"#f5f5f0",border:"1px solid #e0e0db",borderRadius:10,fontSize:14,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+        </div>
+        <div style={{background:"#fff",borderRadius:14,padding:16,marginBottom:16,border:"1px solid #e8e8e3"}}>
+          <div style={{fontFamily:FC,fontWeight:800,fontSize:13,marginBottom:8}}>What would you do differently next time you train someone on this?</div>
+          <textarea value={reflect[1]} onChange={e=>setReflect(p=>[p[0],e.target.value])} placeholder="e.g. Start with showing the tool before explaining the standard - they learn faster from doing" rows={3} style={{width:"100%",padding:"12px 14px",background:"#f5f5f0",border:"1px solid #e0e0db",borderRadius:10,fontSize:14,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+        </div>
+        <button style={{...BY,width:"100%",opacity:reflect.every(r=>r.trim())?1:0.4}} disabled={!reflect.every(r=>r.trim())} onClick={()=>{onS({text:"Teach It to Own It completed",skill,crewName,gap,videoRecorded:true,duration,reflection:reflect,claimedBonus:gap.length>30&&reflect[0].length>30,autoBonus:false,points:ch.points});}}>SUBMIT CHALLENGE</button>
+      </div>)}
+    </div>
   </div>);
 }
 
