@@ -50,7 +50,7 @@ const DEFAULT_CHALLENGES = {
   ],
   essentials: [
     { id: "le-w1", week: 1, type: "spot_the_moment", title: "SPOT THE MOMENT", subtitle: "See your restaurant like a guest", points: 100, bonusPoints: 50, bonusCondition: "All 5 photos uploaded + swipe game completed", description: "5 photos across 5 days from a guest's perspective. Then swipe through your cohort's photos and see how they swiped on yours.", deliverable: "5 restaurant photos + swipe reactions", tip: "You walk past it every shift. Your guests see it for the first time, every time.", icon: "taco" },
-    { id: "le-w2", week: 2, type: "thirty_second_sell", title: "THE 30-SECOND SELL", subtitle: "Sell it like you mean it", points: 100, bonusPoints: 50, bonusCondition: "Top-rated video in cohort", description: "A random menu item appears. You have 30 seconds on camera to sell it. Redo until you're happy. Then rate your cohort's videos.", deliverable: "3 video submissions + peer ratings", tip: "It's not just what you say - it's whether you look like you believe it.", icon: "fire_burrito" },
+    { id: "le-w2", week: 2, type: "thirty_second_sell", title: "THE 30-SECOND SELL", subtitle: "Sell it like you mean it", points: 100, bonusPoints: 0, bonusCondition: "None", description: "A random menu item appears. You have 30 seconds on camera to sell it. Your front camera opens and the video auto-uploads for admin review.", deliverable: "3 video submissions", tip: "It's not just what you say - it's whether you look like you believe it.", icon: "fire_burrito" },
     { id: "le-w3", week: 3, type: "recovery_race", title: "THE RECOVERY RACE", subtitle: "De-escalate under pressure", points: 100, bonusPoints: 50, bonusCondition: "All scenarios completed with positive outcomes", description: "Branching scenario game. An upset guest appears. Choose your response. Your choice changes the outcome. Four decision points per scenario, each on a timer.", deliverable: "Completed scenarios with impact scores", tip: "Good recovery creates more loyalty than no problem at all. But know when to stop recovering and start protecting.", icon: "churros" },
     { id: "le-w4", week: 4, type: "shift_leader_lens", title: "THE SHIFT LEADER LENS", subtitle: "What would you do?", points: 100, bonusPoints: 50, bonusCondition: "Completed all clips with consistent leadership profile", description: "Short scenario clips of real restaurant moments. For each one: what would you do, when would you act, what's at risk. Your answers build your shift leader profile.", deliverable: "Clip assessments + leadership profile", tip: "There's no single right answer. But there's a pattern in yours - and that pattern is your leadership style.", icon: "socks" },
   ],
@@ -1153,18 +1153,60 @@ const SELL_ITEMS=[
 ];
 function ThirtySecondSell({ch,done,onS,onB,user}){
   const[currentItem,setCurrentItem]=useState(0);
-  const[phase,setPhase]=useState("ready");// ready | countdown | recording | review | rate | done
+  const[phase,setPhase]=useState("ready");// ready | countdown | recording | uploading | done
   const[timer,setTimer]=useState(30);
   const[countdown,setCountdown]=useState(3);
-  const[attempts,setAttempts]=useState(0);
-  const[rating,setRating]=useState(3);
   const[items,setItems]=useState([]);
+  const[uploading,setUploading]=useState(false);
+  const videoRef=useRef(null);
+  const mediaRef=useRef(null);
+  const chunksRef=useRef([]);
   const timerRef=useRef(null);
-  const RATINGS=["Nope","Maybe","Sure","Sold","Take My Money"];
-  useEffect(()=>{if(phase==="countdown"&&countdown>0){const t=setTimeout(()=>setCountdown(c=>c-1),1000);return()=>clearTimeout(t);}if(phase==="countdown"&&countdown===0)setPhase("recording");},[phase,countdown]);
-  useEffect(()=>{if(phase==="recording"&&timer>0){timerRef.current=setInterval(()=>setTimer(t=>{if(t<=1){clearInterval(timerRef.current);return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}if(phase==="recording"&&timer===0)setPhase("review");},[phase,timer]);
-  const startRecording=()=>{setCountdown(3);setTimer(30);setAttempts(a=>a+1);setPhase("countdown");};
-  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  const streamRef=useRef(null);
+
+  useEffect(()=>{if(phase==="countdown"&&countdown>0){const t=setTimeout(()=>setCountdown(c=>c-1),1000);return()=>clearTimeout(t);}if(phase==="countdown"&&countdown===0){setPhase("recording");startCamera();}},[phase,countdown]);
+  useEffect(()=>{if(phase==="recording"&&timer>0){timerRef.current=setInterval(()=>setTimer(t=>{if(t<=1){clearInterval(timerRef.current);stopRecording();return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}},[phase]);
+  useEffect(()=>()=>{if(streamRef.current)streamRef.current.getTracks().forEach(t=>t.stop());},[]);
+
+  const startCamera=async()=>{
+    try{
+      const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:720},height:{ideal:1280}},audio:true});
+      streamRef.current=stream;
+      if(videoRef.current){videoRef.current.srcObject=stream;videoRef.current.play();}
+      chunksRef.current=[];
+      const mr=new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported("video/webm;codecs=vp9")?"video/webm;codecs=vp9":"video/webm"});
+      mr.ondataavailable=e=>{if(e.data.size>0)chunksRef.current.push(e.data);};
+      mr.onstop=()=>handleUpload();
+      mr.start(100);
+      mediaRef.current=mr;
+    }catch(err){console.error("Camera error:",err);setPhase("ready");}
+  };
+
+  const stopRecording=()=>{
+    if(mediaRef.current&&mediaRef.current.state!=="inactive")mediaRef.current.stop();
+    if(streamRef.current)streamRef.current.getTracks().forEach(t=>t.stop());
+    streamRef.current=null;
+  };
+
+  const handleUpload=async()=>{
+    setUploading(true);
+    const blob=new Blob(chunksRef.current,{type:"video/webm"});
+    // Convert to base64 for storage (Firestore)
+    const reader=new FileReader();
+    reader.onloadend=()=>{
+      const b64=reader.result;
+      const newItems=[...items,{itemId:SELL_ITEMS[currentItem].id,duration:30-timer,video:b64,size:blob.size}];
+      setItems(newItems);
+      setUploading(false);
+      if(currentItem<2){setCurrentItem(c=>c+1);setPhase("ready");setTimer(30);}
+      else{onS({text:"The 30-Second Sell completed",items:newItems.map(x=>({...x,video:x.video?.substring(0,100)+"..."})),videoCount:newItems.length,claimedBonus:false,autoBonus:false,points:ch.points,files:newItems.map((x,i)=>({name:`sell_item_${i+1}.webm`,type:"video/webm",data:x.video}))});}
+    };
+    reader.readAsDataURL(blob);
+  };
+
+  const beginRecording=()=>{setCountdown(3);setTimer(30);setPhase("countdown");};
+
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div>
@@ -1176,46 +1218,43 @@ function ThirtySecondSell({ch,done,onS,onB,user}){
         <div style={{background:"#000",borderRadius:16,padding:24,textAlign:"center",marginBottom:20}}>
           <div style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#FFD300",letterSpacing:1,marginBottom:8}}>ITEM {currentItem+1} OF 3</div>
           <div style={{fontSize:28,fontFamily:F107,fontWeight:900,color:"#fff"}}>{SELL_ITEMS[currentItem].name.toUpperCase()}</div>
-          <div style={{fontSize:14,color:"#888",marginTop:8}}>You have 30 seconds to sell it</div>
+          <div style={{fontSize:14,color:"#888",marginTop:8}}>You have 30 seconds to sell it on camera</div>
         </div>
-        <button style={{...BY,width:"100%"}} onClick={startRecording}>START RECORDING</button>
+        <div style={{background:"#f8f8f5",borderRadius:12,padding:14,marginBottom:20,fontSize:13,color:"#666",fontFamily:FB,lineHeight:1.5}}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{verticalAlign:"middle",marginRight:6}}><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          Your front camera will open. Recording starts automatically after the countdown and stops at 0. The video uploads for admin review - no redo.
+        </div>
+        <button style={{...BY,width:"100%"}} onClick={beginRecording}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{verticalAlign:"middle",marginRight:8}}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+          START RECORDING
+        </button>
       </div>)}
+
       {phase==="countdown"&&(<div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"60vh",flexDirection:"column"}}>
         <div style={{fontSize:120,fontWeight:900,fontFamily:F107,color:countdown>0?"#FFD300":"#007A33"}}>{countdown>0?countdown:"GO!"}</div>
         <div style={{fontSize:16,fontFamily:FC,fontWeight:700,color:"#888",marginTop:12}}>SELL: {SELL_ITEMS[currentItem].name.toUpperCase()}</div>
       </div>)}
+
       {phase==="recording"&&(<div>
-        <div style={{background:"#E3000B",borderRadius:16,padding:20,textAlign:"center",marginBottom:16}}>
-          <div style={{width:12,height:12,borderRadius:6,background:"#fff",display:"inline-block",marginRight:8,animation:"pulse 1s infinite"}}/>
-          <span style={{fontSize:16,fontFamily:FC,fontWeight:800,color:"#fff",letterSpacing:1}}>RECORDING</span>
+        {/* Live camera preview */}
+        <div style={{borderRadius:16,overflow:"hidden",marginBottom:16,position:"relative",background:"#000"}}>
+          <video ref={videoRef} autoPlay playsInline muted style={{width:"100%",height:320,objectFit:"cover",transform:"scaleX(-1)"}}/>
+          <div style={{position:"absolute",top:12,left:12,display:"flex",alignItems:"center",gap:6,background:"rgba(227,0,11,0.9)",padding:"6px 12px",borderRadius:20}}>
+            <div style={{width:8,height:8,borderRadius:4,background:"#fff",animation:"pulse 1s infinite"}}/>
+            <span style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#fff",letterSpacing:1}}>REC</span>
+          </div>
+          <div style={{position:"absolute",top:12,right:12,background:"rgba(0,0,0,0.7)",padding:"6px 14px",borderRadius:20}}>
+            <span style={{fontSize:18,fontWeight:900,fontFamily:FG,color:timer<=5?"#E3000B":timer<=10?"#FFD300":"#fff"}}>{timer}s</span>
+          </div>
         </div>
-        <div style={{textAlign:"center",marginBottom:20}}>
-          <div style={{fontSize:72,fontWeight:900,fontFamily:FG,color:timer<=5?"#E3000B":timer<=10?"#FFD300":"#000"}}>{timer}</div>
-          <div style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#888"}}>SECONDS LEFT</div>
-        </div>
-        <div style={{fontSize:18,fontFamily:FC,fontWeight:800,textAlign:"center",color:"#555"}}>SELL: {SELL_ITEMS[currentItem].name.toUpperCase()}</div>
-        <button style={{...BO,width:"100%",marginTop:24}} onClick={()=>setPhase("review")}>STOP EARLY</button>
+        <div style={{fontSize:18,fontFamily:FC,fontWeight:800,textAlign:"center",color:"#555",marginBottom:8}}>SELL: {SELL_ITEMS[currentItem].name.toUpperCase()}</div>
+        <div style={{textAlign:"center",fontSize:12,color:"#999",fontFamily:FB}}>Recording stops automatically at 0</div>
       </div>)}
-      {phase==="review"&&(<div style={{textAlign:"center"}}>
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-        <div style={{fontFamily:FC,fontWeight:800,fontSize:18,marginBottom:4}}>TAKE {attempts}</div>
-        <div style={{fontSize:14,color:"#888",marginBottom:24}}>Duration: {30-timer} seconds</div>
-        <div style={{display:"flex",gap:12}}>
-          <button style={{...BO,flex:1}} onClick={startRecording}>REDO</button>
-          <button style={{...BY,flex:1}} onClick={()=>setPhase("rate")}>KEEP IT</button>
-        </div>
-      </div>)}
-      {phase==="rate"&&(<div>
-        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,textAlign:"center",marginBottom:8}}>SHOW YOUR VIDEO TO A PARTNER</div>
-        <div style={{fontSize:13,color:"#888",textAlign:"center",marginBottom:20}}>They rate: would they order {SELL_ITEMS[currentItem].name}?</div>
-        <div style={{background:"#000",borderRadius:14,padding:20,marginBottom:16}}>
-          <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>{RATINGS.map((r,i)=>{const stars=i+1;return(<div key={i} style={{textAlign:"center",flex:1,cursor:"pointer"}} onClick={()=>setRating(stars)}><div style={{display:"flex",justifyContent:"center",gap:1}}>{[...Array(5)].map((_,si)=>(<svg key={si} width="14" height="14" viewBox="0 0 24 24" fill={si<stars?"#FFD300":"none"} stroke={si<stars?"#FFD300":"#ccc"} strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>))}</div><div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:rating===stars?"#FFD300":"#666",marginTop:4}}>{r.toUpperCase()}</div></div>);})}</div>
-          <input type="range" min="1" max="5" value={rating} onChange={e=>setRating(parseInt(e.target.value))} style={{width:"100%",accentColor:"#FFD300"}}/>
-          <div style={{textAlign:"center",fontSize:24,fontFamily:FC,fontWeight:900,color:"#FFD300",marginTop:8}}>{rating}/5</div>
-        </div>
-        <button style={{...BY,width:"100%"}} onClick={()=>{const newItems=[...items,{itemId:SELL_ITEMS[currentItem].id,attempts,peerRating:rating,duration:30-timer}];setItems(newItems);if(currentItem<2){setCurrentItem(c=>c+1);setPhase("ready");setAttempts(0);}else{const avg=newItems.reduce((s,x)=>s+x.peerRating,0)/newItems.length;onS({text:"The 30-Second Sell completed",items:newItems,avgPeerRating:avg,claimedBonus:avg>=4,autoBonus:avg>=4,points:ch.points});}}}>
-          {currentItem<2?"NEXT ITEM":"SUBMIT ALL"}
-        </button>
+
+      {uploading&&(<div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"60vh",flexDirection:"column"}}>
+        <div style={{width:48,height:48,border:"4px solid #e8e8e3",borderTop:"4px solid #FFD300",borderRadius:"50%",animation:"spin 0.8s linear infinite",marginBottom:16}}/>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,letterSpacing:1}}>UPLOADING VIDEO...</div>
+        <div style={{fontSize:13,color:"#888",fontFamily:FB,marginTop:6}}>Item {currentItem+1} of 3</div>
       </div>)}
     </div>
   </div>);
