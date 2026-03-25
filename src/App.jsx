@@ -259,12 +259,12 @@ export default function App(){
   const[user,setUser]=useState(null);
   const[view,setView]=useState("splash");
   const[prevView,setPrevView]=useState(null);
-  useEffect(()=>{window.scrollTo(0,0);},[view,sel]);
   const[users,setUsers]=useState([]);
   const[challenges,setChallenges]=useState(null);
   const[lunchConfig,setLunchConfigState]=useState(null);
   const[comps,setComps]=useState([]);
   const[sel,setSel]=useState(null);
+  useEffect(()=>{window.scrollTo(0,0);},[view,sel]);
   const[loading,setLoading]=useState(true);
   const[toast,setToast]=useState(null);
   const flash=useCallback((m,ok=true)=>{setToast({m,ok});setTimeout(()=>setToast(null),3000);},[]);
