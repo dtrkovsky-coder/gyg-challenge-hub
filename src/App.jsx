@@ -500,7 +500,7 @@ export default function App(){
           <button onClick={()=>{setUser(null);setView("splash");}} style={{padding:"6px 14px",background:"#333",border:"none",borderRadius:8,color:"#888",fontFamily:FC,fontWeight:700,fontSize:12,cursor:"pointer"}}>EXIT</button>
         </div>
         <div style={{display:"flex",gap:6,padding:"12px 16px",overflowX:"auto",background:"#fff",borderBottom:"1px solid #e8e8e3"}}>
-          {[PROGRAMS.lse,PROGRAMS.essentials,PROGRAMS.nextgen,PROGRAMS.elite].map(p=>(<button key={p.id} onClick={()=>setUser(u=>({...u,program:p.id}))} style={{padding:"9px 18px",borderRadius:24,border:"none",background:user.program===p.id?"#FFD300":"#f0f0eb",color:user.program===p.id?"#000":"#888",fontFamily:FC,fontWeight:700,fontSize:12,cursor:"pointer",whiteSpace:"nowrap"}}>{p.short}</button>))}
+          {[PROGRAMS.lse,PROGRAMS.essentials,PROGRAMS.nextgen,PROGRAMS.elite].map(p=>(<button key={p.id} onClick={()=>setUser(u=>({...u,program:p.id}))} style={{padding:"10px 18px 8px",borderRadius:24,border:"none",background:user.program===p.id?"#FFD300":"#f0f0eb",color:user.program===p.id?"#000":"#888",fontFamily:FC,fontWeight:700,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",lineHeight:1}}>{p.short}</button>))}
         </div>
         <div style={{padding:"16px 16px 0"}}>
           {/* Activities */}
@@ -509,7 +509,7 @@ export default function App(){
             {(getActs(user.program)||[]).map(act=>(<button key={act.id} onClick={()=>{setSel(act);setPrevView("testbed");setView("activity");}} style={{display:"flex",alignItems:"center",width:"100%",padding:16,background:"#fff",borderRadius:14,marginBottom:8,border:"none",cursor:"pointer",textAlign:"left",fontFamily:FB,boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
               <div style={{width:36,height:36,borderRadius:10,background:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
               <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:800,fontSize:15}}>{act.title}</div><div style={{fontSize:13,color:"#888",marginTop:2}}>{act.subtitle}</div></div>
-              <span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"4px 10px",borderRadius:8,background:"#FFF8E0",color:"#B8860B"}}>ACTIVITY</span>
+              <span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"5px 10px 4px",borderRadius:8,lineHeight:1,background:"#FFF8E0",color:"#B8860B"}}>ACTIVITY</span>
             </button>))}
           </>)}
           {/* Challenges */}
@@ -517,7 +517,7 @@ export default function App(){
           {(getCh(user.program)||[]).map(ch=>(<button key={ch.id} onClick={()=>{setSel(ch);setPrevView("testbed");setView("challenge");}} style={{display:"flex",alignItems:"center",width:"100%",padding:16,background:"#fff",borderRadius:14,marginBottom:8,border:"none",cursor:"pointer",textAlign:"left",fontFamily:FB,boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
             <div style={{width:36,height:36,borderRadius:10,background:"#1a1a1a",display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}><span style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#FFD300"}}>{ch.week}</span></div>
             <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:800,fontSize:15}}>{ch.title}</div><div style={{fontSize:13,color:"#888",marginTop:2}}>{ch.subtitle}</div></div>
-            <div style={{textAlign:"right",flexShrink:0}}><span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"4px 10px",borderRadius:8,background:"#f5f5f0",color:"#999"}}>CHALLENGE</span><div style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#000",marginTop:4}}>{ch.points} PTS</div></div>
+            <div style={{textAlign:"right",flexShrink:0}}><span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"5px 10px 4px",borderRadius:8,lineHeight:1,background:"#f5f5f0",color:"#999"}}>CHALLENGE</span><div style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#000",marginTop:4}}>{ch.points} PTS</div></div>
           </button>))}
         </div>
       </div>)}
@@ -1028,8 +1028,8 @@ function SelfAssessment({act,u,onComplete,onB,actCfg}){
       <div style={{padding:"24px 20px",maxWidth:440,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
         {/* Score display */}
         <div style={{background:"#000",borderRadius:14,padding:"24px 20px",textAlign:"center",marginBottom:20}}>
-          <div style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#888",letterSpacing:1,marginBottom:8}}>YOUR SCORE</div>
-          <div><span style={{fontFamily:FC,fontWeight:900,fontSize:56,color:band.color}}>{totalScore}</span><span style={{fontFamily:FC,fontWeight:600,fontSize:24,color:"#666"}}>/{maxScore}</span></div>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#ccc",letterSpacing:1,marginBottom:8}}>YOUR SCORE</div>
+          <div><span style={{fontFamily:FC,fontWeight:900,fontSize:56,color:band.color}}>{totalScore}</span><span style={{fontFamily:FC,fontWeight:600,fontSize:24,color:"#999"}}>/{maxScore}</span></div>
         </div>
 
         {/* Score bands */}
@@ -1039,7 +1039,7 @@ function SelfAssessment({act,u,onComplete,onB,actCfg}){
             <div key={i} style={{background:isActive?"#fff":"#f9f9f6",border:`${isActive?"2":"1"}px solid ${isActive?b.color:"#e8e8e3"}`,borderLeft:`4px solid ${b.color}`,borderRadius:14,padding:isActive?"18px 16px":"14px 16px",marginBottom:10,opacity:isActive?1:0.6,transition:"all 0.2s"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
                 <span style={{fontFamily:FC,fontWeight:900,fontSize:14,color:b.color}}>{b.min} - {b.max}</span>
-                {isActive&&<span style={{fontFamily:FC,fontWeight:800,fontSize:10,background:b.color,color:b.color==="#FFD300"?"#000":"#fff",padding:"3px 10px",borderRadius:10,letterSpacing:0.5}}>YOU</span>}
+                {isActive&&<span style={{fontFamily:FC,fontWeight:800,fontSize:10,background:b.color,color:b.color==="#FFD300"?"#000":"#fff",padding:"4px 10px 3px",borderRadius:10,letterSpacing:0.5,lineHeight:1,display:"inline-flex",alignItems:"center"}}>YOU</span>}
               </div>
               <div style={{fontFamily:FC,fontWeight:700,fontSize:isActive?14:12,color:"#333",marginBottom:isActive?10:0,lineHeight:1.4}}>{b.title}</div>
               {isActive&&<div style={{display:"flex",flexDirection:"column",gap:6,marginTop:8}}>
@@ -1615,7 +1615,7 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
         <div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#FFD300",marginBottom:12}}>YOUR WORD PICKS</div>
         <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
           {Object.entries(swipes.reduce((a,s)=>{if(s.word){a[s.word]=(a[s.word]||0)+1;}return a;},{})).sort((a,b)=>b[1]-a[1]).map(([w,c])=>(
-            <span key={w} style={{padding:"6px 14px",borderRadius:20,background:"rgba(255,211,0,0.15)",color:"#FFD300",fontFamily:FC,fontWeight:700,fontSize:c>2?16:13}}>{w} ({c})</span>
+            <span key={w} style={{padding:"7px 14px 6px",borderRadius:20,lineHeight:1,background:"rgba(255,211,0,0.15)",color:"#FFD300",fontFamily:FC,fontWeight:700,fontSize:c>2?16:13}}>{w} ({c})</span>
           ))}
         </div>
       </div>
@@ -1741,7 +1741,7 @@ function ThirtySecondSell({ch,done,onS,onB,user,actCfg}){
             <div style={{width:8,height:8,borderRadius:4,background:"#fff",animation:"pulse 1s infinite"}}/>
             <span style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#fff",letterSpacing:1}}>REC</span>
           </div>
-          <div style={{position:"absolute",top:12,right:12,background:"rgba(0,0,0,0.7)",padding:"6px 14px",borderRadius:20}}>
+          <div style={{position:"absolute",top:12,right:12,background:"rgba(0,0,0,0.7)",padding:"7px 14px 6px",borderRadius:20,lineHeight:1}}>
             <span style={{fontSize:18,fontWeight:900,fontFamily:FG,color:timer<=5?"#E3000B":timer<=10?"#FFD300":"#fff"}}>{timer}s</span>
           </div>
         </div>
@@ -2471,7 +2471,7 @@ function MakeTheCall({ch,done,onS,onB,user,actCfg}){
           return(<div key={c.id} style={{display:"flex",alignItems:"center",padding:"12px 14px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,marginBottom:4}}>
             <div style={{width:36,height:36,borderRadius:18,background:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:16,color:"#000",marginRight:12,flexShrink:0}}>{c.name[0]}</div>
             <div style={{flex:1,minWidth:0}}><div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{c.name}</div><div style={{fontSize:12,color:"#888",fontFamily:FB}}>{c.classification} - {hrs} hrs</div></div>
-            <span style={{fontSize:10,fontFamily:FC,fontWeight:700,padding:"4px 8px",borderRadius:6,background:atLimit?"rgba(227,0,11,0.1)":nearOT?"rgba(255,211,0,0.2)":"#f5f5f0",color:atLimit?"#E3000B":nearOT?"#B8860B":"#999"}}>{atLimit?"AT LIMIT":nearOT?`${headroom} HRS LEFT`:"AVAILABLE"}</span>
+            <span style={{fontSize:10,fontFamily:FC,fontWeight:700,padding:"5px 8px 4px",borderRadius:6,lineHeight:1,background:atLimit?"rgba(227,0,11,0.1)":nearOT?"rgba(255,211,0,0.2)":"#f5f5f0",color:atLimit?"#E3000B":nearOT?"#B8860B":"#999"}}>{atLimit?"AT LIMIT":nearOT?`${headroom} HRS LEFT`:"AVAILABLE"}</span>
           </div>);})}
       </div>
       <button style={{...BY,width:"100%",marginTop:16,marginBottom:20}} onClick={()=>setScreen("decisions")}>START DECISIONS</button>
@@ -2493,7 +2493,7 @@ function MakeTheCall({ch,done,onS,onB,user,actCfg}){
           {ctx.crewOnFloor!=null&&<div style={{fontSize:13,fontFamily:FB,color:"#555"}}>Crew on floor: {ctx.crewOnFloor} | Model says: {ctx.modelSays}</div>}
           {ctx.note&&<div style={{fontSize:13,fontFamily:FB,color:"#555",marginTop:4}}>{ctx.note}</div>}
           {ctx.splhWarning&&<div style={{marginTop:8,padding:"8px 12px",background:"rgba(227,0,11,0.1)",borderRadius:8,fontFamily:FC,fontWeight:800,fontSize:13,color:"#E3000B"}}>SPLH: {ctx.splhWarning}</div>}
-          {(dec.labels||[]).length>0&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>{dec.labels.map((l,i)=>(<span key={i} style={{fontSize:10,fontFamily:FC,fontWeight:700,padding:"4px 8px",borderRadius:6,background:l.includes("SPLH")?"rgba(227,0,11,0.1)":"rgba(255,211,0,0.2)",color:l.includes("SPLH")?"#E3000B":"#B8860B"}}>{l}</span>))}</div>}
+          {(dec.labels||[]).length>0&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>{dec.labels.map((l,i)=>(<span key={i} style={{fontSize:10,fontFamily:FC,fontWeight:700,padding:"5px 8px 4px",borderRadius:6,lineHeight:1,background:l.includes("SPLH")?"rgba(227,0,11,0.1)":"rgba(255,211,0,0.2)",color:l.includes("SPLH")?"#E3000B":"#B8860B"}}>{l}</span>))}</div>}
         </div>
         {/* Options */}
         <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:16}}>
@@ -2502,7 +2502,7 @@ function MakeTheCall({ch,done,onS,onB,user,actCfg}){
               <div style={{fontFamily:FC,fontWeight:900,fontSize:15,marginBottom:4}}>{opt.label||c?.name}</div>
               {c&&<div style={{fontSize:12,fontFamily:FC,fontWeight:600,color:"#999",marginBottom:4}}>{c.classification} - {hrs} hrs this week</div>}
               <div style={{fontSize:13,fontFamily:FB,color:"#555",lineHeight:1.5}}>{opt.desc||opt.description}</div>
-              {otRisk&&<div style={{marginTop:8,fontSize:10,fontFamily:FC,fontWeight:800,color:"#E3000B",background:"rgba(227,0,11,0.08)",padding:"4px 8px",borderRadius:6,display:"inline-block"}}>OVERTIME RISK</div>}
+              {otRisk&&<div style={{marginTop:8,fontSize:10,fontFamily:FC,fontWeight:800,color:"#E3000B",background:"rgba(227,0,11,0.08)",padding:"5px 8px 4px",borderRadius:6,lineHeight:1,display:"inline-block"}}>OVERTIME RISK</div>}
             </button>);})}
         </div>
         <button style={{...BY,width:"100%",opacity:selected?1:0.4}} disabled={!selected} onClick={confirmDecision}>CONFIRM</button>
@@ -2529,13 +2529,13 @@ function MakeTheCall({ch,done,onS,onB,user,actCfg}){
           <div style={{fontSize:12,fontFamily:FC,color:"#888",textDecoration:"line-through"}}>${MTC_START_AHR.toFixed(2)}</div>
           <div style={{fontFamily:FC,fontWeight:900,fontSize:32,color:ahrHit?"#007A33":"#E3000B"}}>${finalAHR.toFixed(2)}</div>
           <div style={{fontSize:10,fontFamily:FC,color:"#888",marginTop:2}}>AHR</div>
-          <span style={{fontSize:10,fontFamily:FC,fontWeight:800,padding:"3px 8px",borderRadius:6,background:ahrHit?"rgba(0,122,51,0.2)":"rgba(227,0,11,0.2)",color:ahrHit?"#007A33":"#E3000B",marginTop:6,display:"inline-block"}}>{ahrHit?"ON TARGET":"OVER"}</span>
+          <span style={{fontSize:10,fontFamily:FC,fontWeight:800,padding:"4px 8px 3px",borderRadius:6,lineHeight:1,background:ahrHit?"rgba(0,122,51,0.2)":"rgba(227,0,11,0.2)",color:ahrHit?"#007A33":"#E3000B",marginTop:6,display:"inline-block"}}>{ahrHit?"ON TARGET":"OVER"}</span>
         </div>
         <div style={{background:"#000",borderRadius:14,padding:16,textAlign:"center"}}>
           <div style={{fontSize:12,fontFamily:FC,color:"#888",textDecoration:"line-through"}}>${MTC_START_SPLH}</div>
           <div style={{fontFamily:FC,fontWeight:900,fontSize:32,color:splhOk?"#007A33":"#E3000B"}}>${Math.round(finalSPLH)}</div>
           <div style={{fontSize:10,fontFamily:FC,color:"#888",marginTop:2}}>SPLH</div>
-          <span style={{fontSize:10,fontFamily:FC,fontWeight:800,padding:"3px 8px",borderRadius:6,background:splhOk?"rgba(0,122,51,0.2)":"rgba(227,0,11,0.2)",color:splhOk?"#007A33":"#E3000B",marginTop:6,display:"inline-block"}}>{splhOk?"IN BAND":"OUT OF BAND"}</span>
+          <span style={{fontSize:10,fontFamily:FC,fontWeight:800,padding:"4px 8px 3px",borderRadius:6,lineHeight:1,background:splhOk?"rgba(0,122,51,0.2)":"rgba(227,0,11,0.2)",color:splhOk?"#007A33":"#E3000B",marginTop:6,display:"inline-block"}}>{splhOk?"IN BAND":"OUT OF BAND"}</span>
         </div>
       </div>
       {/* Decision review */}
@@ -2666,10 +2666,10 @@ function SwapTheShift({ch,done,onS,onB,user,actCfg}){
               <div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{c.name}</div>
               <div style={{fontSize:12,color:"#888",fontFamily:FB}}>{c.currentClass} - ${c.currentRate}/hr - {c.hours}hrs</div>
             </div>
-            {c.action==="swap"&&<span style={{fontFamily:FC,fontWeight:800,fontSize:10,color:"#007A33",background:"#f0f8f0",padding:"4px 8px",borderRadius:6}}>SWAPPED</span>}
-            {c.action==="pass"&&<span style={{fontFamily:FC,fontWeight:800,fontSize:10,color:"#E3000B",background:"#fef0f0",padding:"4px 8px",borderRadius:6}}>PASSED</span>}
+            {c.action==="swap"&&<span style={{fontFamily:FC,fontWeight:800,fontSize:10,color:"#007A33",background:"#f0f8f0",padding:"5px 8px 4px",borderRadius:6,lineHeight:1}}>SWAPPED</span>}
+            {c.action==="pass"&&<span style={{fontFamily:FC,fontWeight:800,fontSize:10,color:"#E3000B",background:"#fef0f0",padding:"5px 8px 4px",borderRadius:6,lineHeight:1}}>PASSED</span>}
             {isSwappable&&<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>}
-            {tooltip===c.id&&<div style={{position:"absolute",top:-36,left:"50%",transform:"translateX(-50%)",background:"#007A33",color:"#fff",padding:"6px 14px",borderRadius:8,fontFamily:FC,fontWeight:700,fontSize:11,letterSpacing:0.5,whiteSpace:"nowrap",zIndex:20}}>ALREADY OPTIMISED</div>}
+            {tooltip===c.id&&<div style={{position:"absolute",top:-36,left:"50%",transform:"translateX(-50%)",background:"#007A33",color:"#fff",padding:"7px 14px 6px",borderRadius:8,lineHeight:1,fontFamily:FC,fontWeight:700,fontSize:11,letterSpacing:0.5,whiteSpace:"nowrap",zIndex:20}}>ALREADY OPTIMISED</div>}
           </div>);
         })}
       </div>
@@ -4443,7 +4443,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
             return(<button key={qKey} onClick={()=>{const aq={...(acfg.activeQuarter||{}),  [contentProg]:qKey};saveAcfg("activeQuarter",aq);flash(`${qKey} activated for ${prog?.short||contentProg}`,true);}} style={{padding:"12px 14px",borderRadius:12,border:isActive?"2px solid #FFD300":"1px solid #e8e8e3",background:isActive?"#FFF8E0":"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.2s"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <span style={{fontFamily:FC,fontWeight:900,fontSize:16,color:isActive?"#000":"#888"}}>{qKey}</span>
-                {isActive&&<span style={{fontSize:9,fontFamily:FC,fontWeight:800,color:"#007A33",background:"#f0f8f0",padding:"3px 8px",borderRadius:6}}>ACTIVE</span>}
+                {isActive&&<span style={{fontSize:9,fontFamily:FC,fontWeight:800,color:"#007A33",background:"#f0f8f0",padding:"4px 8px 3px",borderRadius:6,lineHeight:1}}>ACTIVE</span>}
               </div>
               <div style={{fontSize:12,fontFamily:FC,fontWeight:600,color:isActive?"#555":"#bbb",marginTop:4}}>{qVal.name}</div>
             </button>);
@@ -4472,7 +4472,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                 <div style={{fontSize:13,color:"#999",fontFamily:FB,marginTop:1}}>{item.subtitle}</div>
               </div>
               <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-                <span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"4px 10px",borderRadius:8,background:item.kind==="activity"?"#FFF8E0":"#f5f5f0",color:item.kind==="activity"?"#B8860B":"#999"}}>{item.kind==="activity"?"ACTIVITY":"CHALLENGE"}</span>
+                <span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"5px 10px 4px",borderRadius:8,lineHeight:1,background:item.kind==="activity"?"#FFF8E0":"#f5f5f0",color:item.kind==="activity"?"#B8860B":"#999"}}>{item.kind==="activity"?"ACTIVITY":"CHALLENGE"}</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2" style={{transform:isOpen?"rotate(90deg)":"none",transition:"transform 0.2s"}}><path d="M9 18l6-6-6-6"/></svg>
               </div>
             </div>
@@ -4620,15 +4620,15 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
 
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
                       <div style={subLabel}>PROBLEMS (expert order) - {(acfg.shift_in_chaos?.problems||CHAOS_PROBLEMS).length} items</div>
-                      <button onClick={()=>{const probs=[...(acfg.shift_in_chaos?.problems||[...CHAOS_PROBLEMS])];probs.push({id:`cp${Date.now()}`,text:"New problem description",category:"operational"});saveAcfg("shift_in_chaos",{problems:probs});}} style={{padding:"6px 14px",borderRadius:8,border:"none",background:"#FFD300",color:"#000",fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>+ ADD</button>
+                      <button onClick={()=>{const probs=[...(acfg.shift_in_chaos?.problems||[...CHAOS_PROBLEMS])];probs.push({id:`cp${Date.now()}`,text:"New problem description",category:"operational"});saveAcfg("shift_in_chaos",{problems:probs});}} style={{padding:"7px 14px 6px",borderRadius:8,lineHeight:1,border:"none",background:"#FFD300",color:"#000",fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>+ ADD</button>
                     </div>
                     {(acfg.shift_in_chaos?.problems||CHAOS_PROBLEMS).map((p,pi)=>(
                       <div key={p.id||pi} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"8px 0",borderTop:pi>0?"1px solid #e8e8e3":"none"}}>
                         <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#1a1a1a",color:"#FFD300",width:22,height:22,borderRadius:11,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:8}}>{pi+1}</span>
                         <textarea value={p.text} onChange={e=>updateChaosProb(pi,"text",e.target.value)} rows={2} style={{...inp,flex:1,resize:"vertical",fontSize:13,padding:"8px 12px"}}/>
                         <div style={{display:"flex",flexDirection:"column",gap:2,flexShrink:0,marginTop:6}}>
-                          {["safety","operational","cosmetic"].map(cat=>(<button key={cat} onClick={()=>updateChaosProb(pi,"category",cat)} style={{padding:"3px 8px",borderRadius:6,border:"none",background:p.category===cat?(cat==="safety"?"#E3000B":cat==="operational"?"#FFD300":"#999"):"transparent",color:p.category===cat?"#fff":"#ccc",fontSize:9,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>{cat.slice(0,3).toUpperCase()}</button>))}
-                          <button onClick={()=>{const probs=[...(acfg.shift_in_chaos?.problems||[...CHAOS_PROBLEMS])];probs.splice(pi,1);saveAcfg("shift_in_chaos",{problems:probs});}} style={{padding:"3px 8px",borderRadius:6,border:"none",background:"transparent",color:"#E3000B",fontSize:9,fontFamily:FC,fontWeight:700,cursor:"pointer",marginTop:2}}>DEL</button>
+                          {["safety","operational","cosmetic"].map(cat=>(<button key={cat} onClick={()=>updateChaosProb(pi,"category",cat)} style={{padding:"4px 8px 3px",borderRadius:6,lineHeight:1,border:"none",background:p.category===cat?(cat==="safety"?"#E3000B":cat==="operational"?"#FFD300":"#999"):"transparent",color:p.category===cat?"#fff":"#ccc",fontSize:9,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>{cat.slice(0,3).toUpperCase()}</button>))}
+                          <button onClick={()=>{const probs=[...(acfg.shift_in_chaos?.problems||[...CHAOS_PROBLEMS])];probs.splice(pi,1);saveAcfg("shift_in_chaos",{problems:probs});}} style={{padding:"4px 8px 3px",borderRadius:6,lineHeight:1,border:"none",background:"transparent",color:"#E3000B",fontSize:9,fontFamily:FC,fontWeight:700,cursor:"pointer",marginTop:2}}>DEL</button>
                         </div>
                       </div>
                     ))}
@@ -4669,7 +4669,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                     <div style={{background:"#fff",borderRadius:12,padding:14,marginBottom:14}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
                         <div><div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#1a1a1a"}}>Seed Photos</div><div style={{fontSize:11,color:"#888",fontFamily:FB}}>Pre-loaded photos for first participants to swipe</div></div>
-                        <label style={{padding:"6px 14px",borderRadius:8,border:"none",background:"#FFD300",color:"#000",fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>
+                        <label style={{padding:"7px 14px 6px",borderRadius:8,lineHeight:1,border:"none",background:"#FFD300",color:"#000",fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>
                           + UPLOAD<input type="file" accept="image/*" style={{display:"none"}} onChange={async e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,600/img.width);c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);const b64=c.toDataURL("image/jpeg",0.7);const seeds=[...(acfg.spot_the_moment?.seedPhotos||[...DEFAULT_SEED_PHOTOS])];seeds.push({id:`sp${Date.now()}`,url:b64,caption:"Uploaded photo"});saveAcfg("spot_the_moment",{seedPhotos:seeds});};img.src=URL.createObjectURL(f);}}/>
                         </label>
                       </div>
@@ -4977,7 +4977,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                   <div style={{...subLabel,marginTop:16}}>SCRIPT STEPS</div>
                   {(acfg.huddle_builder?.steps||HUDDLE_STEPS).map((step,si)=>(
                     <div key={si} style={{display:"flex",gap:8,marginBottom:6,alignItems:"center"}}>
-                      <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#FFD300",color:"#000",padding:"4px 8px",borderRadius:6,flexShrink:0,minWidth:80,textAlign:"center"}}>{step.label}</span>
+                      <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#FFD300",color:"#000",padding:"5px 8px 4px",borderRadius:6,lineHeight:1,flexShrink:0,minWidth:80,textAlign:"center"}}>{step.label}</span>
                       <input value={step.prefix} onChange={e=>{const steps=[...(acfg.huddle_builder?.steps||[...HUDDLE_STEPS])];steps[si]={...steps[si],prefix:e.target.value};saveAcfg("huddle_builder",{steps});}} placeholder="Prefix text" style={{...inp,flex:1,fontSize:13,padding:"6px 10px"}}/>
                     </div>
                   ))}
@@ -5490,7 +5490,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
       {pendingPhotoApprovals.map(c=>{const usr=us.find(u=>u.id===c.userId);const chx=Object.values(challenges).flat().find(x=>x.id===c.challengeId);return(
         <div key={c.id} style={{...card,padding:isMobile?14:18,border:"2px solid #FFB800"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,flexWrap:"wrap",gap:6}}>
-            <div><span style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{usr?.name?.toUpperCase()||"UNKNOWN"}</span><span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#fff",background:"#000",padding:"3px 7px",borderRadius:4,marginLeft:8}}>{c.batch}</span></div>
+            <div><span style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{usr?.name?.toUpperCase()||"UNKNOWN"}</span><span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#fff",background:"#000",padding:"4px 7px 3px",borderRadius:4,lineHeight:1,marginLeft:8}}>{c.batch}</span></div>
             <span style={{fontFamily:FC,fontWeight:600,fontSize:12,color:"#666"}}>{chx?.title}</span>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(80px,1fr))",gap:8,marginBottom:12}}>
@@ -5513,7 +5513,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:6}}>
           <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
             <span style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{usr?.name?.toUpperCase()||"UNKNOWN"}</span>
-            <span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#fff",background:"#000",padding:"3px 7px",borderRadius:4}}>{c.batch}</span>
+            <span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#fff",background:"#000",padding:"4px 7px 3px",borderRadius:4,lineHeight:1}}>{c.batch}</span>
             {!isMobile&&<span style={{color:"#888",fontSize:12,fontFamily:FB}}>{usr?.restaurant}</span>}
           </div>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
@@ -5973,7 +5973,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
         {!isMobile&&(
           <div style={{padding:"18px 32px",background:"#fff",borderBottom:"1px solid #f0f0eb",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
             <div><div style={{fontFamily:FC,fontWeight:800,fontSize:20,letterSpacing:0.3}}>{navItems.find(n=>n.id===tab)?.label||"Overview"}</div><div style={{fontSize:13,color:"#999",fontFamily:FB,marginTop:2}}>{totalU} participants - {totalC} submissions</div></div>
-            <div style={{display:"flex",gap:8}}>{fp!=="all"&&<span style={{padding:"6px 14px",borderRadius:20,background:"#FFD300",fontFamily:FC,fontWeight:700,fontSize:12,color:"#000"}}>{PROGRAMS[fp]?.short}</span>}{fb!=="all"&&<span style={{padding:"6px 14px",borderRadius:20,background:"#1a1a1a",fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300"}}>{fb}</span>}</div>
+            <div style={{display:"flex",gap:8}}>{fp!=="all"&&<span style={{padding:"7px 14px 6px",borderRadius:20,lineHeight:1,background:"#FFD300",fontFamily:FC,fontWeight:700,fontSize:12,color:"#000"}}>{PROGRAMS[fp]?.short}</span>}{fb!=="all"&&<span style={{padding:"7px 14px 6px",borderRadius:20,lineHeight:1,background:"#1a1a1a",fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300"}}>{fb}</span>}</div>
           </div>
         )}
 
