@@ -280,7 +280,7 @@ const HUDDLE_PLACEHOLDERS = {
 };
 // ─── UTILS ───────────────────────────────────────────────────────────────────
 function getISOWeek(d) { const date = new Date(d); date.setHours(0,0,0,0); date.setDate(date.getDate()+3-(date.getDay()+6)%7); const w1=new Date(date.getFullYear(),0,4); return 1+Math.round(((date-w1)/86400000-3+(w1.getDay()+6)%7)/7); }
-function generateBatch(programId, dateStr, stateCode) { const d=new Date(dateStr||Date.now()); const wk=getISOWeek(d); const yr=String(d.getFullYear()).slice(-2); const short=PROGRAMS[programId]?.short||"GYG"; const sc=stateCode||""; return `GYG-${short}-${sc?sc+"-":""}WK${String(wk).padStart(2,"0")}-${yr}`; }
+function generateBatch(programId, dateStr, stateCode) { const d=new Date(dateStr||Date.now()); const wk=getISOWeek(d); const yr=String(d.getFullYear()).slice(-2); const short=PROGRAMS[programId]?.short||"GYG"; const sc=stateCode||""; return `${short}-${sc?sc+"-":""}WK${String(wk).padStart(2,"0")}-${yr}`; }
 function getUserWeek(createdAt) { if(!createdAt)return 1; return Math.min(Math.max(Math.floor((Date.now()-new Date(createdAt))/604800000)+1,1),4); }
 
 // Storage now handled by Firebase - see db.js
@@ -1165,7 +1165,7 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
   const userPhotos=(comps||[]).filter(c=>c.challengeId===ch.id&&c.batch===user.batch&&c.userId!==user.id&&c.submission?.photos).flatMap(c=>(c.submission.photos||[]).filter(Boolean).map((p,i)=>({photo:p,caption:`Photo by ${(users||[]).find(u=>u.id===c.userId)?.name||"teammate"}`,userId:c.userId,idx:i})));
   const allSwipePhotos=[...seedPhotos,...userPhotos];
 
-  const compressPhoto=(file)=>new Promise(r=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,400/img.width);c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",0.7));};img.src=URL.createObjectURL(file);});
+  const compressPhoto=(file)=>new Promise(r=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,1200/Math.max(img.width,img.height));c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",0.8));};img.src=URL.createObjectURL(file);});
 
   const handleSwipe=(dir)=>{
     const card=allSwipePhotos[swipeIdx];
@@ -1576,7 +1576,7 @@ function WasteAudit({ch,done,onS,onB,user}){
   const[items,setItems]=useState([]);const[newItem,setNewItem]=useState({name:"",category:"Protein",qty:"",unit:"kg"});
   const[photos,setPhotos]=useState({wastageSheet:null,pos:null});const[answers,setAnswers]=useState(["","",""]);
   const addItem=()=>{if(!newItem.name.trim()||!newItem.qty)return;setItems(p=>[...p,{...newItem,id:Date.now()}]);setNewItem({name:"",category:newItem.category,qty:"",unit:"kg"});};
-  const compressImg=(file)=>new Promise(r=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,800/img.width);c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",0.6));};img.src=URL.createObjectURL(file);});
+  const compressImg=(file)=>new Promise(r=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,1600/Math.max(img.width,img.height));c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",0.8));};img.src=URL.createObjectURL(file);});
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
