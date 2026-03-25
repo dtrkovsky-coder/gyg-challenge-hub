@@ -761,7 +761,7 @@ function DashV({u,ch,co,wk,sc,onCh,onBd,onPr,actComps,acts,activeQuarter}){const
 const ChallengeIntro=({icon,title,subtitle,description,points,bonusPoints,bonusCondition,tip,onStart,onB,startLabel="START"})=>(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{title}</span><span style={{width:32}}/></div>
-    <div style={{padding:"28px 20px",display:"flex",flexDirection:"column",alignItems:"center",gap:16,flex:1}}>
+    <div style={{padding:"28px 24px",display:"flex",flexDirection:"column",alignItems:"center",gap:16,flex:1}}>
       {icon&&<div style={{width:72,height:72,borderRadius:36,background:"#000",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:4}}>{typeof icon==="string"?<img src={icon} alt="" style={{width:40,height:40,objectFit:"contain",filter:"brightness(0) invert(1)"}}/>:icon}</div>}
       <div style={{textAlign:"center"}}>
         <div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:1,lineHeight:1.2}}>{title}</div>
@@ -770,16 +770,16 @@ const ChallengeIntro=({icon,title,subtitle,description,points,bonusPoints,bonusC
       {description&&<div style={{fontSize:15,color:"#555",fontFamily:FB,lineHeight:1.7,textAlign:"center",maxWidth:480}}>{description}</div>}
       {/* Points card - always present */}
       <div style={{width:"100%",background:"#000",borderRadius:14,padding:16}}>
-        <div style={{fontFamily:FC,fontWeight:800,fontSize:12,color:"#FFD300",letterSpacing:1,marginBottom:10}}>HOW POINTS WORK</div>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#FFD300",letterSpacing:1,marginBottom:10}}>HOW POINTS WORK</div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-          <span style={{fontFamily:FC,fontSize:14,color:"#ccc"}}>Complete challenge</span>
-          <span style={{fontFamily:FC,fontWeight:800,fontSize:16,color:"#fff"}}>{points} pts</span>
+          <span style={{fontFamily:FC,fontSize:13,color:"#ccc"}}>Complete challenge</span>
+          <span style={{fontFamily:FC,fontWeight:900,fontSize:18,color:"#fff"}}>{points} pts</span>
         </div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingTop:8,borderTop:"1px solid #333"}}>
-          <span style={{fontFamily:FC,fontSize:14,color:"#FFD300",fontWeight:700}}>Bonus</span>
-          <span style={{fontFamily:FC,fontWeight:900,fontSize:16,color:"#FFD300"}}>+{bonusPoints} pts</span>
+          <span style={{fontFamily:FC,fontSize:13,color:"#FFD300",fontWeight:700}}>Bonus</span>
+          <span style={{fontFamily:FC,fontWeight:900,fontSize:18,color:"#FFD300"}}>+{bonusPoints} pts</span>
         </div>
-        {bonusCondition&&<div style={{fontFamily:FC,fontSize:11,color:"#888",marginTop:6,fontStyle:"italic"}}>{bonusCondition}</div>}
+        {bonusCondition&&<div style={{fontFamily:FC,fontSize:12,color:"#999",marginTop:6,fontStyle:"italic"}}>{bonusCondition}</div>}
       </div>
       {/* Tip card */}
       {tip&&<div style={{width:"100%",background:"#f0f8f0",border:"1px solid #d4e8d4",borderRadius:14,padding:16}}>
@@ -865,6 +865,7 @@ function HazardHunt({ch,done,onS,onB,user,actCfg}){
   const[animScore,setAnimScore]=useState(0);// for count-up animation
   const timerRef=useRef(null);
   const viewRef=useRef(null);
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[screen]);
   const realHazards=cfgZones.filter(z=>(cfgFeedback[z.id]||{}).hazard);
   const allRealFound=found.filter(id=>(cfgFeedback[id]||{}).hazard).length>=realHazards.length;
   const allTapped=allRealFound||found.length>=cfgZones.length;
@@ -929,9 +930,9 @@ function HazardHunt({ch,done,onS,onB,user,actCfg}){
     )}
     {screen===3&&(
       <div style={{padding:"24px 20px"}}>
-        <div style={{textAlign:"center",marginBottom:20}}>
-          <div style={{fontSize:56,fontWeight:900,fontFamily:FC,color:"#FFD300",transition:"all 0.1s"}}>{animScore}</div>
-          <div style={{fontSize:16,fontFamily:FC,fontWeight:700,color:"#888",letterSpacing:1}}>POINTS EARNED</div>
+        <div style={{background:"#000",borderRadius:14,padding:20,textAlign:"center",marginBottom:20}}>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300",transition:"all 0.1s"}}>{animScore}</div>
+          <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:1}}>POINTS EARNED</div>
         </div>
         <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:16,color:"#fff"}}>
           <div style={{fontSize:12,fontWeight:800,fontFamily:FC,color:"#FFD300",letterSpacing:1,marginBottom:12}}>SCORE BREAKDOWN</div>
@@ -982,6 +983,7 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users,actCfg}){
   const[dragStartY,setDragStartY]=useState(0);
   const[itemHeight,setItemHeight]=useState(60);
   const listRef=useRef(null);
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[screen]);
   const catColor={safety:"#E3000B",operational:"#FFD300",cosmetic:"#999"};
   const totalDistance=ranking.reduce((sum,p,i)=>{const expertIdx=EXPERT_ORDER.indexOf(p.id);return sum+Math.abs(i-expertIdx);},0);
   const maxDistance=ranking.length*(ranking.length-1)/2;// theoretical max ~66 for 12 items
@@ -1034,7 +1036,7 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users,actCfg}){
                 <div style={{width:14,height:2,background:"#999",borderRadius:1}}/>
               </div>
               <div style={{width:24,height:24,borderRadius:12,background:"#000",color:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:11,flexShrink:0,marginRight:8}}>{i+1}</div>
-              <div style={{flex:1,fontSize:12,lineHeight:1.3,minWidth:0,wordBreak:"break-word"}}>{p.text}</div>
+              <div style={{flex:1,fontSize:14,fontFamily:FB,lineHeight:1.3,minWidth:0,wordBreak:"break-word"}}>{p.text}</div>
               <div style={{width:10,height:10,borderRadius:5,background:catColor[p.category],flexShrink:0,marginLeft:8}}/>
             </div>);
           })}
@@ -1061,37 +1063,36 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users,actCfg}){
     )}
     {screen===3&&(
       <div style={{padding:"16px 16px 24px"}}>
-        <div style={{fontSize:12,fontWeight:800,fontFamily:FC,color:"#999",letterSpacing:1,marginBottom:12,textAlign:"center"}}>YOUR RANKING VS EXPERT</div>
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:1,marginBottom:12,textAlign:"center"}}>YOUR RANKING VS EXPERT</div>
         {ranking.map((p,i)=>{const expertIdx=EXPERT_ORDER.indexOf(p.id);const diff=Math.abs(i-expertIdx);const color=diff<=1?"#007A33":diff<=3?"#FFD300":"#E3000B";
           const otherRankings=batchComps.filter(c=>c.submission?.ranking).map(c=>{const r=c.submission.ranking;return r.indexOf(p.id);}).filter(x=>x>=0);
           const avg=otherRankings.length?Math.round(otherRankings.reduce((a,b)=>a+b,0)/otherRankings.length)+1:null;
           return(
           <div key={p.id} style={{display:"flex",alignItems:"center",padding:"10px 12px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:10,marginBottom:4}}>
             <div style={{width:24,height:24,borderRadius:12,background:color,color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:12,flexShrink:0,marginRight:8}}>{i+1}</div>
-            <div style={{flex:1,fontSize:12,lineHeight:1.3,color:"#555"}}>{p.text}</div>
+            <div style={{flex:1,fontSize:14,fontFamily:FB,lineHeight:1.3,color:"#555"}}>{p.text}</div>
             <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0,marginLeft:6}}>
               {avg!==null&&<span style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#bbb"}}>AVG:{avg}</span>}
               <span style={{fontSize:11,fontFamily:FC,fontWeight:700,color,letterSpacing:0.5}}>{diff===0?"EXACT":diff<=1?"CLOSE":diff<=3?"OFF":diff+"+ OFF"}</span>
             </div>
           </div>
         );})}
-        <div style={{textAlign:"center",marginTop:12,marginBottom:16}}>
-          <div style={{fontSize:36,fontWeight:900,fontFamily:FC,color:accuracy>=80?"#007A33":accuracy>=50?"#FFD300":"#E3000B"}}>{accuracy}%</div>
-          <div style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#888"}}>ACCURACY</div>
-          <div style={{fontSize:20,fontWeight:900,fontFamily:FC,color:"#FFD300",marginTop:8}}>{earnedPts} PTS EARNED</div>
-          {(isTop3||accuracy>=bonusThresh)&&<div style={{fontSize:14,fontFamily:FC,fontWeight:800,color:"#FFD300",marginTop:4}}>&#9733; BONUS EARNED! +{ch.bonusPoints} PTS{isTop3?` (Top ${topN} in batch)`:` (${accuracy}%+ accuracy)`}</div>}
+        <div style={{background:"#000",borderRadius:14,padding:20,textAlign:"center",marginTop:12,marginBottom:16}}>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300"}}>{accuracy}%</div>
+          <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:1}}>ACCURACY</div>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:24,color:"#fff",marginTop:8}}>{earnedPts} PTS EARNED</div>
+          {(isTop3||accuracy>=bonusThresh)&&<div style={{fontSize:14,fontFamily:FC,fontWeight:800,color:"#FFD300",marginTop:8,padding:"6px 12px",background:"rgba(255,211,0,0.15)",borderRadius:8,display:"inline-block"}}>BONUS EARNED +{ch.bonusPoints} PTS{isTop3?` (Top ${topN} in batch)`:` (${accuracy}%+ accuracy)`}</div>}
           {!isTop3&&accuracy<bonusThresh&&<div style={{fontSize:12,fontFamily:FC,fontWeight:600,color:"#888",marginTop:4}}>Bonus requires {bonusThresh}%+ accuracy or top {topN} in batch</div>}
         </div>
         <button style={{...BY,width:"100%"}} onClick={()=>setScreen(4)}>CONTINUE</button>
       </div>
     )}
     {screen===4&&(
-      <div style={{padding:"24px 20px"}}>
-        <div style={{fontSize:14,fontWeight:800,fontFamily:FC,letterSpacing:0.5,marginBottom:8}}>PREVENTION QUESTION</div>
-        <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1,display:"block",marginBottom:6}}>WHAT'S ONE THING THAT WOULD HAVE PREVENTED THIS SHIFT FROM GETTING TO THIS POINT?</label>
-        <p style={{fontSize:13,color:"#888",marginBottom:8}}>Be specific about when it should have happened and who should have done it.</p>
-        <textarea style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,color:"#1a1a1a",fontSize:15,fontFamily:FB,outline:"none",height:120,resize:"vertical",boxSizing:"border-box"}} value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="Your response..."/>
-        <button style={{...BY,width:"100%",marginTop:16,opacity:answer.trim()?"1":"0.5"}} disabled={!answer.trim()} onClick={()=>{const matchedTop5=ranking.slice(0,5).filter(p=>EXPERT_ORDER.indexOf(p.id)<5).length;onS({text:answer,ranking:ranking.map(p=>p.id),distanceFromExpert:totalDistance,accuracy,earnedBadge:isTop3,matchedTop5,claimedBonus:isTop3||accuracy>=bonusThresh,autoBonus:isTop3||accuracy>=bonusThresh,points:earnedPts});}}>SUBMIT</button>
+      <div style={{padding:"24px 20px",display:"flex",flexDirection:"column",gap:16}}>
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:20,letterSpacing:0.5}}>PREVENTION QUESTION</div>
+        <div style={{fontFamily:FB,fontSize:15,color:"#555",lineHeight:1.5}}>What's one thing that would have prevented this shift from getting to this point? Be specific about when it should have happened and who should have done it.</div>
+        <textarea style={{width:"100%",padding:16,background:"#fff",border:"1px solid #e0e0db",borderRadius:12,color:"#1a1a1a",fontSize:15,fontFamily:FB,outline:"none",height:120,resize:"vertical",boxSizing:"border-box"}} value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="Your response..."/>
+        <button style={{...BY,width:"100%",opacity:answer.trim()?"1":"0.5"}} disabled={!answer.trim()} onClick={()=>{const matchedTop5=ranking.slice(0,5).filter(p=>EXPERT_ORDER.indexOf(p.id)<5).length;onS({text:answer,ranking:ranking.map(p=>p.id),distanceFromExpert:totalDistance,accuracy,earnedBadge:isTop3,matchedTop5,claimedBonus:isTop3||accuracy>=bonusThresh,autoBonus:isTop3||accuracy>=bonusThresh,points:earnedPts});}}>SUBMIT</button>
       </div>
     )}
   </div>
@@ -1174,6 +1175,7 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
   const[swipes,setSwipes]=useState([]);
   const[lastDir,setLastDir]=useState(null);
   const[animPts,setAnimPts]=useState(null);
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[phase]);
   const uploadCount=photos.filter(Boolean).length;
 
   // Get photos to swipe - seed photos from admin + other users' photos
@@ -1340,6 +1342,7 @@ function ThirtySecondSell({ch,done,onS,onB,user,actCfg}){
   const recDuration=actCfg?.thirty_second_sell?.timer||30;
   const[currentItem,setCurrentItem]=useState(0);
   const[phase,setPhase]=useState("intro");// intro | ready | countdown | recording | uploading | done
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[phase]);
   const[timer,setTimer]=useState(recDuration);
   const[countdown,setCountdown]=useState(3);
   const[items,setItems]=useState([]);
@@ -1508,6 +1511,7 @@ function RecoveryRace({ch,done,onS,onB,user,actCfg}){
   const bonusThreshold=actCfg?.recovery_race?.bonusThreshold||75;
   const decisionTimerDefault=actCfg?.recovery_race?.decisionTimer||8;
   const[screen,setScreen]=useState("intro");// intro | play | result | complete
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[screen]);
   const[scenIdx,setScenIdx]=useState(0);
   const[decIdx,setDecIdx]=useState(0);
   const[decTimer,setDecTimer]=useState(0);
@@ -1547,9 +1551,9 @@ function RecoveryRace({ch,done,onS,onB,user,actCfg}){
       <div style={{display:"flex",gap:4,marginTop:16,justifyContent:"center"}}>{scen.decisions.map((_,i)=>(<div key={i} style={{width:8,height:8,borderRadius:4,background:i<decIdx?"#007A33":i===decIdx?"#FFD300":"#ddd"}}/>))}</div>
     </div>)}
     {screen==="result"&&(<div style={{padding:"24px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:20}}>
-        <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{allResults[allResults.length-1]?.score||0}%</div>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888"}}>RECOVERY SCORE</div>
+      <div style={{background:"#000",borderRadius:14,padding:20,textAlign:"center",marginBottom:20}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300"}}>{allResults[allResults.length-1]?.score||0}%</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:1}}>RECOVERY SCORE</div>
       </div>
       {scenIdx<scenarios.length-1?(
         <button style={{...BY,width:"100%"}} onClick={()=>{setScenIdx(s=>s+1);setDecIdx(0);setChoices([]);setLastOutcome(null);setScreen("play");setDecTimer(scenarios[scenIdx+1]?.decisions[0]?.timer||decisionTimerDefault);}}>NEXT SCENARIO: {scenarios[scenIdx+1]?.title.toUpperCase()}</button>
@@ -1585,6 +1589,7 @@ const WASTE_QUESTIONS=[
 ];
 function WasteAudit({ch,done,onS,onB,user}){
   const[step,setStep]=useState(0);// 0=intro, 1=log, 2=photos, 3=questions, 4=review
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[step]);
   const[items,setItems]=useState([]);const[newItem,setNewItem]=useState({name:"",category:"Protein",qty:"",unit:"kg"});
   const[photos,setPhotos]=useState({wastageSheet:null,pos:null});const[answers,setAnswers]=useState(["","",""]);
   const addItem=()=>{if(!newItem.name.trim()||!newItem.qty)return;setItems(p=>[...p,{...newItem,id:Date.now()}]);setNewItem({name:"",category:newItem.category,qty:"",unit:"kg"});};
@@ -1605,11 +1610,11 @@ function WasteAudit({ch,done,onS,onB,user}){
         <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:16}}>
           <input value={newItem.name} onChange={e=>setNewItem(p=>({...p,name:e.target.value}))} placeholder="Item name (e.g. Grilled chicken)" style={{width:"100%",padding:"12px 14px",background:"#1a1a1a",border:"1px solid #333",borderRadius:10,color:"#fff",fontSize:14,fontFamily:FB,outline:"none",marginBottom:8,boxSizing:"border-box"}}/>
           <div style={{display:"flex",gap:8}}>
-            <select value={newItem.category} onChange={e=>setNewItem(p=>({...p,category:e.target.value}))} style={{flex:1,padding:"10px",background:"#1a1a1a",border:"1px solid #333",borderRadius:10,color:"#fff",fontSize:13,fontFamily:FC}}>
+            <select value={newItem.category} onChange={e=>setNewItem(p=>({...p,category:e.target.value}))} style={{flex:1,padding:"10px",background:"#1a1a1a",border:"1px solid #333",borderRadius:10,color:"#fff",fontSize:13,fontFamily:FC,appearance:"auto",WebkitAppearance:"auto"}}>
               {WASTE_CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}
             </select>
             <input type="number" value={newItem.qty} onChange={e=>setNewItem(p=>({...p,qty:e.target.value}))} placeholder="Qty" style={{width:60,padding:"10px",background:"#1a1a1a",border:"1px solid #333",borderRadius:10,color:"#fff",fontSize:14,textAlign:"center"}}/>
-            <select value={newItem.unit} onChange={e=>setNewItem(p=>({...p,unit:e.target.value}))} style={{width:60,padding:"10px",background:"#1a1a1a",border:"1px solid #333",borderRadius:10,color:"#fff",fontSize:13}}>
+            <select value={newItem.unit} onChange={e=>setNewItem(p=>({...p,unit:e.target.value}))} style={{width:60,padding:"10px",background:"#1a1a1a",border:"1px solid #333",borderRadius:10,color:"#fff",fontSize:13,appearance:"auto",WebkitAppearance:"auto"}}>
               <option value="kg">kg</option><option value="L">L</option><option value="pcs">pcs</option><option value="trays">trays</option>
             </select>
           </div>
@@ -1650,8 +1655,8 @@ function WasteAudit({ch,done,onS,onB,user}){
       {step===3&&(<div>
         <h2 style={{fontFamily:FC,fontWeight:900,fontSize:22,textAlign:"center",margin:"0 0 16px"}}>WHAT DID YOU FIND?</h2>
         {WASTE_QUESTIONS.map((q,i)=>(<div key={q.id} style={{background:"#fff",borderRadius:14,padding:16,marginBottom:12,border:"1px solid #e8e8e3"}}>
-          <div style={{fontFamily:FC,fontWeight:800,fontSize:13,marginBottom:8}}>{q.text}</div>
-          <textarea value={answers[i]} onChange={e=>{const a=[...answers];a[i]=e.target.value;setAnswers(a);}} placeholder={q.placeholder} rows={3} style={{width:"100%",padding:"12px 14px",background:"#f5f5f0",border:"1px solid #e0e0db",borderRadius:10,fontSize:14,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+          <div style={{fontFamily:FB,fontWeight:800,fontSize:15,marginBottom:8}}>{q.text}</div>
+          <textarea value={answers[i]} onChange={e=>{const a=[...answers];a[i]=e.target.value;setAnswers(a);}} placeholder={q.placeholder} rows={3} style={{width:"100%",padding:"14px 16px",background:"#f5f5f0",border:"1px solid #e0e0db",borderRadius:12,fontSize:14,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
         </div>))}
         <button style={{...BY,width:"100%",opacity:answers.every(a=>a.trim())?1:0.4}} disabled={!answers.every(a=>a.trim())} onClick={()=>setStep(4)}>REVIEW & SUBMIT</button>
       </div>)}
@@ -1677,14 +1682,15 @@ function WasteAudit({ch,done,onS,onB,user}){
 const TEACH_SKILLS=["Portion Control","Handwashing Procedure","Drive-thru Speed","Upselling Technique","Station Setup","Closing Checklist","Guest Greeting","Food Safety Temps"];
 function TeachIt({ch,done,onS,onB,user}){
   const[step,setStep]=useState(0);// 0=intro, 1=select, 2=record, 3=reflect, 4=submit
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[step]);
   const[skill,setSkill]=useState(null);const[crewName,setCrewName]=useState("");const[gap,setGap]=useState("");
   const[videoRecorded,setVideoRecorded]=useState(false);const[duration,setDuration]=useState(0);
   const[reflect,setReflect]=useState(["",""]);
-  const videoRef=useRef(null);const mediaRef=useRef(null);const streamRef=useRef(null);const chunksRef=useRef([]);const timerRef=useRef(null);const[recording,setRecording]=useState(false);const[recTime,setRecTime]=useState(0);
-  const startRec=async()=>{try{const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment",width:{ideal:480}},audio:true});streamRef.current=stream;if(videoRef.current){videoRef.current.srcObject=stream;videoRef.current.play();}
+  const videoRef=useRef(null);const mediaRef=useRef(null);const streamRef=useRef(null);const chunksRef=useRef([]);const timerRef=useRef(null);const[recording,setRecording]=useState(false);const[recTime,setRecTime]=useState(0);const[camError,setCamError]=useState(null);
+  const startRec=async()=>{try{setCamError(null);const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:true});streamRef.current=stream;if(videoRef.current){videoRef.current.srcObject=stream;videoRef.current.play();}
     chunksRef.current=[];const mr=new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported("video/webm;codecs=vp9")?"video/webm;codecs=vp9":"video/webm"});mr.ondataavailable=e=>{if(e.data.size>0)chunksRef.current.push(e.data);};
     mr.onstop=()=>{setDuration(recTime);setVideoRecorded(true);setRecording(false);};mediaRef.current=mr;mr.start(100);setRecording(true);setRecTime(0);
-    timerRef.current=setInterval(()=>setRecTime(t=>t+1),1000);}catch(err){console.error("Camera:",err);}};
+    timerRef.current=setInterval(()=>setRecTime(t=>t+1),1000);}catch(err){console.error("Camera:",err);setCamError(err.name==="NotAllowedError"?"Camera permission denied. Please allow camera access in your browser settings.":err.name==="NotFoundError"?"No camera found on this device.":"Could not access camera. Try refreshing the page or using a different browser.");}};
   const stopRec=()=>{clearInterval(timerRef.current);if(mediaRef.current&&mediaRef.current.state!=="inactive")mediaRef.current.stop();if(streamRef.current)streamRef.current.getTracks().forEach(t=>t.stop());streamRef.current=null;};
   useEffect(()=>()=>{clearInterval(timerRef.current);if(streamRef.current)streamRef.current.getTracks().forEach(t=>t.stop());},[]);
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
@@ -1717,7 +1723,8 @@ function TeachIt({ch,done,onS,onB,user}){
           <div style={{fontSize:13,color:"#888",marginTop:4}}>with {crewName}</div>
         </div>
         {!videoRecorded&&!recording&&(<div style={{textAlign:"center"}}>
-          <div style={{fontSize:14,color:"#555",fontFamily:FB,lineHeight:1.6,marginBottom:20}}>Record 20-30 seconds of real training. Both people visible. Back camera recommended. Explain, show, then let them practise.</div>
+          <div style={{fontSize:14,color:"#555",fontFamily:FB,lineHeight:1.6,marginBottom:20}}>Record 20-30 seconds of real training. Both people visible. Front camera will open. Explain, show, then let them practise.</div>
+          {camError&&<div style={{background:"#fef0f0",border:"1px solid #E3000B",borderRadius:12,padding:14,marginBottom:16,fontSize:13,color:"#E3000B",fontFamily:FB,textAlign:"left"}}>{camError}</div>}
           <button style={{...BY,width:"100%"}} onClick={startRec}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{verticalAlign:"middle",marginRight:8}}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>START RECORDING
           </button>
@@ -1771,6 +1778,7 @@ function ShiftLeaderLens({ch,done,onS,onB,user,actCfg}){
   const clips=actCfg?.shift_leader_lens?.clips||SLL_CLIPS;
   const[phase,setPhase]=useState("intro");// intro, play, results
   const[clipIdx,setClipIdx]=useState(0);
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[phase]);
   const[answers,setAnswers]=useState([]);
   const[selected,setSelected]=useState(null);
   const[why,setWhy]=useState("");
@@ -1882,6 +1890,7 @@ function ShiftCall({ch,done,onS,onB,user,actCfg}){
   const timeLimit=actCfg?.shift_call?.timeLimit||10;
   const[idx,setIdx]=useState(0);const[timer,setTimer]=useState(timeLimit);const[results,setResults]=useState([]);const[reveal,setReveal]=useState(null);const[phase,setPhase]=useState("intro");
   const timerRef=useRef(null);
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[phase]);
   useEffect(()=>{if(phase==="play"&&timer>0){timerRef.current=setInterval(()=>setTimer(t=>{if(t<=1){clearInterval(timerRef.current);handleChoice("timeout");return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}return()=>clearInterval(timerRef.current);},[phase,idx]);
   const handleChoice=(choice)=>{clearInterval(timerRef.current);const s=scenarios[idx];const speed=timeLimit-timer;const correct=choice===s.correct;const pts=correct?(speed<5?3:speed<10?2:1):0;
     const r={scenarioId:s.id,choice,correct,speed,points:pts,costDaily:s.costDaily,costAnnual:s.costAnnual};setResults(p=>[...p,r]);
@@ -1920,9 +1929,9 @@ function ShiftCall({ch,done,onS,onB,user,actCfg}){
       </div>
     </div>)}
     {phase==="results"&&(<div style={{padding:"24px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:24}}>
-        <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{correctCount}/{scenarios.length}</div>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888"}}>CORRECT DECISIONS</div>
+      <div style={{background:"#000",borderRadius:14,padding:20,textAlign:"center",marginBottom:24}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300"}}>{correctCount}/{scenarios.length}</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:1}}>CORRECT DECISIONS</div>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
         <div style={{background:"#fff",borderRadius:12,padding:14,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24}}>{totalPts}</div><div style={{fontSize:11,color:"#888",fontFamily:FC}}>POINTS (/{maxPts})</div></div>
@@ -1954,7 +1963,8 @@ const BENCH_LEVELS=[
 ];
 function BenchBuilder({ch,done,onS,onB,user,actCfg}){
   const levels=actCfg?.bench_builder?.levels||BENCH_LEVELS;
-  const[levelIdx,setLevelIdx]=useState(0);const[placements,setPlacements]=useState([]);const[levelResults,setLevelResults]=useState([]);const[phase,setPhase]=useState("intro");const[selected,setSelected]=useState(null);const[showHint,setShowHint]=useState(false);
+  const[levelIdx,setLevelIdx]=useState(0);const[placements,setPlacements]=useState([]);const[levelResults,setLevelResults]=useState([]);const[phase,setPhase]=useState("intro");
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[phase]);const[selected,setSelected]=useState(null);const[showHint,setShowHint]=useState(false);
   const level=levels[levelIdx];
   const calcAHR=(pl)=>{let tc=0,th=0;pl.forEach(p=>{const r=CREW_RATES[p.type];if(r){tc+=r.rate*p.hours;th+=p.hours;}});return th>0?tc/th:0;};
   const usedHours=placements.reduce((s,p)=>s+p.hours,0);const ahr=calcAHR(placements);const usedByType=(t)=>placements.filter(p=>p.type===t).length;
@@ -2084,7 +2094,8 @@ const MTC_OT_THRESHOLD=38;const MTC_OT_MULT=1.5;const MTC_START_AHR=39.20;const 
 function MakeTheCall({ch,done,onS,onB,user,actCfg}){
   const crew=actCfg?.make_the_call?.crew||MTC_CREW;
   const decs=actCfg?.make_the_call?.decisions||MTC_DECISIONS;
-  const[screen,setScreen]=useState("brief");const[decIdx,setDecIdx]=useState(0);const[decisions,setDecisions]=useState([]);const[selected,setSelected]=useState(null);const[flashData,setFlashData]=useState(null);
+  const[screen,setScreen]=useState("brief");const[decIdx,setDecIdx]=useState(0);
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[screen]);const[decisions,setDecisions]=useState([]);const[selected,setSelected]=useState(null);const[flashData,setFlashData]=useState(null);
   const[liveHours,setLiveHours]=useState(Object.fromEntries(crew.map(c=>[c.id,c.baseHours])));
   const[dispAHR,setDispAHR]=useState(MTC_START_AHR);const[dispSPLH,setDispSPLH]=useState(MTC_START_SPLH);
   const[labourCost,setLabourCost]=useState(MTC_START_AHR*MTC_EXISTING_HRS);const[totalHrs,setTotalHrs]=useState(MTC_EXISTING_HRS);
@@ -2270,6 +2281,7 @@ function SwapTheShift({ch,done,onS,onB,user,actCfg}){
   const swaps=actCfg?.swap_the_shift?.swaps||SWAP_OPTIONS;
   const totalHours=SWAP_TOTAL_HOURS;const startingAHR=SWAP_STARTING_AHR;const target=SWAP_TARGET;
   const[screen,setScreen]=useState("brief");
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[screen]);
   const[swapsLeft,setSwapsLeft]=useState(5);const[decisions,setDecisions]=useState([]);const[selectedCrew,setSelectedCrew]=useState(null);
   const[rosterState,setRosterState]=useState(roster.map(c=>({...c,currentRate:c.rate,currentClass:c.classification,decided:false,action:null})));
   const[displayAHR,setDisplayAHR]=useState(startingAHR);const[tooltip,setTooltip]=useState(null);
@@ -2449,6 +2461,7 @@ const PERM_PROFILES=[
 function PermOrPass({ch,done,onS,onB,user,actCfg}){
   const profiles=actCfg?.perm_or_pass?.profiles||PERM_PROFILES;
   const[profIdx,setProfIdx]=useState(0);const[selected,setSelected]=useState(null);const[locked,setLocked]=useState(false);const[results,setResults]=useState([]);const[phase,setPhase]=useState("intro");
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[phase]);
   const prof=profiles[profIdx];const correctCount=results.filter(r=>r.correct).length;
   const lockIn=()=>{if(selected===null)return;setLocked(true);const opt=prof.options.find(o=>o.id===selected);const r={profileId:prof.id,chosenOption:selected,correct:!!opt?.lands};setResults(p=>[...p,r]);};
   const nextProfile=()=>{setSelected(null);setLocked(false);if(profIdx<profiles.length-1){setProfIdx(p=>p+1);}else setPhase("results");};
@@ -2496,9 +2509,9 @@ function PermOrPass({ch,done,onS,onB,user,actCfg}){
       </div>);})()}
     </div>)}
     {phase==="results"&&(<div style={{padding:"24px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:24}}>
-        <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{correctCount}/{profiles.length}</div>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888"}}>CONVERSATIONS LANDED</div>
+      <div style={{background:"#000",borderRadius:14,padding:20,textAlign:"center",marginBottom:24}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300"}}>{correctCount}/{profiles.length}</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:1}}>CONVERSATIONS LANDED</div>
       </div>
       {results.map((r,i)=>{const p=profiles.find(x=>x.id===r.profileId);return(<div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div><div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{p?.name}</div><div style={{fontSize:12,color:"#888"}}>"{p?.objection?.substring(0,40)}..."</div></div>
@@ -2517,6 +2530,7 @@ function PermOrPass({ch,done,onS,onB,user,actCfg}){
 // ─── YOUR RESTAURANT, YOUR NUMBER (NGL Week 4) ─────────────────────────────
 function YourRestaurant({ch,done,onS,onB,user,comps,users,actCfg}){
   const[phase,setPhase]=useState("intro");const[step,setStep]=useState(1);
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[phase]);
   const[ahrVal,setAhrVal]=useState(37.10);const[juniorPct,setJuniorPct]=useState(10);const[permPct,setPermPct]=useState(30);const[showLever,setShowLever]=useState(false);const[showShare,setShowShare]=useState(false);
   const calcProjection=()=>{const levers=[];
     if(permPct<40){const hrs=546*((40-permPct)/100);const ws=hrs*6.63;levers.push({name:"Increase permanent mix to 40%",weeklySaving:Math.round(ws),annualSaving:Math.round(ws*52),newAHR:ahrVal-(hrs*6.63)/546});}
@@ -2639,7 +2653,8 @@ const GDT_MOMENTS=[
 ];
 function GuestDollarTrail({ch,done,onS,onB,user,actCfg}){
   const moments=actCfg?.guest_dollar_trail?.moments||GDT_MOMENTS;
-  const[step,setStep]=useState(0);const[counter,setCounter]=useState(0);const[choices,setChoices]=useState([]);const[weakest,setWeakest]=useState(null);const[showReveal,setShowReveal]=useState(false);
+  const[step,setStep]=useState(0);const[counter,setCounter]=useState(0);
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[step]);const[choices,setChoices]=useState([]);const[weakest,setWeakest]=useState(null);const[showReveal,setShowReveal]=useState(false);
   const[dispCounter,setDispCounter]=useState(0);
   const animCounter=(from,to)=>{const steps=20;const sv=(to-from)/steps;let cur=from;let s=0;const iv=setInterval(()=>{s++;cur+=sv;setDispCounter(cur);if(s>=steps){clearInterval(iv);setDispCounter(to);}},50);};
   const choose=(opt,key)=>{const m=moments[step-1];const change=opt.counterChange;const newC=counter+change;setCounter(newC);animCounter(dispCounter,newC);
@@ -2721,7 +2736,8 @@ const TRIAGE_CALLS=[
 ];
 function TriageCall({ch,done,onS,onB,user,actCfg}){
   const calls=actCfg?.triage_call?.calls||TRIAGE_CALLS;const timeLimit=actCfg?.triage_call?.timeLimit||10;
-  const[idx,setIdx]=useState(-1);const[timer,setTimer]=useState(timeLimit);const[results,setResults]=useState([]);const[flash2,setFlash2]=useState(null);
+  const[idx,setIdx]=useState(-1);const[timer,setTimer]=useState(timeLimit);
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[idx]);const[results,setResults]=useState([]);const[flash2,setFlash2]=useState(null);
   const timerRef=useRef(null);
   useEffect(()=>{if(idx>=0&&idx<calls.length&&timer>0){timerRef.current=setInterval(()=>setTimer(t=>{if(t<=1){clearInterval(timerRef.current);handleChoice("hold");return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}return()=>clearInterval(timerRef.current);},[idx]);
   const handleChoice=(choice)=>{clearInterval(timerRef.current);const c=calls[idx];const speed=timeLimit-timer;const correct=choice===c.correct;const pts=correct?(speed<5?3:speed<10?2:1):0;
@@ -2760,9 +2776,9 @@ function TriageCall({ch,done,onS,onB,user,actCfg}){
     </div>)}
     {/* Results */}
     {idx===99&&(<div style={{padding:"24px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:20}}>
-        <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{correctCount}/{calls.length}</div>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888"}}>CORRECT CALLS</div>
+      <div style={{background:"#000",borderRadius:14,padding:20,textAlign:"center",marginBottom:20}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300"}}>{correctCount}/{calls.length}</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:1}}>CORRECT CALLS</div>
       </div>
       {results.map((r,i)=>{const c=calls.find(x=>x.id===r.callId);return(<div key={i} style={{borderLeft:`3px solid ${r.correct?"#007A33":"#E3000B"}`,background:"#fff",borderRadius:"0 12px 12px 0",padding:12,marginBottom:4}}>
         <div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontFamily:FC,fontWeight:700,fontSize:13}}>{c?.arm} - {c?.restaurant}</span><span style={{fontFamily:FC,fontWeight:800,fontSize:12,color:r.correct?"#007A33":"#E3000B"}}>{r.choice.toUpperCase()}</span></div>
@@ -2783,7 +2799,8 @@ const RMB_FOCUS=[{id:"sales",text:"Sales target for today",correct:false},{id:"l
 const RMB_DATA=[{id:"ahr",text:"Our AHR this week is $38.40. Network target is $37.10.",correct:true},{id:"casuals",text:"We have four casuals eligible for permanent today.",correct:true},{id:"splh",text:"SPLH target today is $120.",correct:false},{id:"labour_pct",text:"We are 2% over on labour this week.",correct:false}];
 const RMB_CTA=[{id:"section",text:"Everyone check your section at 12:30.",correct:false},{id:"arm_catch",text:"ARMs, I want to catch you after the rush for 5 minutes each.",correct:true},{id:"send_home",text:"If it goes quiet after 1pm, talk to me before you send anyone home.",correct:true},{id:"lean",text:"Remind your team we are running lean today.",correct:false}];
 function RMBrief({ch,done,onS,onB,user,actCfg}){
-  const[step,setStep]=useState(0);const[focus,setFocus]=useState(null);const[data,setData]=useState(null);const[cta,setCta]=useState(null);const[showModel,setShowModel]=useState(false);
+  const[step,setStep]=useState(0);const[focus,setFocus]=useState(null);
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[step]);const[data,setData]=useState(null);const[cta,setCta]=useState(null);const[showModel,setShowModel]=useState(false);
   const focusOpts=actCfg?.rm_brief?.focus||RMB_FOCUS;const dataOpts=actCfg?.rm_brief?.data||RMB_DATA;const ctaOpts=actCfg?.rm_brief?.cta||RMB_CTA;
   const focusCorrect=focusOpts.find(f=>f.id===focus)?.correct;const dataCorrect=dataOpts.find(d=>d.id===data)?.correct;const ctaCorrect=ctaOpts.find(c=>c.id===cta)?.correct;const allCorrect=focusCorrect&&dataCorrect&&ctaCorrect;
   const rating=allCorrect?{label:"STRONG",text:"Tight. One problem, one number, one action. Your team leaves knowing exactly what matters today."}:focusCorrect&&(!dataCorrect||!ctaCorrect)?{label:"TOO BROAD",text:"Right problem but the message got loose. One irrelevant data point dilutes the brief."}:focusCorrect&&dataCorrect&&!ctaCorrect?{label:"MISSING THE CTA",text:"Good setup, no follow-through. Context without direction is just information."}:{label:"OFF-MESSAGE",text:"You built a tight brief - but not for the problems you have today."};
@@ -2860,7 +2877,8 @@ const NDL_ROUNDS=[
 ];
 function NumbersDontLie({ch,done,onS,onB,user,actCfg}){
   const rounds=actCfg?.numbers_dont_lie?.rounds||NDL_ROUNDS;
-  const[roundIdx,setRoundIdx]=useState(-1);const[tapIdx,setTapIdx]=useState(0);const[roundResults,setRoundResults]=useState([]);const[currentTaps,setCurrentTaps]=useState([]);const[showExplain,setShowExplain]=useState(false);
+  const[roundIdx,setRoundIdx]=useState(-1);const[tapIdx,setTapIdx]=useState(0);
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[roundIdx]);const[roundResults,setRoundResults]=useState([]);const[currentTaps,setCurrentTaps]=useState([]);const[showExplain,setShowExplain]=useState(false);
   const round=rounds[roundIdx]||null;const tap=round?.taps[tapIdx]||null;
   const totalScore=roundResults.reduce((s,r)=>s+r.points,0);const maxScore=30;const allPerfect=totalScore>=24;
   const profile=totalScore>=24?{name:"THE COMMERCIAL LEADER",text:"You read all three snapshots correctly - symptom from cause, cause from lever, and the risk inside the good number."}:roundResults[2]?.allCorrect?{name:"THE FORECASTER",text:"You caught the risk hiding inside a good week. That separates managing the present from managing the future."}:{name:"THE REACTOR",text:"You spot the number that's off. But you go after the symptom before you find the cause. Spend more time on the why."};
@@ -2909,9 +2927,9 @@ function NumbersDontLie({ch,done,onS,onB,user,actCfg}){
     </div>)}
     {/* Final results */}
     {roundIdx===99&&(<div style={{padding:"24px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:20}}>
-        <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{totalScore}/{maxScore}</div>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888"}}>TOTAL SCORE</div>
+      <div style={{background:"#000",borderRadius:14,padding:20,textAlign:"center",marginBottom:20}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300"}}>{totalScore}/{maxScore}</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:1}}>TOTAL SCORE</div>
       </div>
       {roundResults.map((r,i)=>(<div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div><div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{r.restaurant}</div><div style={{fontSize:12,color:"#888"}}>{r.taps.filter(t=>t.correct).length}/3 correct</div></div>
