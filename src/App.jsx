@@ -1180,7 +1180,7 @@ function ThirtySecondSell({ch,done,onS,onB,user,actCfg}){
       chunksRef.current=[];
       const mr=new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported("video/webm;codecs=vp9")?"video/webm;codecs=vp9":"video/webm"});
       mr.ondataavailable=e=>{if(e.data.size>0)chunksRef.current.push(e.data);};
-      mr.onstop=()=>handleUpload();
+      mr.onstop=()=>{setUploading(true);setTimeout(()=>handleUpload(),500);};
       mr.start(100);
       mediaRef.current=mr;
     }catch(err){console.error("Camera error:",err);setPhase("ready");}
@@ -1192,27 +1192,14 @@ function ThirtySecondSell({ch,done,onS,onB,user,actCfg}){
     streamRef.current=null;
   };
 
-  const handleUpload=async()=>{
-    setUploading(true);
+  const handleUpload=()=>{
     const blob=new Blob(chunksRef.current,{type:"video/webm"});
-    // Convert to base64 for storage (Firestore)
-    const reader=new FileReader();
-    reader.onloadend=()=>{
-      const b64=reader.result;
-      const newItems=[...items,{itemId:sellItems[currentItem].id,itemName:sellItems[currentItem].name,duration:recDuration-timer,video:b64,size:blob.size}];
-      setItems(newItems);
-      setUploading(false);
-      if(currentItem<sellItems.length-1){setCurrentItem(c=>c+1);setPhase("ready");setTimer(recDuration);}
-      else{
-        // Store videos in IndexedDB (too large for Firestore)
-        const dbReq=indexedDB.open("gyg_videos",1);
-        dbReq.onupgradeneeded=e=>e.target.result.createObjectStore("videos");
-        dbReq.onsuccess=e=>{const db=e.target.result;const tx=db.transaction("videos","readwrite");const store=tx.objectStore("videos");
-          newItems.forEach((x,i)=>{if(x.video)store.put(x.video,`${user.id}_sell_${i+1}`);});};
-        onS({text:"The 30-Second Sell completed",items:newItems.map(x=>({itemId:x.itemId,duration:x.duration,size:x.size,hasVideo:true})),videoCount:newItems.length,claimedBonus:false,autoBonus:false,points:ch.points});
-      }
-    };
-    reader.readAsDataURL(blob);
+    const newItem={itemId:sellItems[currentItem].id,itemName:sellItems[currentItem].name,duration:recDuration-timer,size:blob.size,recorded:true,recordedAt:new Date().toISOString()};
+    const newItems=[...items,newItem];
+    setItems(newItems);
+    setUploading(false);
+    if(currentItem<sellItems.length-1){setCurrentItem(c=>c+1);setPhase("ready");setTimer(recDuration);}
+    else{onS({text:"The 30-Second Sell completed",items:newItems,videoCount:newItems.length,claimedBonus:false,autoBonus:false,points:ch.points});}
   };
 
   const beginRecording=()=>{setCountdown(3);setTimer(recDuration);setPhase("countdown");};
@@ -3384,10 +3371,11 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
         </div>
         {c.submission?.text&&<div style={{fontSize:14,color:"#555",borderLeft:"3px solid #e8e8e3",paddingLeft:12,marginBottom:8,lineHeight:1.6,fontFamily:FB}}>{c.submission.text}</div>}
         {c.submission?.videoCount>0&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:8}}>
-          {(c.submission.items||[]).map((it,ii)=>(<div key={ii} style={{background:"#f5f5f0",borderRadius:8,padding:"8px 12px",border:"1px solid #e8e8e3",display:"flex",alignItems:"center",gap:6}}>
+          {(c.submission.items||[]).map((it,ii)=>(<div key={ii} style={{background:"#f0f8f0",borderRadius:8,padding:"8px 12px",border:"1px solid #d4e8d4",display:"flex",alignItems:"center",gap:6}}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-            <div><div style={{fontFamily:FC,fontWeight:700,fontSize:11}}>{SELL_ITEMS.find(s=>s.id===it.itemId)?.name||`Item ${ii+1}`}</div><div style={{fontSize:10,color:"#888"}}>{it.duration}s{it.size?` - ${(it.size/1024).toFixed(0)}KB`:""}</div></div>
+            <div><div style={{fontFamily:FC,fontWeight:700,fontSize:11}}>{it.itemName||`Item ${ii+1}`}</div><div style={{fontSize:10,color:"#007A33"}}>{it.duration}s recorded</div></div>
           </div>))}
+          <div style={{fontSize:10,color:"#888",fontFamily:FC,alignSelf:"center"}}>{c.submission.videoCount} videos recorded on device</div>
         </div>}
         {c.submission?.photos&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:8}}>{c.submission.photos.filter(Boolean).map((p,pi)=>(<img key={pi} src={p} alt="" style={{width:48,height:48,objectFit:"cover",borderRadius:8,border:"1px solid #e8e8e3"}}/>))}{c.submission.pendingApproval&&<span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#FFB800",alignSelf:"center",marginLeft:4}}>PENDING REVIEW</span>}{c.submission.bonusApproved===true&&<span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#007A33",alignSelf:"center",marginLeft:4}}>BONUS APPROVED</span>}{c.submission.bonusApproved===false&&<span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#E3000B",alignSelf:"center",marginLeft:4}}>REJECTED</span>}</div>}
         {c.submission?.files&&c.submission.files.length>0&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:8}}>{c.submission.files.map((f,fi)=>(f.type?.startsWith("image/")?<img key={fi} src={f.data} alt="" style={{width:56,height:56,objectFit:"cover",borderRadius:8,border:"1px solid #e8e8e3",cursor:"pointer"}} onClick={()=>{const a=document.createElement("a");a.href=f.data;a.download=f.name||"image";a.target="_blank";document.body.appendChild(a);a.click();document.body.removeChild(a);}}/>:<div key={fi} style={{padding:"6px 10px",background:"#f5f5f0",borderRadius:8,fontSize:12,fontFamily:FC,color:"#666",border:"1px solid #e8e8e3"}}>FILE: {f.name}</div>))}</div>}
