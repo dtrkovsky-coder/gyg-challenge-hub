@@ -88,6 +88,44 @@ const DEFAULT_CHALLENGES = {
     { id: "lse-w3", week: 3, type: "waste_audit", title: "WASTE NOTHING", subtitle: "Your shift, your numbers", points: 70, bonusPoints: 30, bonusCondition: "Question 3 names a specific action at a specific time", description: "Log your wastage items, snap photos of the wastage sheet and POS, then answer three targeted questions about what you found.", deliverable: "Wastage log + photos + 3 answers", tip: "A strong answer to the fix question names a specific action at a specific time. 'Prep less chicken' won't cut it.", icon: "fries" },
     { id: "lse-w4", week: 4, type: "teach_it", title: "TEACH IT TO OWN IT", subtitle: "Train one crew member", points: 70, bonusPoints: 30, bonusCondition: "Names a specific behaviour gap + describes explain-show-practise sequence", description: "Pick a skill, find a crew member, train them properly, and record 20-30 seconds of real training.", deliverable: "Skill selection + video + structured reflection", tip: "You can sit in a room and nod. You cannot stand in front of someone and teach something you don't understand.", icon: "socks" },
   ],
+  // Q2 challenges
+  essentials_Q2: [
+    { id: "le-q2-w1", week: 1, title: "THE TRAINING PLAN", subtitle: "Design a 15-minute session", points: 100, bonusPoints: 50, bonusCondition: "Plan follows explain-show-practise", description: "Pick one skill your crew struggles with. Design a 15-minute training session using explain, show, practise. Upload your plan and deliver it this week.", deliverable: "Training plan + delivery reflection", tip: "If you can't explain it in 3 sentences, you don't understand it well enough to teach it.", icon: "sticky_tape" },
+    { id: "le-q2-w2", week: 2, title: "WATCH AND COACH", subtitle: "Observe, don't correct", points: 100, bonusPoints: 50, bonusCondition: "Identified 3+ specific behaviours", description: "Spend 15 minutes observing one crew member without interrupting. Write down exactly what they do well and what needs work. Then have the coaching conversation.", deliverable: "Observation notes + coaching summary", tip: "Most managers correct. Few observe first. The observation is where the insight lives.", icon: "fries" },
+    { id: "le-q2-w3", week: 3, title: "PEER TEACH-BACK", subtitle: "Can they teach it?", points: 100, bonusPoints: 50, bonusCondition: "Crew member delivered teach-back", description: "Train a crew member on a skill, then ask them to teach it back to another crew member while you watch. Film 30 seconds of the teach-back.", deliverable: "Video of teach-back + reflection", tip: "If they can teach it, they own it. If they can't, you haven't finished training.", icon: "socks" },
+    { id: "le-q2-w4", week: 4, title: "THE TRAINING RHYTHM", subtitle: "Build it into the week", points: 100, bonusPoints: 50, bonusCondition: "Ran 3+ training moments in one week", description: "Schedule 3 micro-training moments across one week. Each one is 5 minutes max. Document what you trained, when, and what changed.", deliverable: "3 training logs with before/after", tip: "Training isn't an event. It's a rhythm. Five minutes, three times a week, every week.", icon: "churros" },
+  ],
+  nextgen_Q2: [
+    { id: "ng-q2-w1", week: 1, title: "THE SKILL MATRIX", subtitle: "Map your team", points: 100, bonusPoints: 50, bonusCondition: "Full matrix completed for 10+ crew", description: "Create a skill matrix for your team. List every crew member and rate their competence on 5 key stations. Identify the 3 biggest gaps.", deliverable: "Skill matrix + gap analysis", tip: "You can't train what you can't see. The matrix makes it visible.", icon: "sticky_tape" },
+    { id: "ng-q2-w2", week: 2, title: "TRAINING DESIGN", subtitle: "Build a session from scratch", points: 100, bonusPoints: 50, bonusCondition: "Session plan follows GYG training framework", description: "Design a 20-minute training session for the biggest gap you found in Week 1. Use the GYG explain-show-practise-assess framework.", deliverable: "Full session plan with materials", tip: "Great training is 20% telling and 80% doing. Plan for doing.", icon: "fries" },
+    { id: "ng-q2-w3", week: 3, title: "DELIVER AND ADJUST", subtitle: "Run it for real", points: 100, bonusPoints: 50, bonusCondition: "Delivered session + captured feedback", description: "Deliver your training session. Film a 30-second clip. Get feedback from the trainees. What worked? What didn't? Adjust the plan.", deliverable: "Video clip + trainee feedback + revised plan", tip: "No plan survives first contact. The revision is where the learning happens.", icon: "socks" },
+    { id: "ng-q2-w4", week: 4, title: "TRAIN THE TRAINER", subtitle: "Hand it over", points: 100, bonusPoints: 50, bonusCondition: "Another leader delivered the session", description: "Teach another shift leader to deliver your training session. Watch them do it. Give them feedback. The goal: they can run it without you.", deliverable: "Handover plan + observation notes", tip: "If only you can deliver it, you've built a dependency, not a capability.", icon: "churros" },
+  ],
+  elite_Q2: [
+    { id: "el-q2-w1", week: 1, title: "TRAINING AUDIT", subtitle: "What's actually happening?", points: 100, bonusPoints: 50, bonusCondition: "Audit covers all stations", description: "Audit your restaurant's current training practices. How many hours per week? Who delivers it? What's the quality? What's missing?", deliverable: "Training audit report with recommendations", tip: "Most restaurants think they train more than they do. Measure it.", icon: "bag" },
+    { id: "el-q2-w2", week: 2, title: "THE TRAINING CALENDAR", subtitle: "Systematise it", points: 100, bonusPoints: 50, bonusCondition: "Calendar covers 4 weeks minimum", description: "Build a monthly training calendar. Map who trains what, when. Include micro-training, shift briefings, and formal sessions.", deliverable: "Monthly training calendar", tip: "If it's not on the calendar, it's not happening. Schedule it like you schedule shifts.", icon: "avocado" },
+    { id: "el-q2-w3", week: 3, title: "DEVELOP YOUR TRAINERS", subtitle: "Build the bench", points: 100, bonusPoints: 50, bonusCondition: "Development plan for 2+ trainers", description: "Identify your 2 best potential trainers. Create a development plan for each. Start executing this week.", deliverable: "Trainer development plans + first actions taken", tip: "Your restaurant's training quality is limited by your worst trainer. Invest in the best.", icon: "lime" },
+    { id: "el-q2-w4", week: 4, title: "TRAINING ROI", subtitle: "Prove it works", points: 100, bonusPoints: 50, bonusCondition: "Connected training to one measurable outcome", description: "Pick one metric that training should improve (speed, waste, complaints). Measure it before and after a focused training week. Show the impact.", deliverable: "Before/after data + analysis", tip: "If you can't measure the impact, you can't justify the investment. Make it count.", icon: "sundae" },
+  ],
+  // Q3 challenges
+  essentials_Q3: [
+    { id: "le-q3-w1", week: 1, title: "KNOW YOUR CREW", subtitle: "Beyond the roster", points: 100, bonusPoints: 50, bonusCondition: "Completed profiles for all crew", description: "For each crew member on your shift, write down: their name, how long they've been here, what motivates them, and one thing they want to get better at.", deliverable: "Crew profiles", tip: "If you don't know what drives them, you can't lead them.", icon: "sticky_tape" },
+    { id: "le-q3-w2", week: 2, title: "THE DIFFICULT CONVERSATION", subtitle: "Say it, don't store it", points: 100, bonusPoints: 50, bonusCondition: "Had the conversation this week", description: "Identify one performance conversation you've been avoiding. Write your opening line. Have the conversation this week. Reflect on how it went.", deliverable: "Opening line + conversation summary + reflection", tip: "The conversation you're avoiding is the one that matters most.", icon: "fries" },
+    { id: "le-q3-w3", week: 3, title: "SHIFT ENERGY CHECK", subtitle: "Read the room", points: 100, bonusPoints: 50, bonusCondition: "Completed 3 energy checks across different shifts", description: "At the start of 3 different shifts, rate the crew energy out of 10. What drove it up or down? What did you do about it?", deliverable: "3 energy ratings with actions taken", tip: "Energy is contagious. Yours sets the floor. Theirs tells you the ceiling.", icon: "socks" },
+    { id: "le-q3-w4", week: 4, title: "RECOGNITION RESET", subtitle: "Catch them doing it right", points: 100, bonusPoints: 50, bonusCondition: "5 recognition moments documented", description: "This week, catch 5 crew members doing something well. Tell them in the moment. Be specific about what they did and why it mattered. Log each one.", deliverable: "5 recognition logs with specifics", tip: "Generic praise is noise. Specific recognition is signal. Name the behaviour.", icon: "churros" },
+  ],
+  nextgen_Q3: [
+    { id: "ng-q3-w1", week: 1, title: "PERFORMANCE BASELINE", subtitle: "Where does your team stand?", points: 100, bonusPoints: 50, bonusCondition: "Baseline established for all direct reports", description: "For each crew member you manage, rate their performance on 3 dimensions: speed, quality, teamwork. Where are the gaps?", deliverable: "Performance baseline + gap priority list", tip: "You can't manage what you haven't measured. Start with honest baselines.", icon: "sticky_tape" },
+    { id: "ng-q3-w2", week: 2, title: "THE COACHING PLAYBOOK", subtitle: "Build your framework", points: 100, bonusPoints: 50, bonusCondition: "Playbook covers 3+ common scenarios", description: "Create your personal coaching playbook. For the 3 most common performance issues you face, write: what you'd say, when you'd say it, and how you'd follow up.", deliverable: "Coaching playbook with 3 scenarios", tip: "Consistency beats creativity in coaching. Have a playbook, not a personality.", icon: "fries" },
+    { id: "ng-q3-w3", week: 3, title: "REAL-TIME COACHING", subtitle: "In the moment", points: 100, bonusPoints: 50, bonusCondition: "3 coaching moments documented with outcomes", description: "This week, deliver 3 real-time coaching moments on the floor. Not after the shift. Not in a meeting room. On the floor, in the moment.", deliverable: "3 coaching logs with what changed", tip: "The best coaching happens in 90 seconds on the floor, not 30 minutes in the office.", icon: "socks" },
+    { id: "ng-q3-w4", week: 4, title: "THE TOUGH CONVERSATION", subtitle: "Manage up, manage down", points: 100, bonusPoints: 50, bonusCondition: "Had the conversation and documented the outcome", description: "Identify your hardest performance conversation. Plan it. Have it. Document the outcome and what you'd do differently.", deliverable: "Conversation plan + outcome + reflection", tip: "If you can have the tough conversation, you can lead anyone.", icon: "churros" },
+  ],
+  elite_Q3: [
+    { id: "el-q3-w1", week: 1, title: "INFLUENCE MAP", subtitle: "Who moves the needle?", points: 100, bonusPoints: 50, bonusCondition: "Map covers all key stakeholders", description: "Map every person who influences your restaurant's success. Your RM, your ARMs, your best crew, your suppliers, your regulars. Who do you need to influence and how?", deliverable: "Influence map with strategy per person", tip: "Power isn't position. It's the ability to change behaviour. Map who you need to move.", icon: "bag" },
+    { id: "el-q3-w2", week: 2, title: "THE PITCH", subtitle: "Sell an idea up", points: 100, bonusPoints: 50, bonusCondition: "Pitched and received feedback", description: "Pick one change you want to make in your restaurant. Build a 2-minute pitch for your RM. Include the problem, the solution, the cost, and the expected return. Deliver it.", deliverable: "Pitch outline + RM feedback", tip: "Great leaders don't ask for permission. They build cases. Make yours compelling.", icon: "avocado" },
+    { id: "el-q3-w3", week: 3, title: "CROSS-FUNCTIONAL WIN", subtitle: "Lead without authority", points: 100, bonusPoints: 50, bonusCondition: "Achieved outcome through influence", description: "Identify one thing that needs fixing that's outside your direct control. A supplier issue, a maintenance problem, a neighbouring restaurant relationship. Fix it through influence alone.", deliverable: "Problem + who you influenced + outcome", tip: "The hardest leadership is leading people who don't report to you. That's where influence lives.", icon: "lime" },
+    { id: "el-q3-w4", week: 4, title: "LEGACY MOMENT", subtitle: "What will they remember?", points: 100, bonusPoints: 50, bonusCondition: "Reflection shared with team", description: "Ask 3 team members: 'What's one thing I do that makes the biggest difference to your shift?' Write down what they say. Then ask: is that the legacy you want?", deliverable: "3 responses + personal reflection", tip: "Leadership is not what you do. It's what they do after you leave the room.", icon: "sundae" },
+  ],
 };
 
 
@@ -287,6 +325,8 @@ export default function App(){
   const[comps,setComps]=useState([]);
   const[sel,setSel]=useState(null);
   useEffect(()=>{window.scrollTo(0,0);},[view,sel]);
+  // Get challenges for a program based on active quarter
+  const getCh=(prog)=>{const q=activityConfig.activeQuarter?.[prog]||"Q1";const all=challenges||DEFAULT_CHALLENGES;if(q==="Q1")return all[prog]||[];const qKey=`${prog}_${q}`;return all[qKey]||DEFAULT_CHALLENGES[qKey]||all[prog]||[];};
   const[loading,setLoading]=useState(true);
   const[toast,setToast]=useState(null);
   const flash=useCallback((m,ok=true)=>{setToast({m,ok});setTimeout(()=>setToast(null),3000);},[]);
@@ -302,6 +342,9 @@ export default function App(){
       if(ch2.essentials&&ch2.essentials[0]&&!ch2.essentials[0].type){ch2.essentials=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.essentials));try{await dbSetChallenges(ch2);}catch(e){}}
       // Force-update NGL challenges to new interactive types
       if(ch2.nextgen&&ch2.nextgen[0]&&(!ch2.nextgen[0].type||ch2.nextgen.some(c=>c.type==="bench_builder"||c.type==="swap_the_shift"))){ch2.nextgen=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.nextgen));try{await dbSetChallenges(ch2);}catch(e){}}
+      // Seed Q2/Q3/Q4 challenges if not present
+      let needsSave=false;["essentials","nextgen","elite"].forEach(prog=>{["Q2","Q3"].forEach(q=>{const key=`${prog}_${q}`;if(!ch2[key]&&DEFAULT_CHALLENGES[key]){ch2[key]=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES[key]));needsSave=true;}});});
+      if(needsSave){try{await dbSetChallenges(ch2);}catch(e){}}
       setChallenges(ch2);
     }else setChallenges(JSON.parse(JSON.stringify(DEFAULT_CHALLENGES)));const lc=await getLunchConfig();if(lc)setLunchConfigState(lc);let ac=await getActivityCompletions();if(ac.length)setActivityComps(ac);let bc=await getBatchControl();if(bc)setBatchControlState(bc);
     // Seed test users if not exist
@@ -350,7 +393,7 @@ export default function App(){
   const submit=async(cid,s)=>{
     if(!user){flash("Not logged in",false);return;}
     if(!isTestAll&&comps.find(c=>c.userId===user.id&&c.challengeId===cid)){flash("Already submitted!",false);return;}
-    const ch=((challenges||DEFAULT_CHALLENGES)[user.program]||[]).find(c=>c.id===cid);
+    const ch=(getCh(user.program)||[]).find(c=>c.id===cid);
     const nc={id:`c${Date.now()}`,userId:user.id,challengeId:cid,program:user.program,batch:user.batch,submission:s,claimedBonus:s.claimedBonus||false,points:s.points!==undefined?s.points:ch.points,bonusClaimed:!!s.claimedBonus,bonusApproved:!!s.autoBonus,bonusPoints:ch.bonusPoints,submittedAt:new Date().toISOString()};
     if(!isTestAll)await addCompletion(nc);setComps([...comps,nc]);flash(`+${nc.points} PTS!${nc.bonusClaimed?(nc.bonusApproved?" +"+nc.bonusPoints+" BONUS!":" Bonus pending review."):""}`,true);setView(prevView||"dashboard");setPrevView(null);
   };
@@ -367,7 +410,7 @@ export default function App(){
       {view==="splash"&&<SplashV onL={()=>setView("login")} onR={()=>setView("register")}/>}
       {view==="login"&&<LoginV onL={login} onB={()=>setView("splash")}/>}
       {view==="register"&&<RegV onR={reg} onB={()=>setView("splash")} lunchConfig={lunchConfig} existingUsers={users}/>}
-      {view==="dashboard"&&user&&user.id&&<DashV u={user} ch={(challenges||DEFAULT_CHALLENGES)[user.program]||[]} co={comps.filter(c=>c.userId===user.id)} wk={getUserWeek(user.createdAt)} sc={pts(user.id,user.program)} onCh={c=>{setSel(c);setView("challenge");}} onBd={()=>setView("leaderboard")} onPr={()=>setView("profile")} actComps={activityComps.filter(c=>c.userId===user.id)} acts={DEFAULT_ACTIVITIES[user.program]||[]} activeQuarter={activityConfig.activeQuarter?.[user.program]||"Q1"}/>}
+      {view==="dashboard"&&user&&user.id&&<DashV u={user} ch={getCh(user.program)||[]} co={comps.filter(c=>c.userId===user.id)} wk={getUserWeek(user.createdAt)} sc={pts(user.id,user.program)} onCh={c=>{setSel(c);setView("challenge");}} onBd={()=>setView("leaderboard")} onPr={()=>setView("profile")} actComps={activityComps.filter(c=>c.userId===user.id)} acts={DEFAULT_ACTIVITIES[user.program]||[]} activeQuarter={activityConfig.activeQuarter?.[user.program]||"Q1"}/>}
       {view==="challenge"&&sel&&user&&(
         sel.type==="hazard_hunt"?<HazardHunt ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig.hazard_hunt}/>:
         sel.type==="shift_in_chaos"?<ShiftInChaos ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users} actCfg={activityConfig.shift_in_chaos}/>:
@@ -412,7 +455,7 @@ export default function App(){
           </>)}
           {/* Challenges */}
           <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:0.5,color:"#999",marginBottom:10,marginTop:16}}>CHALLENGES</div>
-          {((challenges||DEFAULT_CHALLENGES)[user.program]||[]).map(ch=>(<button key={ch.id} onClick={()=>{setSel(ch);setPrevView("testbed");setView("challenge");}} style={{display:"flex",alignItems:"center",width:"100%",padding:16,background:"#fff",borderRadius:14,marginBottom:8,border:"none",cursor:"pointer",textAlign:"left",fontFamily:FB,boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
+          {(getCh(user.program)||[]).map(ch=>(<button key={ch.id} onClick={()=>{setSel(ch);setPrevView("testbed");setView("challenge");}} style={{display:"flex",alignItems:"center",width:"100%",padding:16,background:"#fff",borderRadius:14,marginBottom:8,border:"none",cursor:"pointer",textAlign:"left",fontFamily:FB,boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
             <div style={{width:36,height:36,borderRadius:10,background:"#1a1a1a",display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}><span style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#FFD300"}}>{ch.week}</span></div>
             <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:800,fontSize:15}}>{ch.title}</div><div style={{fontSize:13,color:"#888",marginTop:2}}>{ch.subtitle}</div></div>
             <div style={{textAlign:"right",flexShrink:0}}><span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"4px 10px",borderRadius:8,background:"#f5f5f0",color:"#999"}}>CHALLENGE</span><div style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#000",marginTop:4}}>{ch.points} PTS</div></div>
@@ -3524,7 +3567,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
     const a=document.createElement("a");a.href=url;a.download="GYG-Lunch-Orders-"+(fb!=="all"?fb:"all")+"-"+new Date().toISOString().slice(0,10)+".csv";
     document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
   };
-  const saveCh=(progId,idx,field,value)=>{const updated=JSON.parse(JSON.stringify(challenges));updated[progId][idx][field]=value;onUpdateCh(updated);};
+  const saveCh=(progId,idx,field,value)=>{const updated=JSON.parse(JSON.stringify(challenges));const q=acfg.activeQuarter?.[progId]||"Q1";const key=q==="Q1"?progId:`${progId}_${q}`;if(!updated[key])updated[key]=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES[key]||[]));updated[key][idx][field]=value;onUpdateCh(updated);};
   const compressImage=(file,maxW=2048,q=0.7)=>new Promise(resolve=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,maxW/img.width);c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL("image/jpeg",q));};img.src=URL.createObjectURL(file);});
 
   // Nav
@@ -3629,7 +3672,10 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
   /* ═══ CONTENT (unified activities + challenges) ═══ */
   const renderContent=()=>{
     const prog=PROGRAMS[contentProg];
-    const progChallenges=(challenges||DEFAULT_CHALLENGES)[contentProg]||[];
+    const activeQ=acfg.activeQuarter?.[contentProg]||"Q1";
+    const activeQW=QUARTERLY_WORKSHOPS[contentProg]?.[activeQ]||null;
+    const chKey=activeQ==="Q1"?contentProg:`${contentProg}_${activeQ}`;
+    const progChallenges=(challenges||DEFAULT_CHALLENGES)[chKey]||DEFAULT_CHALLENGES[chKey]||[];
     const progActivities=DEFAULT_ACTIVITIES[contentProg]||[];
     // All content items for this program
     const allItems=[
@@ -3638,8 +3684,6 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
     ];
     // Batch controls for this program
     const progBatches=batches.filter(b=>us.some(u=>u.batch===b&&u.program===contentProg));
-    const activeQ=acfg.activeQuarter?.[contentProg]||"Q1";
-    const activeQW=QUARTERLY_WORKSHOPS[contentProg]?.[activeQ]||null;
 
     return(<div>
       {/* Program selector */}
