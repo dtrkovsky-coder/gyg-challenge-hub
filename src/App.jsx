@@ -398,8 +398,12 @@ export default function App(){
     if(users.find(u=>u.email===d.email||u.username===d.username)){flash("Email or username taken",false);return;}
     const now=new Date().toISOString();
     const batch=generateBatch(d.program,now);
-    const nu={id:`u${Date.now()}`,...d,batch,createdAt:now};
-    await addUser(nu);setUsers([...users,nu]);setUser(nu);setSession({id:nu.id});setView(getInitialView(nu,batchControl,activityComps));flash("Welcome to Challenge Hub!");
+    const currentQ=activityConfig.activeQuarter?.[d.program]||"Q1";
+    const nu={id:`u${Date.now()}`,...d,batch,lastQuarter:currentQ,createdAt:now};
+    await addUser(nu);setUsers([...users,nu]);
+    // Tag batch with quarter if not already tagged
+    const bc=batchControl||{};if(!bc[batch]||!bc[batch].quarter){const updated={...bc,[batch]:{...(bc[batch]||{activeActivity:null,completedActivities:[],challengesUnlocked:false}),quarter:currentQ}};setBatchControlState(updated);try{await dbSetBatchControl(updated);}catch(e){}}
+    setUser(nu);setSession({id:nu.id});setView(getInitialView(nu,batchControl,activityComps));flash("Welcome to Challenge Hub!");
   };
   const login=async(un,pw)=>{
     if(un==="gyg-admin"&&pw==="devdays2026"){setUser({id:"admin",name:"Admin",isAdmin:true});setView("admin");return;}
@@ -3744,7 +3748,8 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
       ...progChallenges.map(c=>({...c,kind:"challenge",label:`Week ${c.week}`})),
     ];
     // Batch controls for this program
-    const progBatches=batches.filter(b=>us.some(u=>u.batch===b&&u.program===contentProg));
+    // Filter batches to active quarter - batches tagged with quarter in batchControl, or untagged = Q1
+    const progBatches=batches.filter(b=>{if(!us.some(u=>u.batch===b&&u.program===contentProg))return false;const bk=(batchControl||{})[b];const batchQ=bk?.quarter||"Q1";return batchQ===activeQ;});
 
     return(<div>
       {/* Program selector */}
@@ -4339,7 +4344,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
         <div style={secTitle}>Batch Controls</div>
         {progBatches.map(b=>{
           const batchUsers=us.filter(u=>u.batch===b);
-          const bk=(batchControl||{})[b]||{activeActivity:null,completedActivities:[],challengesUnlocked:false};
+          const bk=(batchControl||{})[b]||{activeActivity:null,completedActivities:[],challengesUnlocked:false,quarter:activeQ};
           const aqx=acfg.activeQuarter?.[contentProg]||"Q1";const akx=aqx==="Q1"?contentProg:`${contentProg}_${aqx}`;const acts=DEFAULT_ACTIVITIES[akx]||DEFAULT_ACTIVITIES[contentProg]||[];
           const toggleAct=(actId,newState)=>{const updated={...(batchControl||{})};const nbk={...bk};
             if(newState==="active"){nbk.activeActivity=actId;nbk.completedActivities=(nbk.completedActivities||[]).filter(id=>id!==actId);}
@@ -4349,7 +4354,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
           return(
           <div key={b} style={card}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-              <div><div style={{fontFamily:FC,fontWeight:800,fontSize:16,letterSpacing:0.3}}>{b}</div><div style={{fontSize:13,color:"#999",fontFamily:FB}}>{batchUsers.length} participants</div></div>
+              <div><div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontFamily:FC,fontWeight:800,fontSize:16,letterSpacing:0.3}}>{b}</span><span style={{fontSize:9,fontFamily:FC,fontWeight:700,padding:"3px 6px",borderRadius:4,background:"#FFD300",color:"#000"}}>{bk.quarter||"Q1"}</span></div><div style={{fontSize:13,color:"#999",fontFamily:FB}}>{batchUsers.length} participants</div></div>
             </div>
 
             <Toggle on={bk.skipActivities} onToggle={()=>{const updated={...(batchControl||{})};updated[b]={...bk,skipActivities:!bk.skipActivities};onUpdateBatchControl(updated);}} label="Skip Activities" sub="Send participants straight to challenges"/>
