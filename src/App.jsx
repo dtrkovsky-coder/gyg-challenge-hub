@@ -395,7 +395,11 @@ export default function App(){
     if(ac.length===0&&u.find(x=>x.id==="test-user-1")){const tac={id:"ac-test-1",userId:"test-user-1",activityId:"le-act-1",program:"essentials",batch:"GYG-LE-WK13-26",data:{type:"huddle_builder",focus:"sales",subFocus:"combos",script:["Team, combo sales dropped 12% last week - that is money we are leaving on the table.","When I watched our best performer yesterday, she asked every single guest one question.","Instead of waiting for the guest to order, try this -","Right after they pick their main, say: Want to make it a combo? You get chips and a drink for just $4 more.","The difference is timing - ask BEFORE they finish, not after.","Make it a combo - it is the easiest yes in the restaurant.","Let us smash it today. First person to land 10 combos, let me know - I want to hear about it."],assembledScript:"",crewLine:"Make it a combo - it is the easiest yes in the restaurant.",partnerName:"Sarah",partnerFeedback:{buyIn:"yes",repeatable:"yes",voiceMatch:"yes"},allYes:true},completedAt:new Date().toISOString()};ac=[tac];setActivityComps(ac);}
     if(!bc&&u.find(x=>x.id==="test-user-1")){bc={"GYG-LE-WK13-26":{activities:{"le-act-1":"completed"},completedActivities:["le-act-1"],challengesUnlocked:true}};setBatchControlState(bc);}
     // Load activity config
-    const acfg=await getActivityConfig();if(acfg)setActivityConfigState(acfg);
+    const acfg=await getActivityConfig();if(acfg){
+      // Clean up any blob URLs that don't persist across sessions
+      if(acfg.hazard_hunt?.image&&acfg.hazard_hunt.image.startsWith("blob:"))delete acfg.hazard_hunt.image;
+      setActivityConfigState(acfg);
+    }
     // Load coolroom images for all known batches
     const batches=[...new Set(u.map(x=>x.batch).filter(Boolean))];
     const crImgs={};
@@ -1368,7 +1372,7 @@ function projectToScreen(zoneYaw,zonePitch,camYaw,camPitch,w,h){
 function HazardHunt({ch,done,onS,onB,user,actCfg}){
   const cfgZones=actCfg?.zones||HAZARD_ZONES;
   const cfgFeedback=actCfg?.feedback||HAZARD_FEEDBACK;
-  const cfgImg=actCfg?.image||HAZARD_IMG;
+  const cfgImg=(actCfg?.image&&!actCfg.image.startsWith("blob:"))?actCfg.image:HAZARD_IMG;
   const cfgOpacity=actCfg?.hotspotOpacity!==undefined?actCfg.hotspotOpacity:1;
   const cfgTimer=actCfg?.timerDuration||90;
   const cfgPtsPerHz=actCfg?.ptsPerHazard||20;
@@ -5427,7 +5431,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                 <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
                   <span style={{fontSize:12,color:"#666",fontFamily:FB}}>{acfg.hazard_hunt?.image||"Default: /360-prep.jpg"}</span>
                   <label style={{...btnY,padding:"8px 14px",fontSize:12,display:"inline-flex",alignItems:"center",gap:4,cursor:"pointer"}}>
-                    UPLOAD 360<input type="file" accept="image/*" style={{display:"none"}} onChange={async e=>{const file=e.target.files[0];if(!file)return;const url=URL.createObjectURL(file);saveAcfg("hazard_hunt",{image:url});flash("360 image set - note: use public folder path for production",true);}}/></label>
+                    UPLOAD 360<input type="file" accept="image/*" style={{display:"none"}} onChange={async e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,2048/Math.max(img.width,img.height));c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);const b64=c.toDataURL("image/jpeg",0.6);if(b64.length>900000){flash("Image too large - try a smaller file",false);return;}saveAcfg("hazard_hunt",{image:b64});flash("360 image uploaded!",true);};img.src=ev.target.result;};reader.readAsDataURL(file);}}/></label>
                 </div>
               </div>
 
