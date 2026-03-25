@@ -2605,7 +2605,7 @@ function BenchBuilder({ch,done,onS,onB,user,actCfg}){
       <div style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#999",marginBottom:6}}>CREW POOL - TAP TO ADD</div>
       <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:16}}>
         {level.crewPool.map((pool,pi)=>{const used=usedByType(pool.type);const avail=pool.available-used;const rate=CREW_RATES[pool.type];return(
-          <button key={pi} onClick={()=>addCrew(pool.type)} disabled={avail<=0||usedHours+pool.hoursEach>level.totalHours} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",background:avail>0?"#fff":"#f5f5f0",border:"1px solid #e8e8e3",borderRadius:12,cursor:avail>0?"pointer":"default",opacity:avail>0?1:0.5}}>
+          <button key={pi} onClick={()=>addCrew(pool.type)} disabled={avail<=0||usedHours+pool.hoursEach>level.totalHours} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",background:avail>0?"#fff":"#f5f5f0",border:"1px solid #e8e8e3",borderRadius:12,cursor:avail>0?"pointer":"default",opacity:avail>0?1:0.5,color:"#333"}}>
             <div style={{textAlign:"left"}}><div style={{fontFamily:FC,fontWeight:700,fontSize:13}}>{rate?.label||pool.type}</div><div style={{fontSize:11,color:"#888"}}>{pool.hoursEach} hrs each</div></div>
             <div style={{textAlign:"right"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:16,color:"#E3000B"}}>${rate?.rate}</div><div style={{fontSize:11,color:"#888"}}>{avail} left</div></div>
           </button>
@@ -2745,7 +2745,7 @@ function MakeTheCall({ch,done,onS,onB,user,actCfg}){
       <div style={{paddingTop:12}}>
         {crew.map(c=>{const hrs=liveHours[c.id];const headroom=MTC_OT_THRESHOLD-hrs;const atLimit=headroom<=0;const nearOT=headroom>0&&headroom<=4;
           return(<div key={c.id} style={{display:"flex",alignItems:"center",padding:"12px 14px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,marginBottom:4}}>
-            <div style={{width:36,height:36,borderRadius:18,background:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:16,color:"#000",marginRight:12,flexShrink:0}}>{c.name[0]}</div>
+            <div style={{width:36,height:36,borderRadius:18,background:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:16,color:"#000",marginRight:12,flexShrink:0,lineHeight:1,padding:"2px 0 0"}}>{c.name[0]}</div>
             <div style={{flex:1,minWidth:0}}><div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{c.name}</div><div style={{fontSize:12,color:"#888",fontFamily:FB}}>{c.classification} - {hrs} hrs</div></div>
             <span style={{fontSize:10,fontFamily:FC,fontWeight:700,padding:"5px 8px 4px",borderRadius:6,lineHeight:1,background:atLimit?"rgba(227,0,11,0.1)":nearOT?"rgba(255,211,0,0.2)":"#f5f5f0",color:atLimit?"#E3000B":nearOT?"#B8860B":"#999"}}>{atLimit?"AT LIMIT":nearOT?`${headroom} HRS LEFT`:"AVAILABLE"}</span>
           </div>);})}
@@ -2774,8 +2774,8 @@ function MakeTheCall({ch,done,onS,onB,user,actCfg}){
         {/* Options */}
         <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:16}}>
           {[["a",dec.optionA],["b",dec.optionB]].map(([key,opt])=>{const c=opt.crewId?crew.find(x=>x.id===opt.crewId):null;const hrs=c?liveHours[c.id]:null;const dur=dec.duration||0;const otRisk=c&&hrs!=null&&dur>0&&(MTC_OT_THRESHOLD-hrs)<dur;
-            return(<button key={key} onClick={()=>setSelected(key)} style={{padding:16,background:"#fff",border:selected===key?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:14,textAlign:"left",cursor:"pointer",transition:"all 0.15s"}}>
-              <div style={{fontFamily:FC,fontWeight:900,fontSize:15,marginBottom:4}}>{opt.label||c?.name}</div>
+            return(<button key={key} onClick={()=>setSelected(key)} style={{padding:16,background:selected===key?"#FFF8E0":"#fff",border:selected===key?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:14,textAlign:"left",cursor:"pointer",color:"#333",transition:"all 0.15s"}}>
+              <div style={{fontFamily:FC,fontWeight:900,fontSize:15,marginBottom:4,color:"#1a1a1a"}}>{opt.label||c?.name}</div>
               {c&&<div style={{fontSize:12,fontFamily:FC,fontWeight:600,color:"#999",marginBottom:4}}>{c.classification} - {hrs} hrs this week</div>}
               <div style={{fontSize:13,fontFamily:FB,color:"#555",lineHeight:1.5}}>{opt.desc||opt.description}</div>
               {otRisk&&<div style={{marginTop:8,fontSize:10,fontFamily:FC,fontWeight:800,color:"#E3000B",background:"rgba(227,0,11,0.08)",padding:"5px 8px 4px",borderRadius:6,lineHeight:1,display:"inline-block"}}>OVERTIME RISK</div>}
@@ -2982,7 +2982,7 @@ function SwapTheShift({ch,done,onS,onB,user,actCfg}){
           </div>
           <div style={{fontSize:13,color:"#666",fontFamily:FB,textAlign:"center",marginBottom:20,lineHeight:1.5}}>{sw.context}</div>
           <button style={{...BY,width:"100%",marginBottom:8}} onClick={()=>handleSwap(selectedCrew)}>MAKE THE SWAP</button>
-          <button style={{width:"100%",padding:"14px",background:"#fff",border:"2px solid #1a1a1a",borderRadius:14,fontFamily:FC,fontWeight:800,fontSize:15,letterSpacing:1,cursor:"pointer"}} onClick={()=>handlePass(selectedCrew)}>LEAVE IT</button>
+          <button style={{width:"100%",padding:"14px",background:"#fff",border:"2px solid #1a1a1a",borderRadius:14,fontFamily:FC,fontWeight:800,fontSize:15,letterSpacing:1,cursor:"pointer",color:"#1a1a1a"}} onClick={()=>handlePass(selectedCrew)}>LEAVE IT</button>
         </div>
       </div>);})()}
 
@@ -3064,7 +3064,7 @@ function PermOrPass({ch,done,onS,onB,user,actCfg}){
       {/* Profile card */}
       <div style={{background:"#000",borderRadius:16,padding:20,marginBottom:16,color:"#fff"}}>
         <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:12}}>
-          <div style={{width:48,height:48,borderRadius:24,background:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:22,color:"#000"}}>{prof.name[0]}</div>
+          <div style={{width:48,height:48,borderRadius:24,background:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:22,color:"#000",lineHeight:1,padding:"2px 0 0"}}>{prof.name[0]}</div>
           <div><div style={{fontFamily:FC,fontWeight:900,fontSize:20}}>{prof.name.toUpperCase()}</div><div style={{fontSize:12,color:"#888",fontFamily:FB}}>{prof.months} months casual | {prof.avgHours} hrs/wk | ${prof.rate}/hr</div></div>
         </div>
         <span style={{padding:"4px 10px",background:"rgba(255,211,0,0.2)",color:"#FFD300",borderRadius:6,fontFamily:FC,fontWeight:700,fontSize:11}}>{prof.classification}</span>
@@ -3143,11 +3143,10 @@ function YourRestaurant({ch,done,onS,onB,user,comps,users,actCfg}){
         <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:4}}>YOUR CURRENT AHR</div>
         <div style={{fontSize:13,color:"#888",fontFamily:FB,marginBottom:16}}>Slide to your restaurant's current Average Hourly Rate</div>
         <div style={{textAlign:"center",marginBottom:16}}>
-          <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:ahrVal<=37.10?"#007A33":ahrVal<=38.00?"#FFB800":"#E3000B"}}>${ahrVal.toFixed(2)}</div>
-          <div style={{fontSize:12,color:"#888",fontFamily:FC}}>Network target: $37.10</div>
+          <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:"#000"}}>${ahrVal.toFixed(2)}</div>
         </div>
         <input type="range" min="3000" max="4500" value={Math.round(ahrVal*100)} onChange={e=>setAhrVal(parseInt(e.target.value)/100)} style={{width:"100%",accentColor:"#FFD300",height:8}}/>
-        <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}><span style={{fontSize:10,color:"#888"}}>$30.00</span><span style={{fontSize:10,color:"#007A33",fontWeight:700}}>$37.10</span><span style={{fontSize:10,color:"#888"}}>$45.00</span></div>
+        <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}><span style={{fontSize:10,color:"#888"}}>$30.00</span><span style={{fontSize:10,color:"#888"}}>$45.00</span></div>
         <button style={{...BY,width:"100%",marginTop:24}} onClick={()=>setStep(2)}>NEXT</button>
       </div>)}
       {step===2&&(<div>
@@ -3168,8 +3167,8 @@ function YourRestaurant({ch,done,onS,onB,user,comps,users,actCfg}){
         <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:4}}>CLASSIFICATION MIX</div>
         <div style={{fontSize:13,color:"#888",fontFamily:FB,marginBottom:16}}>What percentage of your team is permanent (PT/FT)?</div>
         <div style={{textAlign:"center",marginBottom:16}}>
-          <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:permPct>=40?"#007A33":permPct>=25?"#FFB800":"#E3000B"}}>{permPct}%</div>
-          <div style={{fontSize:12,color:"#888",fontFamily:FC}}>Target: 40% permanent</div>
+          <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:"#000"}}>{permPct}%</div>
+          <div style={{fontSize:12,color:"#888",fontFamily:FC}}>Permanent (PT/FT)</div>
         </div>
         <input type="range" min="0" max="80" value={permPct} onChange={e=>setPermPct(parseInt(e.target.value))} style={{width:"100%",accentColor:"#FFD300",height:8}}/>
         <div style={{display:"flex",justifyContent:"space-between",marginTop:8}}>
@@ -3269,8 +3268,8 @@ function GuestDollarTrail({ch,done,onS,onB,user,actCfg}){
         <div style={{fontSize:15,lineHeight:1.6}}>{m.scene}</div>
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:10}}>
-        {[["A",m.optA],["B",m.optB]].map(([key,opt])=>(<button key={key} onClick={()=>choose(opt,key)} style={{padding:16,background:"#fff",border:"1px solid #e8e8e3",borderRadius:14,textAlign:"left",cursor:"pointer"}}>
-          <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:4}}>{opt.label}</div>
+        {[["A",m.optA],["B",m.optB]].map(([key,opt])=>(<button key={key} onClick={()=>choose(opt,key)} style={{padding:16,background:"#fff",border:"1px solid #e8e8e3",borderRadius:14,textAlign:"left",cursor:"pointer",color:"#333"}}>
+          <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:4,color:"#1a1a1a"}}>{opt.label}</div>
           <div style={{fontSize:13,color:"#888",fontFamily:FB,fontStyle:"italic"}}>{opt.detail}</div>
         </button>))}
       </div>
@@ -3301,7 +3300,7 @@ function GuestDollarTrail({ch,done,onS,onB,user,actCfg}){
       </div>
       <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:12,color:"#000",letterSpacing:0.5}}>WHICH MOMENT IS YOUR RESTAURANT WEAKEST AT?</div>
       <div style={{display:"flex",flexDirection:"column",gap:8}}>
-        {moments.map(m=>(<button key={m.id} onClick={()=>setWeakest(m.id)} style={{padding:"14px 16px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontFamily:FC,fontWeight:700,fontSize:14,cursor:"pointer"}}>{m.title}</button>))}
+        {moments.map(m=>(<button key={m.id} onClick={()=>setWeakest(m.id)} style={{padding:"14px 16px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontFamily:FC,fontWeight:700,fontSize:14,cursor:"pointer",color:"#333"}}>{m.title}</button>))}
       </div>
     </div>)}
     {/* Final */}
@@ -3405,19 +3404,19 @@ function RMBrief({ch,done,onS,onB,user,actCfg}){
       {step===1&&(<div>
         <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:12}}>1. CHOOSE YOUR FOCUS</div>
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          {focusOpts.map(f=>(<button key={f.id} onClick={()=>{setFocus(f.id);setStep(2);}} style={{padding:"14px 16px",background:focus===f.id?"#FFF8E0":"#fff",border:focus===f.id?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,cursor:"pointer"}}>{f.text}</button>))}
+          {focusOpts.map(f=>(<button key={f.id} onClick={()=>{setFocus(f.id);setStep(2);}} style={{padding:"14px 16px",background:focus===f.id?"#FFF8E0":"#fff",border:focus===f.id?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,cursor:"pointer",color:"#333"}}>{f.text}</button>))}
         </div>
       </div>)}
       {step===2&&(<div>
         <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:12}}>2. CHOOSE YOUR DATA POINT</div>
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          {dataOpts.map(d=>(<button key={d.id} onClick={()=>{setData(d.id);setStep(3);}} style={{padding:"14px 16px",background:data===d.id?"#FFF8E0":"#fff",border:data===d.id?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,cursor:"pointer"}}>{d.text}</button>))}
+          {dataOpts.map(d=>(<button key={d.id} onClick={()=>{setData(d.id);setStep(3);}} style={{padding:"14px 16px",background:data===d.id?"#FFF8E0":"#fff",border:data===d.id?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,cursor:"pointer",color:"#333"}}>{d.text}</button>))}
         </div>
       </div>)}
       {step===3&&(<div>
         <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:12}}>3. CHOOSE YOUR CALL TO ACTION</div>
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          {ctaOpts.map(c=>(<button key={c.id} onClick={()=>{setCta(c.id);setStep(4);}} style={{padding:"14px 16px",background:cta===c.id?"#FFF8E0":"#fff",border:cta===c.id?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,cursor:"pointer"}}>{c.text}</button>))}
+          {ctaOpts.map(c=>(<button key={c.id} onClick={()=>{setCta(c.id);setStep(4);}} style={{padding:"14px 16px",background:cta===c.id?"#FFF8E0":"#fff",border:cta===c.id?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,cursor:"pointer",color:"#333"}}>{c.text}</button>))}
         </div>
       </div>)}
       {step===4&&(<div>
@@ -4485,7 +4484,7 @@ function RosterReality({act,u,onComplete,onB}){
         <div style={{fontSize:24,fontWeight:900,fontFamily:F107,letterSpacing:1,marginBottom:16}}>THREE DECISIONS</div>
         {[{n:"1",title:"UPDATE YOUR FORECAST",text:"Update your forecast before you build the roster. Campaigns, school holidays, local events - if you know it's coming, the Ops Labour Tool needs to know too."},{n:"2",title:"KNOW YOUR BENCH AHR",text:"Know your bench AHR and close the gap deliberately. Shift casual 21+ to permanent. Increase junior mix in the right roles. Every $1.93/hr gap costs $55K a year."},{n:"3",title:"CHECK POWER BI MID-SHIFT",text:"Check Power BI mid-shift on slow days and act on it. Offer early finishes, consolidate tasks, move crew to training. Doing nothing twice a week costs $65K a year."}].map(d=>(
           <div key={d.n} style={{display:"flex",gap:14,marginBottom:14}}>
-            <div style={{width:36,height:36,borderRadius:18,background:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:18,flexShrink:0}}>{d.n}</div>
+            <div style={{width:36,height:36,borderRadius:18,background:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:18,flexShrink:0,lineHeight:1,color:"#000"}}>{d.n}</div>
             <div style={{flex:1}}><div style={{fontSize:14,fontWeight:800,fontFamily:FC,letterSpacing:0.5,marginBottom:4}}>{d.title}</div><div style={{fontSize:14,fontFamily:FB,lineHeight:1.5,color:"#555"}}>{d.text}</div></div>
           </div>
         ))}
