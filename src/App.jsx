@@ -3274,58 +3274,79 @@ function GuestDollarTrail({ch,done,onS,onB,user,actCfg}){
 
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
-    {/* Dollar counter - always visible */}
-    {step>0&&step<=moments.length&&<div style={{position:"sticky",top:56,background:"#000",zIndex:10,padding:"10px 20px",display:"flex",justifyContent:"center",alignItems:"center"}}>
-      <span style={{fontFamily:FC,fontWeight:900,fontSize:28,color:dispCounter>=0?"#007A33":"#E3000B"}}>${dispCounter>=0?"+":""}{ dispCounter.toFixed(2)}</span>
+    {/* Dollar counter - dark bar */}
+    {step>0&&step<=moments.length&&<div style={{position:"sticky",top:56,background:"rgba(0,0,0,0.9)",zIndex:10,padding:"12px 16px",borderRadius:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#ccc"}}>MOMENT {step}/{moments.length}</span>
+      <div style={{flex:1,marginLeft:12,marginRight:12,height:6,background:"#333",borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",background:"#FFD300",width:`${(step/moments.length)*100}%`,transition:"width 0.3s"}}/></div>
+      <span style={{fontFamily:FG,fontWeight:900,fontSize:28,color:dispCounter>=0?"#007A33":"#E3000B"}}>${dispCounter>=0?"+":""}{ dispCounter.toFixed(2)}</span>
     </div>}
     {/* Moments */}
     {step>=1&&step<=moments.length&&!showReveal&&(()=>{const m=moments[step-1];return(<div style={{padding:"24px 20px"}}>
-      <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:12}}>MOMENT {step}/{moments.length}</div>
-      <div style={{background:"#000",borderRadius:16,padding:20,marginBottom:16,color:"#fff"}}>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:18,color:"#FFD300",marginBottom:8}}>{m.title}</div>
-        <div style={{fontSize:15,lineHeight:1.6}}>{m.scene}</div>
+      <div style={{fontFamily:F107,fontWeight:900,fontSize:20,letterSpacing:0.5,marginBottom:12,color:"#000"}}>{m.title}</div>
+      <div style={scenarioBox}>
+        <div style={{fontSize:16,lineHeight:1.7,fontFamily:FB}}>{m.scene}</div>
       </div>
-      <div style={{display:"flex",flexDirection:"column",gap:10}}>
-        {[["A",m.optA],["B",m.optB]].map(([key,opt])=>(<button key={key} onClick={()=>choose(opt,key)} style={{padding:16,background:"#fff",border:"1px solid #e8e8e3",borderRadius:14,textAlign:"left",cursor:"pointer",color:"#333"}}>
-          <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:4,color:"#1a1a1a"}}>{opt.label}</div>
+      <div style={{display:"flex",flexDirection:"column",gap:10,marginTop:16}}>
+        {[["A",m.optA],["B",m.optB]].map(([key,opt])=>(<button key={key} onClick={()=>choose(opt,key)} style={{...optCard(false),color:"#333"}}>
+          <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:4,color:"#333"}}>{opt.label}</div>
           <div style={{fontSize:13,color:"#888",fontFamily:FB,fontStyle:"italic"}}>{opt.detail}</div>
         </button>))}
       </div>
     </div>);})()}
     {/* Reveal */}
-    {showReveal&&step<=moments.length&&(()=>{const m=moments[step-1];const c=choices[choices.length-1];return(<div style={{padding:"24px 20px"}}>
-      <div style={{background:c.correct?"rgba(0,122,51,0.08)":"rgba(227,0,11,0.08)",border:`2px solid ${c.correct?"#007A33":"#E3000B"}`,borderRadius:16,padding:20,marginBottom:16}}>
-        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,color:c.correct?"#007A33":"#E3000B",marginBottom:8}}>{c.correct?"RIGHT CALL":"WRONG CALL"}</div>
-        <div style={{fontSize:14,color:"#555",fontFamily:FB,lineHeight:1.6,marginBottom:12}}>{c.correct?m.optB.insight:m.optA.insight}</div>
-        {c.change!==0&&<div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:c.change>0?"#007A33":"#E3000B"}}>{c.change>0?"+$":"$"}{c.change.toFixed(2)} per guest</div>}
+    {showReveal&&step<=moments.length&&(()=>{const m=moments[step-1];const c=choices[choices.length-1];return(<div style={{padding:"24px 20px",textAlign:"center"}}>
+      <div style={{background:c.correct?"rgba(0,122,51,0.1)":"rgba(227,0,11,0.1)",borderRadius:16,padding:24,border:`2px solid ${c.correct?"#007A33":"#E3000B"}`,marginBottom:16}}>
+        {c.correct?<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        :<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#E3000B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>}
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:18,marginTop:8,color:c.correct?"#007A33":"#E3000B"}}>{c.correct?"RIGHT CALL":"WRONG CALL"}</div>
+        <div style={{fontSize:14,color:"#555",fontFamily:FB,marginTop:8,lineHeight:1.6,textAlign:"left"}}>{c.correct?m.optB.insight:m.optA.insight}</div>
+        {c.change!==0&&<div style={{fontFamily:FC,fontWeight:900,fontSize:20,marginTop:12,color:c.change>0?"#007A33":"#E3000B"}}>{c.change>0?"+$":"$"}{c.change.toFixed(2)} per guest</div>}
       </div>
-      <div style={{background:"#f8f8f5",borderRadius:12,padding:14,marginBottom:16,fontSize:13,color:"#555",fontFamily:FB,lineHeight:1.6}}>{m.reveal}</div>
+      <div style={{background:"#f8f8f5",borderRadius:12,padding:14,marginBottom:16,fontSize:13,color:"#555",fontFamily:FB,lineHeight:1.6,textAlign:"left"}}>{m.reveal}</div>
       <button style={{...BY,width:"100%"}} onClick={next}>{step<moments.length?"NEXT MOMENT":"SEE THE FULL PICTURE"}</button>
     </div>);})()}
     {/* Multiplier reveal */}
     {step===99&&!weakest&&(<div style={{padding:"24px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:0.5,color:"#000"}}>THE FULL PICTURE</div></div>
+      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,color:"#000"}}>THE FULL PICTURE</div></div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>
         <div style={{background:"#fff",borderRadius:14,padding:16,textAlign:"center",border:"1px solid #e8e8e3"}}><div style={{fontSize:11,fontFamily:FC,color:"#E3000B",fontWeight:700}}>ALL WRONG</div><div style={{fontFamily:FC,fontWeight:900,fontSize:24,marginTop:4}}>${pathAVal.toFixed(2)}</div><div style={{fontSize:11,color:"#888"}}>per guest/year</div></div>
         <div style={{background:"#fff",borderRadius:14,padding:16,textAlign:"center",border:"2px solid #007A33"}}><div style={{fontSize:11,fontFamily:FC,color:"#007A33",fontWeight:700}}>ALL RIGHT</div><div style={{fontFamily:FC,fontWeight:900,fontSize:24,marginTop:4}}>${pathBVal}</div><div style={{fontSize:11,color:"#888"}}>per guest/year</div></div>
       </div>
-      <div style={{background:"#000",borderRadius:16,padding:"24px 20px",textAlign:"center",marginBottom:20}}>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5,marginBottom:8}}>THE GAP</div>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#E3000B"}}>${gap}/guest</div>
-        <div style={{marginTop:16,fontFamily:FC,fontWeight:700,fontSize:14,color:"#ccc"}}>ANNUAL RESTAURANT IMPACT</div>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300",marginTop:4}}>${annualImpact.toLocaleString()}</div>
-        <div style={{fontSize:14,color:"#999",fontFamily:FB,marginTop:8}}>Same menu. Same prices. Different experience.</div>
+      <div style={scenarioBox}>
+        <div style={{textAlign:"center"}}>
+          <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5,marginBottom:8}}>THE GAP</div>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#E3000B"}}>${gap}/guest</div>
+          <div style={{marginTop:16,fontFamily:FC,fontWeight:700,fontSize:14,color:"#ccc"}}>ANNUAL RESTAURANT IMPACT</div>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300",marginTop:4}}>${annualImpact.toLocaleString()}</div>
+          <div style={{fontSize:14,color:"#999",fontFamily:FB,marginTop:8}}>Same menu. Same prices. Different experience.</div>
+        </div>
       </div>
-      <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:12,color:"#000",letterSpacing:0.5}}>WHICH MOMENT IS YOUR RESTAURANT WEAKEST AT?</div>
+      <div style={{marginTop:20,marginBottom:12}}><div style={{fontFamily:F107,fontWeight:900,fontSize:18,letterSpacing:0.5,color:"#000"}}>WHICH MOMENT IS YOUR RESTAURANT WEAKEST AT?</div></div>
       <div style={{display:"flex",flexDirection:"column",gap:8}}>
-        {moments.map(m=>(<button key={m.id} onClick={()=>setWeakest(m.id)} style={{padding:"14px 16px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontFamily:FC,fontWeight:700,fontSize:14,cursor:"pointer",color:"#333"}}>{m.title}</button>))}
+        {moments.map(m=>(<button key={m.id} onClick={()=>setWeakest(m.id)} style={{...optCard(false),color:"#333",fontFamily:FC,fontWeight:700,fontSize:14}}>{m.title}</button>))}
       </div>
     </div>)}
     {/* Final */}
-    {weakest&&(<div style={{padding:"24px 20px",textAlign:"center"}}>
-      <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,marginBottom:8,color:"#000"}}>YOUR FOCUS THIS WEEK</div>
-      <div style={{fontFamily:FC,fontWeight:800,fontSize:22,color:"#FFD300",marginBottom:20}}>{moments.find(m=>m.id===weakest)?.title}</div>
-      {correctCount===moments.length&&<div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300",marginBottom:16}}>BONUS EARNED +{ch.bonusPoints} PTS</div>}
+    {weakest&&(<div style={{padding:"24px 20px"}}>
+      <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,textAlign:"center",marginBottom:16,color:"#000"}}>YOUR RESULTS</div>
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",textAlign:"center",marginBottom:20}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:56,color:"#FFD300"}}>{correctCount}/{moments.length}</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#ccc",letterSpacing:1}}>CORRECT CALLS</div>
+      </div>
+      <div style={{textAlign:"center",marginBottom:20}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888",letterSpacing:0.5}}>YOUR FOCUS THIS WEEK</div>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:22,color:"#FFD300",marginTop:4}}>{moments.find(m=>m.id===weakest)?.title}</div>
+      </div>
+      {choices.map((c,i)=>{const m=moments[i];return(<div key={i} style={{background:"#fff",borderRadius:14,padding:14,marginBottom:4,borderLeft:`3px solid ${c.correct?"#007A33":"#E3000B"}`}}>
+        <div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{m.title}</span><span style={{fontFamily:FC,fontWeight:800,fontSize:12,color:c.correct?"#007A33":"#E3000B"}}>{c.correct?"RIGHT":"WRONG"}</span></div>
+        <div style={{fontSize:13,color:"#555",fontFamily:FB,marginTop:4}}>{c.change>0?"+$":"$"}{c.change.toFixed(2)} per guest</div>
+      </div>);})}
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",marginTop:16,marginBottom:16}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div><div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5}}>POINTS EARNED</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:"#fff",marginTop:4}}>{ch.points}</div></div>
+          {correctCount===moments.length&&<div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#FFD300",background:"rgba(255,211,0,0.15)",padding:"6px 12px",borderRadius:8}}>PERFECT +{ch.bonusPoints}</div>}
+        </div>
+      </div>
       <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{onS({text:"Guest Dollar Trail completed",choices,correctCount,pathAValue:pathAVal,pathBValue:pathBVal,gapPerGuest:gap,annualImpact,weakestMoment:weakest,claimedBonus:correctCount===moments.length,autoBonus:correctCount===moments.length,points:ch.points});}}>COMPLETE CHALLENGE</button>
     </div>)}
   </div>);
@@ -3358,26 +3379,32 @@ function TriageCall({ch,done,onS,onB,user,actCfg}){
 
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
-    {/* Call */}
-    {idx>=0&&idx<calls.length&&!flash2&&(()=>{const c=calls[idx];return(<div style={{padding:"24px 20px"}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-        <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#999"}}>{idx+1}/{calls.length}</span>
-        <div style={{flex:1,marginLeft:12,height:6,background:"#e8e8e3",borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",background:timer<=2?"#E3000B":timer<=5?"#FFD300":"#007A33",width:`${(timer/timeLimit)*100}%`,transition:"width 1s linear"}}/></div>
+    {/* Call - dark timer bar */}
+    {idx>=0&&idx<calls.length&&!flash2&&(()=>{const c=calls[idx];return(<div>
+      <div style={{background:"rgba(0,0,0,0.9)",borderRadius:0,padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#ccc"}}>{idx+1}/{calls.length}</span>
+        <div style={{flex:1,marginLeft:12,marginRight:12,height:6,background:"#333",borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",background:timer<=2?"#E3000B":timer<=5?"#FFD300":"#007A33",width:`${(timer/timeLimit)*100}%`,transition:"width 1s linear"}}/></div>
+        <span style={{fontFamily:FG,fontWeight:900,fontSize:28,color:timer<=2?"#E3000B":timer<=5?"#FFD300":"#fff"}}>{timer}</span>
       </div>
-      <div style={{background:"#000",borderRadius:16,padding:20,marginBottom:20,color:"#fff"}}>
-        <div style={{display:"inline-block",padding:"4px 12px",background:"#FFD300",color:"#000",borderRadius:8,fontFamily:FC,fontWeight:800,fontSize:12,marginBottom:12}}>{c.arm} - {c.restaurant}</div>
-        <div style={{fontSize:16,lineHeight:1.6,fontFamily:FB}}>{c.situation}</div>
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-        <button onClick={()=>handleChoice("hold")} style={{padding:"20px 16px",background:"#1a1a1a",color:"#fff",border:"none",borderRadius:14,fontFamily:FC,fontWeight:900,fontSize:16,cursor:"pointer",minHeight:70}}>HOLD</button>
-        <button onClick={()=>handleChoice("act")} style={{padding:"20px 16px",background:"#FFD300",color:"#000",border:"none",borderRadius:14,fontFamily:FC,fontWeight:900,fontSize:16,cursor:"pointer",minHeight:70}}>ACT NOW</button>
+      <div style={{padding:"24px 20px"}}>
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:20,letterSpacing:0.5,marginBottom:12,color:"#000"}}>INCOMING CALL</div>
+        <div style={scenarioBox}>
+          <div style={scenarioBadge}>{c.arm} - {c.restaurant}</div>
+          <div style={{fontSize:16,lineHeight:1.7,fontFamily:FB,marginTop:12}}>{c.situation}</div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginTop:16}}>
+          <button onClick={()=>handleChoice("hold")} style={binBtn(false)}>HOLD</button>
+          <button onClick={()=>handleChoice("act")} style={binBtn(true)}>ACT NOW</button>
+        </div>
       </div>
     </div>);})()}
-    {/* Flash */}
+    {/* Flash - large icon reveal */}
     {flash2&&(<div style={{padding:"24px 20px",textAlign:"center"}}>
-      <div style={{background:flash2.correct?"rgba(0,122,51,0.08)":"rgba(227,0,11,0.08)",border:`2px solid ${flash2.correct?"#007A33":"#E3000B"}`,borderRadius:16,padding:24}}>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:16,color:flash2.correct?"#007A33":"#E3000B",marginBottom:8}}>{flash2.correct?"CORRECT":"WRONG"}</div>
-        <div style={{fontSize:13,color:"#555",fontFamily:FB,lineHeight:1.6}}>{flash2.rationale}</div>
+      <div style={{background:flash2.correct?"rgba(0,122,51,0.1)":"rgba(227,0,11,0.1)",borderRadius:16,padding:24,border:`2px solid ${flash2.correct?"#007A33":"#E3000B"}`}}>
+        {flash2.correct?<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        :<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#E3000B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>}
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:18,marginTop:8,color:flash2.correct?"#007A33":"#E3000B"}}>{flash2.correct?"CORRECT":"WRONG"}</div>
+        <div style={{fontSize:14,color:"#555",fontFamily:FB,marginTop:8,lineHeight:1.6}}>{flash2.rationale}</div>
       </div>
     </div>)}
     {/* Results */}
@@ -3387,15 +3414,22 @@ function TriageCall({ch,done,onS,onB,user,actCfg}){
         <div style={{fontFamily:FC,fontWeight:900,fontSize:56,color:"#FFD300"}}>{correctCount}/{calls.length}</div>
         <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#ccc",letterSpacing:1}}>CORRECT CALLS</div>
       </div>
-      {results.map((r,i)=>{const c=calls.find(x=>x.id===r.callId);return(<div key={i} style={{borderLeft:`3px solid ${r.correct?"#007A33":"#E3000B"}`,background:"#fff",borderRadius:"0 12px 12px 0",padding:14,marginBottom:4}}>
+      <div style={{background:"#fff",borderRadius:14,border:"1px solid #e8e8e3",padding:16,marginBottom:16,textAlign:"center"}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888",letterSpacing:0.5,marginBottom:4}}>YOUR COACHING PROFILE</div>
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:20,color:"#000",marginBottom:4}}>{profile.name}</div>
+        <div style={{fontSize:14,color:"#555",fontFamily:FB,lineHeight:1.6}}>{profile.text}</div>
+      </div>
+      <div style={{fontFamily:F107,fontWeight:900,fontSize:18,letterSpacing:0.5,marginBottom:8,color:"#000"}}>CALL REVIEW</div>
+      {results.map((r,i)=>{const c=calls.find(x=>x.id===r.callId);return(<div key={i} style={{background:"#fff",borderRadius:14,padding:14,marginBottom:4,borderLeft:`3px solid ${r.correct?"#007A33":"#E3000B"}`,border:"1px solid #e8e8e3",borderLeftColor:r.correct?"#007A33":"#E3000B",borderLeftWidth:3}}>
         <div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{c?.arm} - {c?.restaurant}</span><span style={{fontFamily:FC,fontWeight:800,fontSize:12,color:r.correct?"#007A33":"#E3000B"}}>{r.choice.toUpperCase()}</span></div>
         <div style={{fontSize:13,color:"#555",fontFamily:FB,marginTop:4,lineHeight:1.5}}>{c?.rationale}</div>
       </div>);})}
       <div style={{background:"#000",borderRadius:14,padding:"24px 20px",marginTop:16,marginBottom:16}}>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5,marginBottom:4}}>YOUR PROFILE: {profile.name}</div>
-        <div style={{fontSize:14,color:"#ccc",fontFamily:FB,lineHeight:1.6}}>{profile.text}</div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div><div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5}}>POINTS EARNED</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:"#fff",marginTop:4}}>{ch.points}</div></div>
+          {correctCount===calls.length&&<div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#FFD300",background:"rgba(255,211,0,0.15)",padding:"6px 12px",borderRadius:8}}>PERFECT +{ch.bonusPoints}</div>}
+        </div>
       </div>
-      {correctCount===calls.length&&<div style={{textAlign:"center",marginBottom:16,fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300"}}>BONUS EARNED +{ch.bonusPoints} PTS</div>}
       <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{onS({text:"Triage Call completed",score:totalPts,correctCount,decisions:results,profile:profile.name,claimedBonus:correctCount===calls.length,autoBonus:correctCount===calls.length,points:ch.points});}}>COMPLETE CHALLENGE</button>
     </div>)}
   </div>);
@@ -3418,40 +3452,65 @@ function RMBrief({ch,done,onS,onB,user,actCfg}){
 
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+    {/* Step progress bar */}
+    <div style={{background:"rgba(0,0,0,0.9)",padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#ccc"}}>STEP {Math.min(step,3)}/3</span>
+      <div style={{flex:1,marginLeft:12,marginRight:12,height:6,background:"#333",borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",background:"#FFD300",width:`${(Math.min(step,3)/3)*100}%`,transition:"width 0.3s"}}/></div>
+    </div>
     <div style={{padding:"24px 20px"}}>
       {step===1&&(<div>
-        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:12}}>1. CHOOSE YOUR FOCUS</div>
-        <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          {focusOpts.map(f=>(<button key={f.id} onClick={()=>{setFocus(f.id);setStep(2);}} style={{padding:"14px 16px",background:focus===f.id?"#FFF8E0":"#fff",border:focus===f.id?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,cursor:"pointer",color:"#333"}}>{f.text}</button>))}
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:20,letterSpacing:0.5,marginBottom:12,color:"#000"}}>1. CHOOSE YOUR FOCUS</div>
+        <div style={scenarioBox}>
+          <div style={{fontSize:16,lineHeight:1.7,fontFamily:FB}}>It's 6:45am. You're about to brief your team. What's the one thing you want them focused on today?</div>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:16}}>
+          {focusOpts.map(f=>(<button key={f.id} onClick={()=>{setFocus(f.id);setStep(2);}} style={{...optCard(focus===f.id),color:"#333"}}>{f.text}</button>))}
         </div>
       </div>)}
       {step===2&&(<div>
-        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:12}}>2. CHOOSE YOUR DATA POINT</div>
-        <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          {dataOpts.map(d=>(<button key={d.id} onClick={()=>{setData(d.id);setStep(3);}} style={{padding:"14px 16px",background:data===d.id?"#FFF8E0":"#fff",border:data===d.id?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,cursor:"pointer",color:"#333"}}>{d.text}</button>))}
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:20,letterSpacing:0.5,marginBottom:12,color:"#000"}}>2. CHOOSE YOUR DATA POINT</div>
+        <div style={scenarioBox}>
+          <div style={{fontSize:16,lineHeight:1.7,fontFamily:FB}}>Back up your focus with one number. Which data point drives your message home?</div>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:16}}>
+          {dataOpts.map(d=>(<button key={d.id} onClick={()=>{setData(d.id);setStep(3);}} style={{...optCard(data===d.id),color:"#333"}}>{d.text}</button>))}
         </div>
       </div>)}
       {step===3&&(<div>
-        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:12}}>3. CHOOSE YOUR CALL TO ACTION</div>
-        <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          {ctaOpts.map(c=>(<button key={c.id} onClick={()=>{setCta(c.id);setStep(4);}} style={{padding:"14px 16px",background:cta===c.id?"#FFF8E0":"#fff",border:cta===c.id?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,cursor:"pointer",color:"#333"}}>{c.text}</button>))}
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:20,letterSpacing:0.5,marginBottom:12,color:"#000"}}>3. CHOOSE YOUR CALL TO ACTION</div>
+        <div style={scenarioBox}>
+          <div style={{fontSize:16,lineHeight:1.7,fontFamily:FB}}>Close the brief with one clear action. What do you want your team to do?</div>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:16}}>
+          {ctaOpts.map(c=>(<button key={c.id} onClick={()=>{setCta(c.id);setStep(4);}} style={{...optCard(cta===c.id),color:"#333"}}>{c.text}</button>))}
         </div>
       </div>)}
       {step===4&&(<div>
-        <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,marginBottom:12,color:"#000"}}>YOUR BRIEF</div>
-        <div style={{background:"#000",borderRadius:14,padding:"24px 20px",color:"#ccc",marginBottom:16}}>
-          <div style={{fontSize:15,fontFamily:FB,lineHeight:1.8}}>{focusOpts.find(f=>f.id===focus)?.text}. {dataOpts.find(d=>d.id===data)?.text} {ctaOpts.find(c=>c.id===cta)?.text}</div>
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,textAlign:"center",marginBottom:16,color:"#000"}}>YOUR BRIEF</div>
+        <div style={scenarioBox}>
+          <div style={{fontSize:16,fontFamily:FB,lineHeight:1.8}}>{focusOpts.find(f=>f.id===focus)?.text}. {dataOpts.find(d=>d.id===data)?.text} {ctaOpts.find(c=>c.id===cta)?.text}</div>
         </div>
-        <div style={{background:allCorrect?"rgba(0,122,51,0.08)":"rgba(227,0,11,0.08)",border:`2px solid ${allCorrect?"#007A33":"#E3000B"}`,borderRadius:14,padding:16,marginBottom:16}}>
-          <div style={{fontFamily:FC,fontWeight:900,fontSize:16,color:allCorrect?"#007A33":"#E3000B",marginBottom:6}}>{rating.label}</div>
+        <div style={{marginTop:16,textAlign:"center"}}>
+          {allCorrect?<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          :<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#E3000B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>}
+        </div>
+        <div style={{background:allCorrect?"rgba(0,122,51,0.1)":"rgba(227,0,11,0.1)",border:`2px solid ${allCorrect?"#007A33":"#E3000B"}`,borderRadius:14,padding:16,marginTop:12,marginBottom:16}}>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:18,color:allCorrect?"#007A33":"#E3000B",marginBottom:6}}>{rating.label}</div>
           <div style={{fontSize:14,color:"#555",fontFamily:FB,lineHeight:1.6}}>{rating.text}</div>
         </div>
         {!showModel?<button onClick={()=>setShowModel(true)} style={{...BO,width:"100%",marginBottom:16}}>SEE MODEL BRIEF</button>
-        :<div style={{borderLeft:"4px solid #FFD300",background:"#fff",borderRadius:"0 14px 14px 0",padding:16,marginBottom:16}}>
-          <div style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#FFB800",marginBottom:4}}>MODEL BRIEF</div>
-          <div style={{fontSize:14,fontFamily:FB,lineHeight:1.8,color:"#555"}}>{modelBrief}</div>
+        :<div style={{marginBottom:16}}>
+          <div style={{fontFamily:F107,fontWeight:900,fontSize:18,letterSpacing:0.5,marginBottom:8,color:"#000"}}>MODEL BRIEF</div>
+          <div style={scenarioBox}>
+            <div style={{fontSize:16,fontFamily:FB,lineHeight:1.8}}>{modelBrief}</div>
+          </div>
         </div>}
-        {allCorrect&&<div style={{textAlign:"center",marginBottom:16,fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300"}}>BONUS EARNED +{ch.bonusPoints} PTS</div>}
+        <div style={{background:"#000",borderRadius:14,padding:"24px 20px",marginBottom:16}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div><div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5}}>POINTS EARNED</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:"#fff",marginTop:4}}>{ch.points}</div></div>
+            {allCorrect&&<div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#FFD300",background:"rgba(255,211,0,0.15)",padding:"6px 12px",borderRadius:8}}>PERFECT +{ch.bonusPoints}</div>}
+          </div>
+        </div>
         <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{onS({text:"RM Brief completed",focus,dataPoint:data,cta,allCorrect,rating:rating.label,claimedBonus:allCorrect,autoBonus:allCorrect,points:ch.points});}}>COMPLETE CHALLENGE</button>
       </div>)}
     </div>
@@ -3499,37 +3558,44 @@ function NumbersDontLie({ch,done,onS,onB,user,actCfg}){
 
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+    {/* Progress bar */}
+    {round&&!showExplain&&<div style={{background:"rgba(0,0,0,0.9)",padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#ccc"}}>ROUND {roundIdx+1}/{rounds.length}</span>
+      <div style={{flex:1,marginLeft:12,marginRight:12,height:6,background:"#333",borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",background:"#FFD300",width:`${((roundIdx+1)/rounds.length)*100}%`,transition:"width 0.3s"}}/></div>
+      <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#ccc"}}>TAP {tapIdx+1}/3</span>
+    </div>}
     {/* P&L + taps */}
-    {round&&!showExplain&&tap&&(<div style={{padding:"16px 20px"}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-        <span style={{fontFamily:FC,fontWeight:900,fontSize:16}}>{round.restaurant}</span>
-        <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888"}}>ROUND {roundIdx+1}/{rounds.length}</span>
-      </div>
+    {round&&!showExplain&&tap&&(<div style={{padding:"20px 20px"}}>
+      <div style={{fontFamily:F107,fontWeight:900,fontSize:20,letterSpacing:0.5,marginBottom:4,color:"#000"}}>{round.restaurant}</div>
+      {round.subtitle&&<div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:0.5,marginBottom:12}}>{round.subtitle.toUpperCase()}</div>}
+      {!round.subtitle&&<div style={{marginBottom:12}}/>}
       {/* P&L card */}
-      <div style={{background:"#fff",borderRadius:14,padding:14,marginBottom:16,border:"1px solid #e8e8e3"}}>
+      <div style={{background:"#fff",borderRadius:14,padding:16,marginBottom:16,border:"1px solid #e8e8e3"}}>
         {Object.entries(round.pl).filter(([k])=>!k.includes("Target")).map(([k,v])=>{const targetKey=k+"Target";const target=round.pl[targetKey];return(
           <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid #f5f5f0"}}>
-            <span style={{fontSize:13,color:"#555",textTransform:"capitalize"}}>{k.replace(/([A-Z])/g," $1").trim()}</span>
+            <span style={{fontSize:13,color:"#555",fontFamily:FB,textTransform:"capitalize"}}>{k.replace(/([A-Z])/g," $1").trim()}</span>
             <div><span style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{v}</span>{target&&<span style={{fontSize:11,color:"#aaa",marginLeft:6}}>({target})</span>}</div>
           </div>);})}
       </div>
       {/* Tap question */}
-      <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:8}}>TAP {tapIdx+1}/3: {tap.q}</div>
+      <div style={qStyle}>TAP {tapIdx+1}/3: {tap.q}</div>
       <div style={{display:"flex",flexDirection:"column",gap:8}}>
-        {tap.opts.map(opt=>(<button key={opt.id} onClick={()=>chooseTap(opt.id)} style={{padding:"14px 16px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:13,fontFamily:FB,cursor:"pointer"}}>{opt.text}</button>))}
+        {tap.opts.map(opt=>(<button key={opt.id} onClick={()=>chooseTap(opt.id)} style={{...optCard(false),color:"#333"}}>{opt.text}</button>))}
       </div>
     </div>)}
     {/* Explanation */}
     {showExplain&&round&&(<div style={{padding:"24px 20px"}}>
       <div style={{textAlign:"center",marginBottom:16}}>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:32,color:roundResults[roundResults.length-1]?.allCorrect?"#007A33":"#E3000B"}}>{roundResults[roundResults.length-1]?.points}/8</div>
-        <div style={{fontSize:14,color:"#555",fontFamily:FC,fontWeight:700}}>{round.restaurant} SCORE</div>
+        {roundResults[roundResults.length-1]?.allCorrect?<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        :<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#E3000B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>}
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:32,marginTop:8,color:roundResults[roundResults.length-1]?.allCorrect?"#007A33":"#E3000B"}}>{roundResults[roundResults.length-1]?.points}/8</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888"}}>{round.restaurant} SCORE</div>
       </div>
-      <div style={{background:"#000",borderRadius:14,padding:16,color:"#fff",marginBottom:16}}>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:6}}>THE REAL STORY</div>
-        <div style={{fontSize:14,fontFamily:FB,lineHeight:1.6}}>{round.explanation}</div>
+      <div style={{fontFamily:F107,fontWeight:900,fontSize:18,letterSpacing:0.5,marginBottom:8,color:"#000"}}>THE REAL STORY</div>
+      <div style={scenarioBox}>
+        <div style={{fontSize:16,fontFamily:FB,lineHeight:1.7}}>{round.explanation}</div>
       </div>
-      <div style={{background:"#f8f8f5",borderRadius:12,padding:14,marginBottom:16,fontSize:13,color:"#555",fontFamily:FB,lineHeight:1.6}}>{round.numbers}</div>
+      <div style={{background:"#f8f8f5",borderRadius:12,padding:14,marginTop:12,marginBottom:16,fontSize:13,color:"#555",fontFamily:FB,lineHeight:1.6}}>{round.numbers}</div>
       <button style={{...BY,width:"100%"}} onClick={nextRound}>{roundIdx<rounds.length-1?"NEXT ROUND":"SEE RESULTS"}</button>
     </div>)}
     {/* Final results */}
@@ -3539,15 +3605,24 @@ function NumbersDontLie({ch,done,onS,onB,user,actCfg}){
         <div style={{fontFamily:FC,fontWeight:900,fontSize:56,color:"#FFD300"}}>{totalScore}/{maxScore}</div>
         <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#ccc",letterSpacing:1}}>TOTAL SCORE</div>
       </div>
-      {roundResults.map((r,i)=>(<div key={i} style={{background:"#fff",borderRadius:14,padding:16,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",border:"1px solid #e8e8e3"}}>
-        <div><div style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{r.restaurant}</div><div style={{fontSize:14,color:"#555",fontFamily:FB}}>{r.taps.filter(t=>t.correct).length}/3 correct</div></div>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:r.allCorrect?"#007A33":r.points>=5?"#FFB800":"#E3000B"}}>{r.points}/8</div>
+      <div style={{fontFamily:F107,fontWeight:900,fontSize:18,letterSpacing:0.5,marginBottom:8,color:"#000"}}>ROUND REVIEW</div>
+      {roundResults.map((r,i)=>(<div key={i} style={{background:"#fff",borderRadius:14,padding:16,marginBottom:4,borderLeft:`3px solid ${r.allCorrect?"#007A33":r.points>=5?"#FFB800":"#E3000B"}`,border:"1px solid #e8e8e3",borderLeftColor:r.allCorrect?"#007A33":r.points>=5?"#FFB800":"#E3000B",borderLeftWidth:3}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div><div style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{r.restaurant}</div><div style={{fontSize:13,color:"#555",fontFamily:FB}}>{r.taps.filter(t=>t.correct).length}/3 correct</div></div>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:r.allCorrect?"#007A33":r.points>=5?"#FFB800":"#E3000B"}}>{r.points}/8</div>
+        </div>
       </div>))}
-      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",marginTop:16,marginBottom:16}}>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5,marginBottom:4}}>YOUR PROFILE: {profile.name}</div>
-        <div style={{fontSize:14,color:"#ccc",fontFamily:FB,lineHeight:1.6}}>{profile.text}</div>
+      <div style={{background:"#fff",borderRadius:14,border:"1px solid #e8e8e3",padding:16,marginTop:12,marginBottom:12,textAlign:"center"}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888",letterSpacing:0.5,marginBottom:4}}>YOUR COMMERCIAL PROFILE</div>
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:20,color:"#000",marginBottom:4}}>{profile.name}</div>
+        <div style={{fontSize:14,color:"#555",fontFamily:FB,lineHeight:1.6}}>{profile.text}</div>
       </div>
-      {allPerfect&&<div style={{textAlign:"center",marginBottom:16,fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300"}}>BONUS EARNED +{ch.bonusPoints} PTS</div>}
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",marginTop:8,marginBottom:16}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div><div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5}}>POINTS EARNED</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:"#fff",marginTop:4}}>{ch.points}</div></div>
+          {allPerfect&&<div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#FFD300",background:"rgba(255,211,0,0.15)",padding:"6px 12px",borderRadius:8}}>PERFECT +{ch.bonusPoints}</div>}
+        </div>
+      </div>
       <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{onS({text:"The Numbers Don't Lie completed",rounds:roundResults,totalScore,maxScore,profile:profile.name,claimedBonus:allPerfect,autoBonus:allPerfect,points:ch.points});}}>COMPLETE CHALLENGE</button>
     </div>)}
   </div>);
