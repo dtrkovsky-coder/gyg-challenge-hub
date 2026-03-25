@@ -1760,12 +1760,12 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
       {shotList.map((shot,i)=>{const hasPhoto=!!photos[i];return(
         <div key={i} style={{background:hasPhoto?"#f0f8f0":"#fff",border:hasPhoto?"1px solid #d4e8d4":"1px solid #e8e8e3",borderRadius:14,padding:16,marginBottom:10,transition:"all 0.3s"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-            <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:800,fontSize:13,letterSpacing:0.5}}>DAY {shot.day}</div><div style={{fontSize:14,color:"#555",marginTop:4,fontFamily:FB}}>{shot.prompt}</div></div>
+            <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:800,fontSize:13,letterSpacing:0.5}}>PHOTO {i+1}</div><div style={{fontSize:14,color:"#555",marginTop:4,fontFamily:FB}}>{shot.prompt}</div></div>
             {hasPhoto?<div style={{width:56,height:56,borderRadius:10,overflow:"hidden",flexShrink:0,marginLeft:12,position:"relative"}}>
               <img src={photos[i]} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
               <button onClick={()=>{const np=[...photos];np[i]=null;setPhotos(np);}} style={{position:"absolute",top:-4,right:-4,width:20,height:20,borderRadius:10,background:"#E3000B",color:"#fff",border:"none",fontSize:11,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>x</button>
             </div>
-            :<label style={{...BY,padding:"10px 16px",fontSize:12,minWidth:0,cursor:"pointer",flexShrink:0,marginLeft:12}}>
+            :<label style={{...BY,padding:"12px 20px",fontSize:14,minWidth:0,cursor:"pointer",flexShrink:0,marginLeft:12,letterSpacing:1}}>
               SNAP<input type="file" accept="image/*" capture="environment" style={{display:"none"}} onChange={async e=>{const f=e.target.files[0];if(!f)return;const b=await compressPhoto(f);const np=[...photos];np[i]=b;setPhotos(np);}}/>
             </label>}
           </div>
