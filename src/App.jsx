@@ -1122,7 +1122,7 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
       </div>
 
       <button style={{...BY,width:"100%"}} onClick={()=>{
-        onS({text:"Spot the Moment completed",photos,swipeResults:swipes,comeBackCount:swipes.filter(s=>s.right).length,nopeCount:swipes.filter(s=>!s.right).length,wordPicks:swipes.map(s=>s.word).filter(Boolean),claimedBonus:earnedBonus,autoBonus:earnedBonus,points:ch.points});
+        onS({text:"Spot the Moment completed",photos,swipeResults:swipes,comeBackCount:swipes.filter(s=>s.right).length,nopeCount:swipes.filter(s=>!s.right).length,wordPicks:swipes.map(s=>s.word).filter(Boolean),claimedBonus:earnedBonus,autoBonus:earnedBonus,points:ch.points,pendingApproval:!earnedBonus,bonusApproved:earnedBonus?true:null});
       }}>SUBMIT CHALLENGE</button>
     </div>)}
   </div>);
@@ -3254,7 +3254,34 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
   };
 
   /* ═══ SUBMISSIONS ═══ */
+  const pendingPhotoApprovals=filteredCo.filter(c=>c.submission?.pendingApproval&&c.submission?.photos&&c.submission.bonusApproved===null);
   const renderSubmissions=()=>(<div>
+    {/* Photo Approval Queue */}
+    {pendingPhotoApprovals.length>0&&(<div style={{marginBottom:24}}>
+      <div style={{...secTitle,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <span>Photo Approvals ({pendingPhotoApprovals.length})</span>
+        <span style={{fontSize:11,fontFamily:FC,fontWeight:600,color:"#FFB800",background:"#FFF8E0",padding:"4px 10px",borderRadius:6}}>PENDING</span>
+      </div>
+      <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:12}}>These participants didn't receive enough peer swipes before the challenge closed. Review their photos and approve or reject bonus points.</div>
+      {pendingPhotoApprovals.map(c=>{const usr=us.find(u=>u.id===c.userId);const chx=Object.values(challenges).flat().find(x=>x.id===c.challengeId);return(
+        <div key={c.id} style={{...card,padding:isMobile?14:18,border:"2px solid #FFB800"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,flexWrap:"wrap",gap:6}}>
+            <div><span style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{usr?.name?.toUpperCase()||"UNKNOWN"}</span><span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#fff",background:"#000",padding:"3px 7px",borderRadius:4,marginLeft:8}}>{c.batch}</span></div>
+            <span style={{fontFamily:FC,fontWeight:600,fontSize:12,color:"#666"}}>{chx?.title}</span>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(80px,1fr))",gap:8,marginBottom:12}}>
+            {(c.submission.photos||[]).filter(Boolean).map((p,pi)=>(
+              <div key={pi} style={{borderRadius:10,overflow:"hidden",aspectRatio:"1"}}><img src={p} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/></div>
+            ))}
+          </div>
+          {c.submission.swipeResults&&<div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:8}}>Swiped {c.submission.swipeResults.length} photos - {c.submission.comeBackCount||0} come back, {c.submission.nopeCount||0} nope</div>}
+          <div style={{display:"flex",gap:8}}>
+            <button onClick={()=>{onUpdateComps(co.map(x=>x.id===c.id?{...x,submission:{...x.submission,pendingApproval:false,bonusApproved:true},bonusClaimed:true,bonusApproved:true}:x));}} style={{flex:1,padding:"10px",background:"#007A33",color:"#fff",border:"none",borderRadius:10,fontFamily:FC,fontWeight:700,fontSize:13,cursor:"pointer"}}>APPROVE BONUS +{chx?.bonusPoints||50}</button>
+            <button onClick={()=>{onUpdateComps(co.map(x=>x.id===c.id?{...x,submission:{...x.submission,pendingApproval:false,bonusApproved:false},bonusClaimed:false,bonusApproved:false}:x));}} style={{flex:1,padding:"10px",background:"#E3000B",color:"#fff",border:"none",borderRadius:10,fontFamily:FC,fontWeight:700,fontSize:13,cursor:"pointer"}}>REJECT</button>
+          </div>
+        </div>
+      );})}
+    </div>)}
     <div style={secTitle}>Submissions ({filteredCo.length})</div>
     {filteredCo.sort((a,b)=>new Date(b.submittedAt)-new Date(a.submittedAt)).map(c=>{const usr=us.find(u=>u.id===c.userId);const chx=Object.values(challenges).flat().find(x=>x.id===c.challengeId);return(
       <div key={c.id} style={{...card,padding:isMobile?14:18}}>
@@ -3274,6 +3301,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
             </span>}</span>}
         </div>
         {c.submission?.text&&<div style={{fontSize:14,color:"#555",borderLeft:"3px solid #e8e8e3",paddingLeft:12,marginBottom:8,lineHeight:1.6,fontFamily:FB}}>{c.submission.text}</div>}
+        {c.submission?.photos&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:8}}>{c.submission.photos.filter(Boolean).map((p,pi)=>(<img key={pi} src={p} alt="" style={{width:48,height:48,objectFit:"cover",borderRadius:8,border:"1px solid #e8e8e3"}}/>))}{c.submission.pendingApproval&&<span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#FFB800",alignSelf:"center",marginLeft:4}}>PENDING REVIEW</span>}{c.submission.bonusApproved===true&&<span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#007A33",alignSelf:"center",marginLeft:4}}>BONUS APPROVED</span>}{c.submission.bonusApproved===false&&<span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#E3000B",alignSelf:"center",marginLeft:4}}>REJECTED</span>}</div>}
         {c.submission?.files&&c.submission.files.length>0&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:8}}>{c.submission.files.map((f,fi)=>(f.type?.startsWith("image/")?<img key={fi} src={f.data} alt="" style={{width:56,height:56,objectFit:"cover",borderRadius:8,border:"1px solid #e8e8e3",cursor:"pointer"}} onClick={()=>{const a=document.createElement("a");a.href=f.data;a.download=f.name||"image";a.target="_blank";document.body.appendChild(a);a.click();document.body.removeChild(a);}}/>:<div key={fi} style={{padding:"6px 10px",background:"#f5f5f0",borderRadius:8,fontSize:12,fontFamily:FC,color:"#666",border:"1px solid #e8e8e3"}}>FILE: {f.name}</div>))}</div>}
         <div style={{fontSize:12,color:"#bbb",fontFamily:FB}}>{new Date(c.submittedAt).toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</div>
       </div>
