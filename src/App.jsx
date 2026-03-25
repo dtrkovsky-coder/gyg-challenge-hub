@@ -1457,28 +1457,29 @@ function HazardHunt({ch,done,onS,onB,user,actCfg}){
     )}
     {screen===3&&(
       <div style={{padding:"24px 20px"}}>
-        <div style={{background:"#000",borderRadius:14,padding:20,textAlign:"center",marginBottom:20}}>
-          <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300",transition:"all 0.1s"}}>{animScore}</div>
-          <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:1}}>POINTS EARNED</div>
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,textAlign:"center",marginBottom:16,color:"#000"}}>YOUR RESULTS</div>
+        <div style={{background:"#000",borderRadius:14,padding:"24px 20px",textAlign:"center",marginBottom:20}}>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:56,color:"#FFD300",transition:"all 0.1s"}}>{animScore}</div>
+          <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#ccc",letterSpacing:1}}>POINTS EARNED</div>
         </div>
-        <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:16,color:"#fff"}}>
-          <div style={{fontSize:12,fontWeight:800,fontFamily:FC,color:"#FFD300",letterSpacing:1,marginBottom:12}}>SCORE BREAKDOWN</div>
+        <div style={{background:"#fff",border:"1px solid #e8e8e3",borderRadius:14,padding:16,marginBottom:16}}>
+          <div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:"#000",letterSpacing:0.5,marginBottom:12}}>SCORE BREAKDOWN</div>
           {realHazards.map(z=>{const f=found.includes(z.id);return(
-            <div key={z.id} style={{display:"flex",justifyContent:"space-between",fontSize:13,fontFamily:FC,color:f?"#fff":"#666",marginBottom:4}}>
-              <span>{f?"\u2713 ":"\u2717 "}{(cfgFeedback[z.id]||{}).title||z.id}</span><span>{f?`+${cfgPtsPerHz}`:"0"}</span>
+            <div key={z.id} style={{display:"flex",justifyContent:"space-between",fontSize:14,fontFamily:FB,color:f?"#555":"#999",marginBottom:4}}>
+              <span>{f?"\u2713 ":"\u2717 "}{(cfgFeedback[z.id]||{}).title||z.id}</span><span style={{fontFamily:FC,fontWeight:800,fontSize:15}}>{f?`+${cfgPtsPerHz}`:"0"}</span>
             </div>
           );})}
-          <div style={{borderTop:"1px solid #333",marginTop:8,paddingTop:8}}>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:13,fontFamily:FC,color:speedBonus?"#fff":"#666",marginBottom:4}}><span>{speedBonus?"\u2713":"\u2717"} Speed bonus (under {cfgSpeedThresh}s)</span><span>{speedBonus?`+${cfgSpeedPts}`:"0"}</span></div>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:13,fontFamily:FC,color:!decoyTapped?"#fff":"#E3000B",marginBottom:4}}><span>{!decoyTapped?"\u2713":"\u2717"} Decoy avoided</span><span>{!decoyTapped?`+${cfgDecoyAvoid}`:`-${cfgDecoyPen}`}</span></div>
+          <div style={{borderTop:"1px solid #e8e8e3",marginTop:8,paddingTop:8}}>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:14,fontFamily:FB,color:speedBonus?"#555":"#999",marginBottom:4}}><span>{speedBonus?"\u2713":"\u2717"} Speed bonus (under {cfgSpeedThresh}s)</span><span style={{fontFamily:FC,fontWeight:800,fontSize:15}}>{speedBonus?`+${cfgSpeedPts}`:"0"}</span></div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:14,fontFamily:FB,color:!decoyTapped?"#555":"#E3000B",marginBottom:4}}><span>{!decoyTapped?"\u2713":"\u2717"} Decoy avoided</span><span style={{fontFamily:FC,fontWeight:800,fontSize:15}}>{!decoyTapped?`+${cfgDecoyAvoid}`:`-${cfgDecoyPen}`}</span></div>
           </div>
         </div>
-        {decoyTapped&&<div style={{background:"#FFF8E0",border:"1px solid #FFD300",borderRadius:14,padding:16,marginBottom:16}}><div style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#000"}}>You tapped the decoy. It looked wrong but it was fine. Going fast isn't the same as going right.</div></div>}
+        {decoyTapped&&<div style={{background:"#FFF8E0",border:"1px solid #FFD300",borderRadius:14,padding:16,marginBottom:16}}><div style={{fontSize:15,fontWeight:700,fontFamily:FB,color:"#000",lineHeight:1.5}}>You tapped the decoy. It looked wrong but it was fine. Going fast isn't the same as going right.</div></div>}
         <div style={{marginBottom:16}}>
-          <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1,display:"block",marginBottom:6}}>{cfgQuestion.toUpperCase()}</label>
+          <label style={{fontFamily:FC,fontWeight:800,fontSize:14,color:"#333",letterSpacing:0.5,display:"block",marginBottom:6}}>{cfgQuestion.toUpperCase()}</label>
           <textarea style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,color:"#1a1a1a",fontSize:15,fontFamily:FB,outline:"none",height:80,resize:"vertical",boxSizing:"border-box"}} value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="Your response..."/>
         </div>
-        <button style={{...BY,width:"100%",opacity:answer.trim()?"1":"0.5"}} disabled={!answer.trim()} onClick={()=>{const finalScore=score;onS({text:answer,hazardsFound:found.filter(id=>(cfgFeedback[id]||{}).hazard),decoyTapped,timeUsed:90-timeLeft,score:finalScore,speedBonus,claimedBonus:speedBonus&&!decoyTapped,autoBonus:speedBonus&&!decoyTapped,points:finalScore});}}>SUBMIT</button>
+        <button style={{...BY,width:"100%",fontSize:17,opacity:answer.trim()?"1":"0.5"}} disabled={!answer.trim()} onClick={()=>{const finalScore=score;onS({text:answer,hazardsFound:found.filter(id=>(cfgFeedback[id]||{}).hazard),decoyTapped,timeUsed:90-timeLeft,score:finalScore,speedBonus,claimedBonus:speedBonus&&!decoyTapped,autoBonus:speedBonus&&!decoyTapped,points:finalScore});}}>SUBMIT</button>
       </div>
     )}
   </div>
@@ -1590,7 +1591,7 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users,actCfg}){
     )}
     {screen===3&&(
       <div style={{padding:"16px 16px 24px"}}>
-        <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:1,marginBottom:12,textAlign:"center"}}>YOUR RANKING VS EXPERT</div>
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,marginBottom:12,textAlign:"center",color:"#000"}}>YOUR RANKING VS EXPERT</div>
         {ranking.map((p,i)=>{const expertIdx=EXPERT_ORDER.indexOf(p.id);const diff=Math.abs(i-expertIdx);const color=diff<=1?"#007A33":diff<=3?"#FFD300":"#E3000B";
           const otherRankings=batchComps.filter(c=>c.submission?.ranking).map(c=>{const r=c.submission.ranking;return r.indexOf(p.id);}).filter(x=>x>=0);
           const avg=otherRankings.length?Math.round(otherRankings.reduce((a,b)=>a+b,0)/otherRankings.length)+1:null;
@@ -1604,22 +1605,22 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users,actCfg}){
             </div>
           </div>
         );})}
-        <div style={{background:"#000",borderRadius:14,padding:20,textAlign:"center",marginTop:12,marginBottom:16}}>
-          <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300"}}>{accuracy}%</div>
-          <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:1}}>ACCURACY</div>
+        <div style={{background:"#000",borderRadius:14,padding:"24px 20px",textAlign:"center",marginTop:12,marginBottom:16}}>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:56,color:"#FFD300"}}>{accuracy}%</div>
+          <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#ccc",letterSpacing:1}}>ACCURACY</div>
           <div style={{fontFamily:FC,fontWeight:900,fontSize:24,color:"#fff",marginTop:8}}>{earnedPts} PTS EARNED</div>
           {(isTop3||accuracy>=bonusThresh)&&<div style={{fontSize:14,fontFamily:FC,fontWeight:800,color:"#FFD300",marginTop:8,padding:"6px 12px",background:"rgba(255,211,0,0.15)",borderRadius:8,display:"inline-block"}}>BONUS EARNED +{ch.bonusPoints} PTS{isTop3?` (Top ${topN} in batch)`:` (${accuracy}%+ accuracy)`}</div>}
-          {!isTop3&&accuracy<bonusThresh&&<div style={{fontSize:12,fontFamily:FC,fontWeight:600,color:"#888",marginTop:4}}>Bonus requires {bonusThresh}%+ accuracy or top {topN} in batch</div>}
+          {!isTop3&&accuracy<bonusThresh&&<div style={{fontSize:13,fontFamily:FC,fontWeight:600,color:"#999",marginTop:4}}>Bonus requires {bonusThresh}%+ accuracy or top {topN} in batch</div>}
         </div>
-        <button style={{...BY,width:"100%"}} onClick={()=>setScreen(4)}>CONTINUE</button>
+        <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>setScreen(4)}>CONTINUE</button>
       </div>
     )}
     {screen===4&&(
       <div style={{padding:"24px 20px",display:"flex",flexDirection:"column",gap:16}}>
-        <div style={{fontFamily:F107,fontWeight:900,fontSize:20,letterSpacing:0.5}}>PREVENTION QUESTION</div>
-        <div style={{fontFamily:FB,fontSize:15,color:"#555",lineHeight:1.5}}>What's one thing that would have prevented this shift from getting to this point? Be specific about when it should have happened and who should have done it.</div>
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,color:"#000"}}>PREVENTION QUESTION</div>
+        <div style={{fontFamily:FB,fontSize:15,color:"#555",lineHeight:1.6}}>What's one thing that would have prevented this shift from getting to this point? Be specific about when it should have happened and who should have done it.</div>
         <textarea style={{width:"100%",padding:16,background:"#fff",border:"1px solid #e0e0db",borderRadius:12,color:"#1a1a1a",fontSize:15,fontFamily:FB,outline:"none",height:120,resize:"vertical",boxSizing:"border-box"}} value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="Your response..."/>
-        <button style={{...BY,width:"100%",opacity:answer.trim()?"1":"0.5"}} disabled={!answer.trim()} onClick={()=>{const matchedTop5=ranking.slice(0,5).filter(p=>EXPERT_ORDER.indexOf(p.id)<5).length;onS({text:answer,ranking:ranking.map(p=>p.id),distanceFromExpert:totalDistance,accuracy,earnedBadge:isTop3,matchedTop5,claimedBonus:isTop3||accuracy>=bonusThresh,autoBonus:isTop3||accuracy>=bonusThresh,points:earnedPts});}}>SUBMIT</button>
+        <button style={{...BY,width:"100%",fontSize:17,opacity:answer.trim()?"1":"0.5"}} disabled={!answer.trim()} onClick={()=>{const matchedTop5=ranking.slice(0,5).filter(p=>EXPERT_ORDER.indexOf(p.id)<5).length;onS({text:answer,ranking:ranking.map(p=>p.id),distanceFromExpert:totalDistance,accuracy,earnedBadge:isTop3,matchedTop5,claimedBonus:isTop3||accuracy>=bonusThresh,autoBonus:isTop3||accuracy>=bonusThresh,points:earnedPts});}}>SUBMIT</button>
       </div>
     )}
   </div>
@@ -1809,8 +1810,8 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
     {phase==="reveal"&&(<div style={{padding:"24px 20px"}}>
       <div style={{textAlign:"center",marginBottom:24}}>
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:8}}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        <div style={{fontSize:28,fontFamily:FC,fontWeight:900,letterSpacing:1}}>SWIPE RESULTS</div>
-        <div style={{fontSize:14,color:"#888",fontFamily:FB,marginTop:4}}>You swiped on {swipes.length} photos</div>
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:26,letterSpacing:0.5,color:"#000"}}>SWIPE RESULTS</div>
+        <div style={{fontSize:14,color:"#999",fontFamily:FC,fontWeight:600,marginTop:4,letterSpacing:0.5}}>You swiped on {swipes.length} photos</div>
       </div>
 
       {/* Stats */}
@@ -1826,8 +1827,8 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
       </div>
 
       {/* Word cloud */}
-      <div style={{background:"#000",borderRadius:14,padding:20,marginBottom:24}}>
-        <div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#FFD300",marginBottom:12}}>YOUR WORD PICKS</div>
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",marginBottom:24}}>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300",letterSpacing:0.5,marginBottom:12}}>YOUR WORD PICKS</div>
         <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
           {Object.entries(swipes.reduce((a,s)=>{if(s.word){a[s.word]=(a[s.word]||0)+1;}return a;},{})).sort((a,b)=>b[1]-a[1]).map(([w,c])=>(
             <span key={w} style={{padding:"7px 14px 6px",borderRadius:20,lineHeight:1,background:"rgba(255,211,0,0.15)",color:"#FFD300",fontFamily:FC,fontWeight:700,fontSize:c>2?16:13}}>{w} ({c})</span>
@@ -1851,7 +1852,7 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
         </div>)}
       </div>
 
-      <button style={{...BY,width:"100%"}} onClick={()=>{
+      <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{
         onS({text:"Spot the Moment completed",photos,swipeResults:swipes,comeBackCount:swipes.filter(s=>s.right).length,nopeCount:swipes.filter(s=>!s.right).length,wordPicks:swipes.map(s=>s.word).filter(Boolean),claimedBonus:earnedBonus,autoBonus:earnedBonus,bonusPoints:earnedBonusPts,points:ch.points,pendingApproval:passedCount<5&&myPhotoSwipes.length<10,bonusApproved:earnedBonus?true:null,photoResults});
       }}>SUBMIT CHALLENGE</button>
     </div>)}
@@ -2078,9 +2079,9 @@ function RecoveryRace({ch,done,onS,onB,user,actCfg}){
       <div style={{display:"flex",gap:4,marginTop:16,justifyContent:"center"}}>{scen.decisions.map((_,i)=>(<div key={i} style={{width:8,height:8,borderRadius:4,background:i<decIdx?"#007A33":i===decIdx?"#FFD300":"#ddd"}}/>))}</div>
     </div>)}
     {screen==="result"&&(<div style={{padding:"24px 20px"}}>
-      <div style={{background:"#000",borderRadius:14,padding:20,textAlign:"center",marginBottom:20}}>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300"}}>{allResults[allResults.length-1]?.score||0}%</div>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:1}}>RECOVERY SCORE</div>
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",textAlign:"center",marginBottom:20}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:56,color:"#FFD300"}}>{allResults[allResults.length-1]?.score||0}%</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#ccc",letterSpacing:1}}>RECOVERY SCORE</div>
       </div>
       {scenIdx<scenarios.length-1?(
         <button style={{...BY,width:"100%"}} onClick={()=>{setScenIdx(s=>s+1);setDecIdx(0);setChoices([]);setLastOutcome(null);setScreen("play");setDecTimer(scenarios[scenIdx+1]?.decisions[0]?.timer||decisionTimerDefault);}}>NEXT SCENARIO: {scenarios[scenIdx+1]?.title.toUpperCase()}</button>
@@ -2089,19 +2090,19 @@ function RecoveryRace({ch,done,onS,onB,user,actCfg}){
       )}
     </div>)}
     {screen==="complete"&&(<div style={{padding:"24px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontSize:24,fontFamily:FC,fontWeight:900}}>RECOVERY RACE COMPLETE</div></div>
-      {allResults.map((r,i)=>(<div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{r.title}</div><div style={{fontSize:12,color:"#888"}}>{r.goods}/{r.total} good choices</div></div><div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:r.score>=75?"#007A33":r.score>=50?"#FFB800":"#E3000B"}}>{r.score}%</div></div>))}
+      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:0.5,color:"#000"}}>RECOVERY RACE COMPLETE</div></div>
+      {allResults.map((r,i)=>(<div key={i} style={{background:"#fff",borderRadius:14,padding:16,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",border:"1px solid #e8e8e3"}}><div><div style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{r.title}</div><div style={{fontSize:14,color:"#555",fontFamily:FB}}>{r.goods}/{r.total} good choices</div></div><div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:r.score>=75?"#007A33":r.score>=50?"#FFB800":"#E3000B"}}>{r.score}%</div></div>))}
       <div style={{textAlign:"center",marginTop:16}}><div style={{fontSize:16,fontFamily:FC,fontWeight:800,color:"#000"}}>AVG: {Math.round(allResults.reduce((s,r)=>s+r.score,0)/allResults.length)}%</div></div>
       {(()=>{const avg=Math.round(allResults.reduce((s,r)=>s+r.score,0)/allResults.length);const earnedPts=Math.round(ch.points*(avg/100));const bonusEarned=avg>=bonusThreshold;return(<>
-        <div style={{background:"#000",borderRadius:14,padding:16,marginTop:16,marginBottom:16}}>
+        <div style={{background:"#000",borderRadius:14,padding:"24px 20px",marginTop:16,marginBottom:16}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-            <div><div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",letterSpacing:0.5}}>POINTS EARNED</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:"#fff",marginTop:4}}>{earnedPts}<span style={{fontSize:14,color:"#888"}}>/{ch.points}</span></div></div>
-            <div style={{textAlign:"right"}}><div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",letterSpacing:0.5}}>ACCURACY</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:avg>=bonusThreshold?"#007A33":avg>=50?"#FFB800":"#E3000B",marginTop:4}}>{avg}%</div></div>
+            <div><div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5}}>POINTS EARNED</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:"#fff",marginTop:4}}>{earnedPts}<span style={{fontSize:14,color:"#999"}}>/{ch.points}</span></div></div>
+            <div style={{textAlign:"right"}}><div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5}}>ACCURACY</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:avg>=bonusThreshold?"#007A33":avg>=50?"#FFB800":"#E3000B",marginTop:4}}>{avg}%</div></div>
           </div>
           {bonusEarned&&<div style={{marginTop:10,padding:"8px 12px",background:"rgba(255,211,0,0.15)",borderRadius:8,fontFamily:FC,fontWeight:800,fontSize:13,color:"#FFD300",textAlign:"center"}}>BONUS EARNED +{ch.bonusPoints} PTS ({bonusThreshold}%+ accuracy)</div>}
-          {!bonusEarned&&<div style={{marginTop:10,fontSize:12,color:"#888",fontFamily:FB,textAlign:"center"}}>{bonusThreshold}%+ accuracy needed for +{ch.bonusPoints} bonus</div>}
+          {!bonusEarned&&<div style={{marginTop:10,fontSize:13,color:"#999",fontFamily:FB,textAlign:"center"}}>{bonusThreshold}%+ accuracy needed for +{ch.bonusPoints} bonus</div>}
         </div>
-        <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"Recovery Race completed",scenarios:allResults,avgScore:avg,claimedBonus:bonusEarned,autoBonus:bonusEarned,points:earnedPts});}}>SUBMIT</button>
+        <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{onS({text:"Recovery Race completed",scenarios:allResults,avgScore:avg,claimedBonus:bonusEarned,autoBonus:bonusEarned,points:earnedPts});}}>SUBMIT</button>
       </>);})()}
     </div>)}
   </div>);
@@ -2316,13 +2317,13 @@ function ShiftLeaderLens({ch,done,onS,onB,user,actCfg}){
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
     <div style={{padding:"24px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:24}}><div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:1}}>YOUR LEADERSHIP PROFILE</div><div style={{fontSize:14,color:"#888",fontFamily:FC,marginTop:6}}>{answers.length} situations assessed</div></div>
+      <div style={{textAlign:"center",marginBottom:24}}><div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:0.5,color:"#000"}}>YOUR LEADERSHIP PROFILE</div><div style={{fontSize:14,color:"#999",fontFamily:FC,fontWeight:600,marginTop:6,letterSpacing:0.5}}>{answers.length} situations assessed</div></div>
       {answers.map((a,i)=>(<div key={i} style={{background:"#fff",borderRadius:14,padding:16,marginBottom:10,border:"1px solid #e8e8e3"}}>
-        <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:0.5}}>{a.title.toUpperCase()}</div>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:0.5,color:"#000"}}>{a.title.toUpperCase()}</div>
         <div style={{fontSize:15,color:"#007A33",fontFamily:FB,marginTop:6,fontWeight:600}}>{a.choice}</div>
-        {a.why&&<div style={{fontSize:13,color:"#888",fontFamily:FB,marginTop:4,fontStyle:"italic"}}>{a.why}</div>}
+        {a.why&&<div style={{fontSize:14,color:"#555",fontFamily:FB,marginTop:4,fontStyle:"italic"}}>{a.why}</div>}
       </div>))}
-      <button style={{...BY,width:"100%",marginTop:20}} onClick={()=>{onS({text:"Shift Leader Lens completed",answers,claimedBonus:answers.length>=clips.length,autoBonus:true,points:ch.points});}}>SUBMIT CHALLENGE</button>
+      <button style={{...BY,width:"100%",fontSize:17,marginTop:20}} onClick={()=>{onS({text:"Shift Leader Lens completed",answers,claimedBonus:answers.length>=clips.length,autoBonus:true,points:ch.points});}}>SUBMIT CHALLENGE</button>
     </div>
   </div>);
   // Play phase
@@ -2456,28 +2457,29 @@ function ShiftCall({ch,done,onS,onB,user,actCfg}){
       </div>
     </div>)}
     {phase==="results"&&(<div style={{padding:"24px 20px"}}>
-      <div style={{background:"#000",borderRadius:14,padding:20,textAlign:"center",marginBottom:24}}>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300"}}>{correctCount}/{scenarios.length}</div>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:1}}>CORRECT DECISIONS</div>
+      <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,textAlign:"center",marginBottom:16,color:"#000"}}>YOUR RESULTS</div>
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",textAlign:"center",marginBottom:24}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:56,color:"#FFD300"}}>{correctCount}/{scenarios.length}</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#ccc",letterSpacing:1}}>CORRECT DECISIONS</div>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
-        <div style={{background:"#fff",borderRadius:12,padding:14,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24}}>{totalPts}</div><div style={{fontSize:11,color:"#888",fontFamily:FC}}>POINTS (/{maxPts})</div></div>
-        <div style={{background:"#fff",borderRadius:12,padding:14,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24}}>{avgSpeed}s</div><div style={{fontSize:11,color:"#888",fontFamily:FC}}>AVG SPEED</div></div>
-        <div style={{background:"#fff",borderRadius:12,padding:14,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24}}>{maxStreak}</div><div style={{fontSize:11,color:"#888",fontFamily:FC}}>BEST STREAK</div></div>
-        <div style={{background:"#fff",borderRadius:12,padding:14,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24,color:reactCorrect===reactTotal&&holdCorrect===holdTotal?"#007A33":"#E3000B"}}>{reactCorrect}/{reactTotal}</div><div style={{fontSize:11,color:"#888",fontFamily:FC}}>REACT | {holdCorrect}/{holdTotal} HOLD</div></div>
+        <div style={{background:"#fff",borderRadius:14,padding:16,textAlign:"center",border:"1px solid #e8e8e3"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24}}>{totalPts}</div><div style={{fontSize:12,color:"#555",fontFamily:FC,fontWeight:700}}>POINTS (/{maxPts})</div></div>
+        <div style={{background:"#fff",borderRadius:14,padding:16,textAlign:"center",border:"1px solid #e8e8e3"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24}}>{avgSpeed}s</div><div style={{fontSize:12,color:"#555",fontFamily:FC,fontWeight:700}}>AVG SPEED</div></div>
+        <div style={{background:"#fff",borderRadius:14,padding:16,textAlign:"center",border:"1px solid #e8e8e3"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24}}>{maxStreak}</div><div style={{fontSize:12,color:"#555",fontFamily:FC,fontWeight:700}}>BEST STREAK</div></div>
+        <div style={{background:"#fff",borderRadius:14,padding:16,textAlign:"center",border:"1px solid #e8e8e3"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24,color:reactCorrect===reactTotal&&holdCorrect===holdTotal?"#007A33":"#E3000B"}}>{reactCorrect}/{reactTotal}</div><div style={{fontSize:12,color:"#555",fontFamily:FC,fontWeight:700}}>REACT | {holdCorrect}/{holdTotal} HOLD</div></div>
       </div>
-      {results.map((r,i)=>{const s=scenarios.find(x=>x.id===r.scenarioId);return(<div key={i} style={{background:"#fff",borderRadius:10,padding:12,marginBottom:6,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:700,fontSize:12}}>{s.day} {s.time}</div><div style={{fontSize:11,color:r.correct?"#007A33":"#E3000B",fontFamily:FC,fontWeight:700}}>{r.correct?"CORRECT":"WRONG"} - {r.choice==="react"?"Reacted":"Held"} ({r.speed}s)</div></div>
+      {results.map((r,i)=>{const s=scenarios.find(x=>x.id===r.scenarioId);return(<div key={i} style={{background:"#fff",borderRadius:14,padding:14,marginBottom:6,display:"flex",justifyContent:"space-between",alignItems:"center",border:"1px solid #e8e8e3"}}>
+        <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{s.day} {s.time}</div><div style={{fontSize:12,color:r.correct?"#007A33":"#E3000B",fontFamily:FC,fontWeight:700}}>{r.correct?"CORRECT":"WRONG"} - {r.choice==="react"?"Reacted":"Held"} ({r.speed}s)</div></div>
         {s.costAnnual>0&&!r.correct&&<div style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#E3000B"}}>${s.costAnnual.toLocaleString()}/yr</div>}
         {r.correct&&<div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:"#007A33"}}>+{r.points}</div>}
       </div>);})}
-      <div style={{background:"#000",borderRadius:14,padding:16,marginTop:16,marginBottom:16}}>
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",marginTop:16,marginBottom:16}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div><div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300"}}>POINTS EARNED</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:"#fff",marginTop:4}}>{Math.round(ch.points*(correctCount/scenarios.length))}<span style={{fontSize:14,color:"#888"}}>/{ch.points}</span></div></div>
+          <div><div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5}}>POINTS EARNED</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:"#fff",marginTop:4}}>{Math.round(ch.points*(correctCount/scenarios.length))}<span style={{fontSize:14,color:"#999"}}>/{ch.points}</span></div></div>
           {correctCount===scenarios.length&&<div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#FFD300",background:"rgba(255,211,0,0.15)",padding:"6px 12px",borderRadius:8}}>PERFECT +{ch.bonusPoints}</div>}
         </div>
       </div>
-      <button style={{...BY,width:"100%"}} onClick={()=>{const earnedPts=Math.round(ch.points*(correctCount/scenarios.length));onS({text:"Shift Call completed",score:totalPts,correct:correctCount,avgSpeed:parseFloat(avgSpeed),streak:maxStreak,decisions:results,perfectRound:correctCount===scenarios.length,claimedBonus:correctCount===scenarios.length,autoBonus:correctCount===scenarios.length,points:earnedPts});}}>SUBMIT</button>
+      <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{const earnedPts=Math.round(ch.points*(correctCount/scenarios.length));onS({text:"Shift Call completed",score:totalPts,correct:correctCount,avgSpeed:parseFloat(avgSpeed),streak:maxStreak,decisions:results,perfectRound:correctCount===scenarios.length,claimedBonus:correctCount===scenarios.length,autoBonus:correctCount===scenarios.length,points:earnedPts});}}>SUBMIT</button>
     </div>)}
   </div>);
 }
@@ -2555,7 +2557,7 @@ function BenchBuilder({ch,done,onS,onB,user,actCfg}){
       </button>
     </div>)}
     {phase==="results"&&(<div style={{padding:"24px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:24}}><div style={{fontSize:24,fontFamily:FC,fontWeight:900}}>BENCH BUILDER COMPLETE</div></div>
+      <div style={{textAlign:"center",marginBottom:24}}><div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:0.5,color:"#000"}}>BENCH BUILDER COMPLETE</div></div>
       {levelResults.map((r,i)=>(<div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
           <span style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{r.name}</span>
@@ -2571,9 +2573,9 @@ function BenchBuilder({ch,done,onS,onB,user,actCfg}){
           <span style={{fontSize:16,fontFamily:FC,fontWeight:900,color:"#E3000B"}}>${r.annualSaving.toLocaleString()}</span>
         </div>
       </div>))}
-      <div style={{background:"#000",borderRadius:14,padding:16,marginTop:8,marginBottom:16}}>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:4}}>KEY SAVINGS</div>
-        <div style={{fontSize:13,color:"#fff",fontFamily:FB,lineHeight:1.6}}>Casual 21+ to PT: saves <span style={{color:"#E3000B",fontWeight:900}}>$6.63/hr</span><br/>Casual 21+ to Casual 19: saves <span style={{color:"#E3000B",fontWeight:900}}>$6.67/hr</span><br/>Casual 21+ to Casual 16: saves <span style={{color:"#E3000B",fontWeight:900}}>$16.62/hr</span></div>
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",marginTop:8,marginBottom:16}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5,marginBottom:4}}>KEY SAVINGS</div>
+        <div style={{fontSize:14,color:"#ccc",fontFamily:FB,lineHeight:1.6}}>Casual 21+ to PT: saves <span style={{color:"#E3000B",fontWeight:900}}>$6.63/hr</span><br/>Casual 21+ to Casual 19: saves <span style={{color:"#E3000B",fontWeight:900}}>$6.67/hr</span><br/>Casual 21+ to Casual 16: saves <span style={{color:"#E3000B",fontWeight:900}}>$16.62/hr</span></div>
       </div>
       <button style={{...BY,width:"100%"}} onClick={()=>{const allBeat=levelResults.every(r=>r.beatTarget);const earnedPts=Math.round(ch.points*(levelResults.filter(r=>r.beatTarget).length/levels.length));onS({text:"Bench Builder completed",levels:levelResults,allUnderTarget:allBeat,claimedBonus:allBeat,autoBonus:allBeat,points:earnedPts});}}>SUBMIT</button>
     </div>)}
@@ -2737,46 +2739,46 @@ function MakeTheCall({ch,done,onS,onB,user,actCfg}){
 
     {/* Results */}
     {screen==="results"&&(<div style={{padding:"24px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontSize:22,fontFamily:FC,fontWeight:900,letterSpacing:1}}>YOUR WEEK</div></div>
+      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:0.5,color:"#000"}}>YOUR WEEK</div></div>
       {/* Dual outcome */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16}}>
-        <div style={{background:"#000",borderRadius:14,padding:16,textAlign:"center"}}>
-          <div style={{fontSize:12,fontFamily:FC,color:"#888",textDecoration:"line-through"}}>${MTC_START_AHR.toFixed(2)}</div>
-          <div style={{fontFamily:FC,fontWeight:900,fontSize:32,color:ahrHit?"#007A33":"#E3000B"}}>${finalAHR.toFixed(2)}</div>
-          <div style={{fontSize:10,fontFamily:FC,color:"#888",marginTop:2}}>AHR</div>
-          <span style={{fontSize:10,fontFamily:FC,fontWeight:800,padding:"4px 8px 3px",borderRadius:6,lineHeight:1,background:ahrHit?"rgba(0,122,51,0.2)":"rgba(227,0,11,0.2)",color:ahrHit?"#007A33":"#E3000B",marginTop:6,display:"inline-block"}}>{ahrHit?"ON TARGET":"OVER"}</span>
+        <div style={{background:"#000",borderRadius:14,padding:"24px 16px",textAlign:"center"}}>
+          <div style={{fontSize:13,fontFamily:FC,color:"#999",textDecoration:"line-through"}}>${MTC_START_AHR.toFixed(2)}</div>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:36,color:ahrHit?"#007A33":"#E3000B"}}>${finalAHR.toFixed(2)}</div>
+          <div style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#ccc",marginTop:2}}>AHR</div>
+          <span style={{fontSize:11,fontFamily:FC,fontWeight:800,padding:"4px 8px 3px",borderRadius:6,lineHeight:1,background:ahrHit?"rgba(0,122,51,0.2)":"rgba(227,0,11,0.2)",color:ahrHit?"#007A33":"#E3000B",marginTop:6,display:"inline-block"}}>{ahrHit?"ON TARGET":"OVER"}</span>
         </div>
-        <div style={{background:"#000",borderRadius:14,padding:16,textAlign:"center"}}>
-          <div style={{fontSize:12,fontFamily:FC,color:"#888",textDecoration:"line-through"}}>${MTC_START_SPLH}</div>
-          <div style={{fontFamily:FC,fontWeight:900,fontSize:32,color:splhOk?"#007A33":"#E3000B"}}>${Math.round(finalSPLH)}</div>
-          <div style={{fontSize:10,fontFamily:FC,color:"#888",marginTop:2}}>SPLH</div>
-          <span style={{fontSize:10,fontFamily:FC,fontWeight:800,padding:"4px 8px 3px",borderRadius:6,lineHeight:1,background:splhOk?"rgba(0,122,51,0.2)":"rgba(227,0,11,0.2)",color:splhOk?"#007A33":"#E3000B",marginTop:6,display:"inline-block"}}>{splhOk?"IN BAND":"OUT OF BAND"}</span>
+        <div style={{background:"#000",borderRadius:14,padding:"24px 16px",textAlign:"center"}}>
+          <div style={{fontSize:13,fontFamily:FC,color:"#999",textDecoration:"line-through"}}>${MTC_START_SPLH}</div>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:36,color:splhOk?"#007A33":"#E3000B"}}>${Math.round(finalSPLH)}</div>
+          <div style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#ccc",marginTop:2}}>SPLH</div>
+          <span style={{fontSize:11,fontFamily:FC,fontWeight:800,padding:"4px 8px 3px",borderRadius:6,lineHeight:1,background:splhOk?"rgba(0,122,51,0.2)":"rgba(227,0,11,0.2)",color:splhOk?"#007A33":"#E3000B",marginTop:6,display:"inline-block"}}>{splhOk?"IN BAND":"OUT OF BAND"}</span>
         </div>
       </div>
       {/* Decision review */}
-      {decisions.map((d,i)=>(<div key={i} style={{borderLeft:`3px solid ${d.correct?"#007A33":"#E3000B"}`,background:"#fff",borderRadius:"0 12px 12px 0",padding:12,marginBottom:4}}>
+      {decisions.map((d,i)=>(<div key={i} style={{borderLeft:`3px solid ${d.correct?"#007A33":"#E3000B"}`,background:"#fff",borderRadius:"0 12px 12px 0",padding:14,marginBottom:4}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div><div style={{fontFamily:FC,fontWeight:700,fontSize:13}}>{d.day} {d.time}</div><div style={{fontSize:11,color:"#888"}}>{d.choiceLabel}</div></div>
+          <div><div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{d.day} {d.time}</div><div style={{fontSize:13,color:"#555",fontFamily:FB}}>{d.choiceLabel}</div></div>
           {d.correct?<span style={{fontFamily:FC,fontWeight:800,fontSize:11,color:"#007A33"}}>CORRECT</span>
           :<span style={{fontFamily:FC,fontWeight:800,fontSize:11,color:"#E3000B"}}>{MTC_ERROR_TYPES[d.errorType]||"WRONG"}</span>}
         </div>
-        <div style={{fontSize:11,color:"#666",fontFamily:FB,marginTop:4}}>{d.lesson}</div>
+        <div style={{fontSize:13,color:"#555",fontFamily:FB,marginTop:4,lineHeight:1.5}}>{d.lesson}</div>
       </div>))}
       {/* Error pattern */}
       {topError&&<div style={{background:"#FFF8E0",border:"1px solid #FFD300",borderRadius:12,padding:14,marginTop:12,marginBottom:16}}>
         <div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#000",marginBottom:4}}>YOUR PATTERN</div>
         <div style={{fontSize:13,fontFamily:FB,color:"#555"}}>{topError[1]} of your errors were <strong>{MTC_ERROR_TYPES[topError[0]]?.toLowerCase()}</strong>. That's the habit to fix first.</div>
       </div>}
-      <button style={{...BY,width:"100%",marginTop:8}} onClick={()=>setScreen("verdict")}>SEE VERDICT</button>
+      <button style={{...BY,width:"100%",fontSize:17,marginTop:8}} onClick={()=>setScreen("verdict")}>SEE VERDICT</button>
     </div>)}
 
     {/* Verdict */}
     {screen==="verdict"&&(<div style={{padding:"24px 20px",display:"flex",flexDirection:"column",justifyContent:"center",minHeight:"60vh"}}>
       <div style={{background:"#000",borderRadius:16,padding:24,marginBottom:24}}>
-        <div style={{fontSize:16,fontFamily:FB,lineHeight:1.8,color:"#fff",textAlign:"center"}}>{getVerdict()}</div>
+        <div style={{fontSize:16,fontFamily:FB,lineHeight:1.8,color:"#ccc",textAlign:"center"}}>{getVerdict()}</div>
       </div>
       {ahrHit&&splhOk&&<div style={{textAlign:"center",marginBottom:16,fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300"}}>BONUS EARNED +{ch.bonusPoints} PTS</div>}
-      <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"Make the Call completed",startingAHR:MTC_START_AHR,finalAHR,targetAHR:MTC_TARGET,ahrHit,startingSPLH:MTC_START_SPLH,finalSPLH,splhInBand:splhOk,correctCount,decisions,verdict:getVerdict(),claimedBonus:ahrHit&&splhOk,autoBonus:ahrHit&&splhOk,points:ch.points});}}>COMPLETE CHALLENGE</button>
+      <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{onS({text:"Make the Call completed",startingAHR:MTC_START_AHR,finalAHR,targetAHR:MTC_TARGET,ahrHit,startingSPLH:MTC_START_SPLH,finalSPLH,splhInBand:splhOk,correctCount,decisions,verdict:getVerdict(),claimedBonus:ahrHit&&splhOk,autoBonus:ahrHit&&splhOk,points:ch.points});}}>COMPLETE CHALLENGE</button>
     </div>)}
   </div>);
 }
@@ -3036,20 +3038,21 @@ function PermOrPass({ch,done,onS,onB,user,actCfg}){
       </div>);})()}
     </div>)}
     {phase==="results"&&(<div style={{padding:"24px 20px"}}>
-      <div style={{background:"#000",borderRadius:14,padding:20,textAlign:"center",marginBottom:24}}>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300"}}>{correctCount}/{profiles.length}</div>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:1}}>CONVERSATIONS LANDED</div>
+      <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,textAlign:"center",marginBottom:16,color:"#000"}}>YOUR RESULTS</div>
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",textAlign:"center",marginBottom:24}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:56,color:"#FFD300"}}>{correctCount}/{profiles.length}</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#ccc",letterSpacing:1}}>CONVERSATIONS LANDED</div>
       </div>
-      {results.map((r,i)=>{const p=profiles.find(x=>x.id===r.profileId);return(<div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <div><div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{p?.name}</div><div style={{fontSize:12,color:"#888"}}>"{p?.objection?.substring(0,40)}..."</div></div>
+      {results.map((r,i)=>{const p=profiles.find(x=>x.id===r.profileId);return(<div key={i} style={{background:"#fff",borderRadius:14,padding:16,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",border:"1px solid #e8e8e3"}}>
+        <div><div style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{p?.name}</div><div style={{fontSize:14,color:"#555",fontFamily:FB}}>"{p?.objection?.substring(0,40)}..."</div></div>
         <span style={{fontFamily:FC,fontWeight:900,color:r.correct?"#007A33":"#E3000B"}}>{r.correct?"LANDED":"MISSED"}</span>
       </div>);})}
-      <div style={{background:"#000",borderRadius:14,padding:16,marginTop:16,marginBottom:16}}>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:4}}>KEY NUMBER</div>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:22,color:"#E3000B"}}>~$12,000/year</div>
-        <div style={{fontSize:13,color:"#888",fontFamily:FB}}>Average saving per casual-to-permanent conversion</div>
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",marginTop:16,marginBottom:16}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5,marginBottom:4}}>KEY NUMBER</div>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:"#E3000B"}}>~$12,000/year</div>
+        <div style={{fontSize:14,color:"#ccc",fontFamily:FB}}>Average saving per casual-to-permanent conversion</div>
       </div>
-      <button style={{...BY,width:"100%"}} onClick={()=>{const earnedPts=Math.round(ch.points*(correctCount/profiles.length));onS({text:"Perm or Pass completed",profiles:results,correctCount,weakestArea:results.filter(r=>!r.correct).map(r=>profiles.find(p=>p.id===r.profileId)?.name).join(", "),claimedBonus:correctCount===profiles.length,autoBonus:correctCount===profiles.length,points:earnedPts});}}>SUBMIT</button>
+      <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{const earnedPts=Math.round(ch.points*(correctCount/profiles.length));onS({text:"Perm or Pass completed",profiles:results,correctCount,weakestArea:results.filter(r=>!r.correct).map(r=>profiles.find(p=>p.id===r.profileId)?.name).join(", "),claimedBonus:correctCount===profiles.length,autoBonus:correctCount===profiles.length,points:earnedPts});}}>SUBMIT</button>
     </div>)}
   </div>);
 }
@@ -3118,7 +3121,7 @@ function YourRestaurant({ch,done,onS,onB,user,comps,users,actCfg}){
       </div>)}
     </div>)}
     {phase==="results"&&(<div style={{padding:"24px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontSize:22,fontFamily:FC,fontWeight:900,letterSpacing:1}}>YOUR NUMBERS</div></div>
+      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:0.5,color:"#000"}}>YOUR NUMBERS</div></div>
       {/* AHR vs target */}
       <div style={{background:"#fff",borderRadius:14,padding:16,marginBottom:10,border:"1px solid #e8e8e3"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}><span style={{fontFamily:FC,fontWeight:700,fontSize:13}}>YOUR AHR</span><span style={{fontFamily:FC,fontWeight:900,fontSize:28,color:ahrVal<=37.10?"#007A33":"#E3000B"}}>${ahrVal.toFixed(2)}</span></div>
@@ -3135,9 +3138,9 @@ function YourRestaurant({ch,done,onS,onB,user,comps,users,actCfg}){
         <div style={{fontSize:12,color:"#888",fontFamily:FB}}>Ranked by proximity to $37.10 target</div>
       </div>
       {/* Network quartile */}
-      <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:16}}>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:4}}>NETWORK POSITION</div>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:"#fff"}}>{quartile}</div>
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",marginBottom:16}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5,marginBottom:4}}>NETWORK POSITION</div>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:22,color:"#fff"}}>{quartile}</div>
       </div>
       {/* Lever reveal */}
       {!showLever?(<button onClick={()=>setShowLever(true)} style={{...BO,width:"100%",marginBottom:16}}>REVEAL YOUR BEST LEVER</button>)
@@ -3150,7 +3153,7 @@ function YourRestaurant({ch,done,onS,onB,user,comps,users,actCfg}){
         </div>
         <div style={{marginTop:10,fontSize:13,color:"#555",fontFamily:FB}}>Projected AHR: ${lever.newAHR.toFixed(2)}</div>
       </div>)}
-      <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"Your Restaurant, Your Number completed",checkInType:"initial",restaurant:user.restaurant,currentAHR:ahrVal,juniorPercent:juniorPct,permPercent:permPct,recommendedLever:lever.name,projectedAHR:lever.newAHR,weeklySaving:lever.weeklySaving,annualSaving:lever.annualSaving,cohortRank:rank,networkQuartile:quartile,claimedBonus:false,autoBonus:false,points:ch.points});}}>SUBMIT</button>
+      <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{onS({text:"Your Restaurant, Your Number completed",checkInType:"initial",restaurant:user.restaurant,currentAHR:ahrVal,juniorPercent:juniorPct,permPercent:permPct,recommendedLever:lever.name,projectedAHR:lever.newAHR,weeklySaving:lever.weeklySaving,annualSaving:lever.annualSaving,cohortRank:rank,networkQuartile:quartile,claimedBonus:false,autoBonus:false,points:ch.points});}}>SUBMIT</button>
     </div>)}
   </div>);
 }
@@ -3225,29 +3228,29 @@ function GuestDollarTrail({ch,done,onS,onB,user,actCfg}){
     </div>);})()}
     {/* Multiplier reveal */}
     {step===99&&!weakest&&(<div style={{padding:"24px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontSize:22,fontFamily:FC,fontWeight:900}}>THE FULL PICTURE</div></div>
+      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:0.5,color:"#000"}}>THE FULL PICTURE</div></div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>
         <div style={{background:"#fff",borderRadius:14,padding:16,textAlign:"center",border:"1px solid #e8e8e3"}}><div style={{fontSize:11,fontFamily:FC,color:"#E3000B",fontWeight:700}}>ALL WRONG</div><div style={{fontFamily:FC,fontWeight:900,fontSize:24,marginTop:4}}>${pathAVal.toFixed(2)}</div><div style={{fontSize:11,color:"#888"}}>per guest/year</div></div>
         <div style={{background:"#fff",borderRadius:14,padding:16,textAlign:"center",border:"2px solid #007A33"}}><div style={{fontSize:11,fontFamily:FC,color:"#007A33",fontWeight:700}}>ALL RIGHT</div><div style={{fontFamily:FC,fontWeight:900,fontSize:24,marginTop:4}}>${pathBVal}</div><div style={{fontSize:11,color:"#888"}}>per guest/year</div></div>
       </div>
-      <div style={{background:"#000",borderRadius:16,padding:24,textAlign:"center",marginBottom:20}}>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:8}}>THE GAP</div>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:36,color:"#E3000B"}}>${gap}/guest</div>
-        <div style={{marginTop:16,fontFamily:FC,fontWeight:700,fontSize:12,color:"#888"}}>ANNUAL RESTAURANT IMPACT</div>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:40,color:"#FFD300",marginTop:4}}>${annualImpact.toLocaleString()}</div>
-        <div style={{fontSize:13,color:"#888",fontFamily:FB,marginTop:8}}>Same menu. Same prices. Different experience.</div>
+      <div style={{background:"#000",borderRadius:16,padding:"24px 20px",textAlign:"center",marginBottom:20}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5,marginBottom:8}}>THE GAP</div>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#E3000B"}}>${gap}/guest</div>
+        <div style={{marginTop:16,fontFamily:FC,fontWeight:700,fontSize:14,color:"#ccc"}}>ANNUAL RESTAURANT IMPACT</div>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300",marginTop:4}}>${annualImpact.toLocaleString()}</div>
+        <div style={{fontSize:14,color:"#999",fontFamily:FB,marginTop:8}}>Same menu. Same prices. Different experience.</div>
       </div>
-      <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:12}}>WHICH MOMENT IS YOUR RESTAURANT WEAKEST AT?</div>
+      <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:12,color:"#000",letterSpacing:0.5}}>WHICH MOMENT IS YOUR RESTAURANT WEAKEST AT?</div>
       <div style={{display:"flex",flexDirection:"column",gap:8}}>
         {moments.map(m=>(<button key={m.id} onClick={()=>setWeakest(m.id)} style={{padding:"14px 16px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontFamily:FC,fontWeight:700,fontSize:14,cursor:"pointer"}}>{m.title}</button>))}
       </div>
     </div>)}
     {/* Final */}
     {weakest&&(<div style={{padding:"24px 20px",textAlign:"center"}}>
-      <div style={{fontFamily:FC,fontWeight:900,fontSize:18,marginBottom:8}}>YOUR FOCUS THIS WEEK</div>
+      <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,marginBottom:8,color:"#000"}}>YOUR FOCUS THIS WEEK</div>
       <div style={{fontFamily:FC,fontWeight:800,fontSize:22,color:"#FFD300",marginBottom:20}}>{moments.find(m=>m.id===weakest)?.title}</div>
       {correctCount===moments.length&&<div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300",marginBottom:16}}>BONUS EARNED +{ch.bonusPoints} PTS</div>}
-      <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"Guest Dollar Trail completed",choices,correctCount,pathAValue:pathAVal,pathBValue:pathBVal,gapPerGuest:gap,annualImpact,weakestMoment:weakest,claimedBonus:correctCount===moments.length,autoBonus:correctCount===moments.length,points:ch.points});}}>COMPLETE CHALLENGE</button>
+      <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{onS({text:"Guest Dollar Trail completed",choices,correctCount,pathAValue:pathAVal,pathBValue:pathBVal,gapPerGuest:gap,annualImpact,weakestMoment:weakest,claimedBonus:correctCount===moments.length,autoBonus:correctCount===moments.length,points:ch.points});}}>COMPLETE CHALLENGE</button>
     </div>)}
   </div>);
 }
@@ -3303,20 +3306,21 @@ function TriageCall({ch,done,onS,onB,user,actCfg}){
     </div>)}
     {/* Results */}
     {idx===99&&(<div style={{padding:"24px 20px"}}>
-      <div style={{background:"#000",borderRadius:14,padding:20,textAlign:"center",marginBottom:20}}>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300"}}>{correctCount}/{calls.length}</div>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:1}}>CORRECT CALLS</div>
+      <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,textAlign:"center",marginBottom:16,color:"#000"}}>YOUR RESULTS</div>
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",textAlign:"center",marginBottom:20}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:56,color:"#FFD300"}}>{correctCount}/{calls.length}</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#ccc",letterSpacing:1}}>CORRECT CALLS</div>
       </div>
-      {results.map((r,i)=>{const c=calls.find(x=>x.id===r.callId);return(<div key={i} style={{borderLeft:`3px solid ${r.correct?"#007A33":"#E3000B"}`,background:"#fff",borderRadius:"0 12px 12px 0",padding:12,marginBottom:4}}>
-        <div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontFamily:FC,fontWeight:700,fontSize:13}}>{c?.arm} - {c?.restaurant}</span><span style={{fontFamily:FC,fontWeight:800,fontSize:12,color:r.correct?"#007A33":"#E3000B"}}>{r.choice.toUpperCase()}</span></div>
-        <div style={{fontSize:11,color:"#888",fontFamily:FB,marginTop:4}}>{c?.rationale}</div>
+      {results.map((r,i)=>{const c=calls.find(x=>x.id===r.callId);return(<div key={i} style={{borderLeft:`3px solid ${r.correct?"#007A33":"#E3000B"}`,background:"#fff",borderRadius:"0 12px 12px 0",padding:14,marginBottom:4}}>
+        <div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{c?.arm} - {c?.restaurant}</span><span style={{fontFamily:FC,fontWeight:800,fontSize:12,color:r.correct?"#007A33":"#E3000B"}}>{r.choice.toUpperCase()}</span></div>
+        <div style={{fontSize:13,color:"#555",fontFamily:FB,marginTop:4,lineHeight:1.5}}>{c?.rationale}</div>
       </div>);})}
-      <div style={{background:"#000",borderRadius:14,padding:16,marginTop:16,marginBottom:16}}>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:4}}>YOUR PROFILE: {profile.name}</div>
-        <div style={{fontSize:13,color:"#fff",fontFamily:FB,lineHeight:1.6}}>{profile.text}</div>
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",marginTop:16,marginBottom:16}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5,marginBottom:4}}>YOUR PROFILE: {profile.name}</div>
+        <div style={{fontSize:14,color:"#ccc",fontFamily:FB,lineHeight:1.6}}>{profile.text}</div>
       </div>
       {correctCount===calls.length&&<div style={{textAlign:"center",marginBottom:16,fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300"}}>BONUS EARNED +{ch.bonusPoints} PTS</div>}
-      <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"Triage Call completed",score:totalPts,correctCount,decisions:results,profile:profile.name,claimedBonus:correctCount===calls.length,autoBonus:correctCount===calls.length,points:ch.points});}}>COMPLETE CHALLENGE</button>
+      <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{onS({text:"Triage Call completed",score:totalPts,correctCount,decisions:results,profile:profile.name,claimedBonus:correctCount===calls.length,autoBonus:correctCount===calls.length,points:ch.points});}}>COMPLETE CHALLENGE</button>
     </div>)}
   </div>);
 }
@@ -3358,8 +3362,8 @@ function RMBrief({ch,done,onS,onB,user,actCfg}){
         </div>
       </div>)}
       {step===4&&(<div>
-        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:12}}>YOUR BRIEF</div>
-        <div style={{background:"#000",borderRadius:14,padding:20,color:"#fff",marginBottom:16}}>
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,marginBottom:12,color:"#000"}}>YOUR BRIEF</div>
+        <div style={{background:"#000",borderRadius:14,padding:"24px 20px",color:"#ccc",marginBottom:16}}>
           <div style={{fontSize:15,fontFamily:FB,lineHeight:1.8}}>{focusOpts.find(f=>f.id===focus)?.text}. {dataOpts.find(d=>d.id===data)?.text} {ctaOpts.find(c=>c.id===cta)?.text}</div>
         </div>
         <div style={{background:allCorrect?"rgba(0,122,51,0.08)":"rgba(227,0,11,0.08)",border:`2px solid ${allCorrect?"#007A33":"#E3000B"}`,borderRadius:14,padding:16,marginBottom:16}}>
@@ -3372,7 +3376,7 @@ function RMBrief({ch,done,onS,onB,user,actCfg}){
           <div style={{fontSize:14,fontFamily:FB,lineHeight:1.8,color:"#555"}}>{modelBrief}</div>
         </div>}
         {allCorrect&&<div style={{textAlign:"center",marginBottom:16,fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300"}}>BONUS EARNED +{ch.bonusPoints} PTS</div>}
-        <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"RM Brief completed",focus,dataPoint:data,cta,allCorrect,rating:rating.label,claimedBonus:allCorrect,autoBonus:allCorrect,points:ch.points});}}>COMPLETE CHALLENGE</button>
+        <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{onS({text:"RM Brief completed",focus,dataPoint:data,cta,allCorrect,rating:rating.label,claimedBonus:allCorrect,autoBonus:allCorrect,points:ch.points});}}>COMPLETE CHALLENGE</button>
       </div>)}
     </div>
   </div>);
@@ -3442,8 +3446,8 @@ function NumbersDontLie({ch,done,onS,onB,user,actCfg}){
     {/* Explanation */}
     {showExplain&&round&&(<div style={{padding:"24px 20px"}}>
       <div style={{textAlign:"center",marginBottom:16}}>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:24,color:roundResults[roundResults.length-1]?.allCorrect?"#007A33":"#E3000B"}}>{roundResults[roundResults.length-1]?.points}/8</div>
-        <div style={{fontSize:12,color:"#888",fontFamily:FC}}>{round.restaurant} SCORE</div>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:32,color:roundResults[roundResults.length-1]?.allCorrect?"#007A33":"#E3000B"}}>{roundResults[roundResults.length-1]?.points}/8</div>
+        <div style={{fontSize:14,color:"#555",fontFamily:FC,fontWeight:700}}>{round.restaurant} SCORE</div>
       </div>
       <div style={{background:"#000",borderRadius:14,padding:16,color:"#fff",marginBottom:16}}>
         <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:6}}>THE REAL STORY</div>
@@ -3454,20 +3458,21 @@ function NumbersDontLie({ch,done,onS,onB,user,actCfg}){
     </div>)}
     {/* Final results */}
     {roundIdx===99&&(<div style={{padding:"24px 20px"}}>
-      <div style={{background:"#000",borderRadius:14,padding:20,textAlign:"center",marginBottom:20}}>
-        <div style={{fontFamily:FC,fontWeight:900,fontSize:48,color:"#FFD300"}}>{totalScore}/{maxScore}</div>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888",letterSpacing:1}}>TOTAL SCORE</div>
+      <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,textAlign:"center",marginBottom:16,color:"#000"}}>YOUR RESULTS</div>
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",textAlign:"center",marginBottom:20}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:56,color:"#FFD300"}}>{totalScore}/{maxScore}</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#ccc",letterSpacing:1}}>TOTAL SCORE</div>
       </div>
-      {roundResults.map((r,i)=>(<div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <div><div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{r.restaurant}</div><div style={{fontSize:12,color:"#888"}}>{r.taps.filter(t=>t.correct).length}/3 correct</div></div>
+      {roundResults.map((r,i)=>(<div key={i} style={{background:"#fff",borderRadius:14,padding:16,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center",border:"1px solid #e8e8e3"}}>
+        <div><div style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{r.restaurant}</div><div style={{fontSize:14,color:"#555",fontFamily:FB}}>{r.taps.filter(t=>t.correct).length}/3 correct</div></div>
         <div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:r.allCorrect?"#007A33":r.points>=5?"#FFB800":"#E3000B"}}>{r.points}/8</div>
       </div>))}
-      <div style={{background:"#000",borderRadius:14,padding:16,marginTop:16,marginBottom:16}}>
-        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:4}}>YOUR PROFILE: {profile.name}</div>
-        <div style={{fontSize:13,color:"#fff",fontFamily:FB,lineHeight:1.6}}>{profile.text}</div>
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",marginTop:16,marginBottom:16}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5,marginBottom:4}}>YOUR PROFILE: {profile.name}</div>
+        <div style={{fontSize:14,color:"#ccc",fontFamily:FB,lineHeight:1.6}}>{profile.text}</div>
       </div>
       {allPerfect&&<div style={{textAlign:"center",marginBottom:16,fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300"}}>BONUS EARNED +{ch.bonusPoints} PTS</div>}
-      <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"The Numbers Don't Lie completed",rounds:roundResults,totalScore,maxScore,profile:profile.name,claimedBonus:allPerfect,autoBonus:allPerfect,points:ch.points});}}>COMPLETE CHALLENGE</button>
+      <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{onS({text:"The Numbers Don't Lie completed",rounds:roundResults,totalScore,maxScore,profile:profile.name,claimedBonus:allPerfect,autoBonus:allPerfect,points:ch.points});}}>COMPLETE CHALLENGE</button>
     </div>)}
   </div>);
 }
