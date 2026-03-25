@@ -2824,7 +2824,14 @@ function CoolRoomCountdown({act,u,onComplete,onB,coolroomImgs}){
     }
   },[screen]);
 
-  const startCounting=()=>{setPhase("counting");setScreen(2);};
+  const[preCount,setPreCount]=useState(0);const[imgLoaded,setImgLoaded]=useState(false);
+  // Preload 360 image
+  useEffect(()=>{const img=new Image();img.crossOrigin="anonymous";img.onload=()=>setImgLoaded(true);img.onerror=()=>setImgLoaded(true);img.src=_imgA;return()=>{img.onload=null;};},[_imgA]);
+  // 3-2-1 countdown before timer starts
+  useEffect(()=>{if(phase==="precount"&&preCount>0){const t=setTimeout(()=>setPreCount(c=>c-1),1000);return()=>clearTimeout(t);}
+    if(phase==="precount"&&preCount===0){setPhase("counting");}
+  },[phase,preCount]);
+  const startCounting=()=>{setScreen(2);setPreCount(3);setPhase("precount");};
   const updateItem=(idx,field,val)=>{const c=[...countItems];c[idx]={...c[idx],[field]:val};setCountItems(c);};
   const addRow=()=>{setCountItems([...countItems,{product:"",quantity:"",unit:""}]);setTimeout(()=>{if(countSheetRef.current)countSheetRef.current.scrollTop=countSheetRef.current.scrollHeight;},100);};
   const removeRow=(idx)=>{if(countItems.length>1)setCountItems(countItems.filter((_,i)=>i!==idx));};
@@ -2865,13 +2872,19 @@ function CoolRoomCountdown({act,u,onComplete,onB,coolroomImgs}){
           <div style={{background:"#FFFDE6",borderLeft:"4px solid #FFD300",borderRadius:8,padding:16,marginBottom:32}}>
             <p style={{fontSize:14,lineHeight:1.5,color:"#666",fontFamily:FB,margin:0}}>This is exactly what your Shift Leader does every Sunday morning. Let's see how accurate you are under pressure.</p>
           </div>
-          <div style={{display:"flex",justifyContent:"center"}}><button className="btn-hover" style={{...BY,width:"100%",padding:"18px 32px",fontSize:17,borderRadius:16}} onClick={startCounting}>START COUNTING</button></div>
+          <div style={{display:"flex",justifyContent:"center"}}><button className="btn-hover" style={{...BY,width:"100%",padding:"18px 32px",fontSize:17,borderRadius:16,opacity:imgLoaded?1:0.6}} onClick={startCounting}>{imgLoaded?"START COUNTING":"LOADING IMAGE..."}</button></div>
         </div>
       )}
 
       {/* Screen 2 - The Count */}
       {screen===2&&(
-        <div style={{display:"flex",flexDirection:"column",height:"calc(100vh - 4px)"}}>
+        <div style={{display:"flex",flexDirection:"column",height:"calc(100vh - 4px)",position:"relative"}}>
+          {/* 3-2-1 countdown overlay */}
+          {phase==="precount"&&(<div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.85)",zIndex:50,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+            <div style={{fontSize:120,fontWeight:900,fontFamily:F107,color:preCount>0?"#FFD300":"#007A33"}}>{preCount>0?preCount:"GO!"}</div>
+            <div style={{fontSize:16,fontFamily:FC,fontWeight:700,color:"#888",marginTop:12}}>GET READY TO COUNT</div>
+            {!imgLoaded&&<div style={{fontSize:12,fontFamily:FC,color:"#FFB800",marginTop:20}}>Loading 360 image...</div>}
+          </div>)}
           {/* Timer */}
           <div style={{padding:"10px 20px",background:"#fff",borderBottom:"1px solid #e8e8e3",display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
             <div style={{position:"absolute",left:20,fontSize:12,fontFamily:FC,fontWeight:700,letterSpacing:1,color:"#888"}}>STEP 2/5</div>
