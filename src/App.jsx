@@ -3912,6 +3912,8 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
   const[newPass,setNewPass]=useState("");
   const[confirmDel,setConfirmDel]=useState(null);
   const[editCh,setEditCh]=useState(null);
+  const[expandedSub,setExpandedSub]=useState(null);
+  const[lightboxImg,setLightboxImg]=useState(null);
   const[peopleTab,setPeopleTab]=useState("participants");
   const[searchQ,setSearchQ]=useState("");
   const[editActType,setEditActType]=useState(null);
@@ -5097,34 +5099,134 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
       );})}
     </div>)}
     <div style={secTitle}>Submissions ({filteredCo.length})</div>
-    {filteredCo.sort((a,b)=>new Date(b.submittedAt)-new Date(a.submittedAt)).map(c=>{const usr=us.find(u=>u.id===c.userId);const chx=Object.values(challenges).flat().find(x=>x.id===c.challengeId);return(
-      <div key={c.id} style={{...card,padding:isMobile?14:18}}>
+    {filteredCo.sort((a,b)=>new Date(b.submittedAt)-new Date(a.submittedAt)).map(c=>{const usr=us.find(u=>u.id===c.userId);const chx=Object.values(challenges).flat().find(x=>x.id===c.challengeId);const isExp=expandedSub===c.id;const sub=c.submission||{};return(
+      <div key={c.id} style={{...card,padding:isMobile?14:18,cursor:"pointer",border:isExp?"2px solid #FFD300":"1px solid #e8e8e3",transition:"border 0.15s"}} onClick={()=>setExpandedSub(isExp?null:c.id)}>
+        {/* Header row */}
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:6}}>
           <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
             <span style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{usr?.name?.toUpperCase()||"UNKNOWN"}</span>
             <span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#fff",background:"#000",padding:"3px 7px",borderRadius:4}}>{c.batch}</span>
             {!isMobile&&<span style={{color:"#888",fontSize:12,fontFamily:FB}}>{usr?.restaurant}</span>}
           </div>
-          <span style={{fontFamily:FC,fontWeight:800,color:"#007A33",fontSize:14}}>+{c.points}{c.bonusApproved&&<span> +{c.bonusPoints}</span>}</span>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <span style={{fontFamily:FC,fontWeight:800,color:"#007A33",fontSize:14}}>+{c.points}{c.bonusApproved&&<span> +{c.bonusPoints}</span>}</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" style={{transform:isExp?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.2s"}}><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
-        <div style={{fontFamily:FC,fontWeight:600,fontSize:12,marginBottom:8,color:"#666"}}>{chx?.title} - WEEK {chx?.week}
+        <div style={{fontFamily:FC,fontWeight:600,fontSize:12,marginBottom:isExp?12:4,color:"#666"}}>{chx?.title} - WEEK {chx?.week}
           {c.bonusClaimed&&<span style={{marginLeft:8}}>{c.bonusApproved?<span style={{color:"#007A33",fontWeight:800}}>BONUS APPROVED</span>:
             <span style={{display:"inline-flex",alignItems:"center",gap:6,flexWrap:"wrap"}}><span style={{color:"#FFB800",fontWeight:800}}>BONUS PENDING</span>
-              <button onClick={()=>{onUpdateComps(co.map(x=>x.id===c.id?{...x,bonusApproved:true}:x));}} style={{padding:"4px 10px",background:"#007A33",color:"#fff",border:"none",borderRadius:6,fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>APPROVE</button>
-              <button onClick={()=>{onUpdateComps(co.map(x=>x.id===c.id?{...x,bonusClaimed:false}:x));}} style={{padding:"4px 10px",background:"#E3000B",color:"#fff",border:"none",borderRadius:6,fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>REJECT</button>
+              <button onClick={(e)=>{e.stopPropagation();onUpdateComps(co.map(x=>x.id===c.id?{...x,bonusApproved:true}:x));}} style={{padding:"4px 10px",background:"#007A33",color:"#fff",border:"none",borderRadius:6,fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>APPROVE</button>
+              <button onClick={(e)=>{e.stopPropagation();onUpdateComps(co.map(x=>x.id===c.id?{...x,bonusClaimed:false}:x));}} style={{padding:"4px 10px",background:"#E3000B",color:"#fff",border:"none",borderRadius:6,fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>REJECT</button>
             </span>}</span>}
         </div>
-        {c.submission?.text&&<div style={{fontSize:14,color:"#555",borderLeft:"3px solid #e8e8e3",paddingLeft:12,marginBottom:8,lineHeight:1.6,fontFamily:FB}}>{c.submission.text}</div>}
-        {c.submission?.videoCount>0&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:8}}>
-          {(c.submission.items||[]).map((it,ii)=>(<div key={ii} style={{background:"#f0f8f0",borderRadius:8,padding:"8px 12px",border:"1px solid #d4e8d4",display:"flex",alignItems:"center",gap:6}}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-            <div><div style={{fontFamily:FC,fontWeight:700,fontSize:11}}>{it.itemName||`Item ${ii+1}`}</div><div style={{fontSize:10,color:"#007A33"}}>{it.duration}s recorded</div></div>
-          </div>))}
-          <div style={{fontSize:10,color:"#888",fontFamily:FC,alignSelf:"center"}}>{c.submission.videoCount} videos recorded on device</div>
+
+        {/* Collapsed preview */}
+        {!isExp&&<>
+          {sub.text&&<div style={{fontSize:13,color:"#888",fontFamily:FB,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{sub.text}</div>}
+          {sub.photos&&<div style={{display:"flex",gap:4,marginTop:4}}>{sub.photos.filter(Boolean).slice(0,5).map((p,pi)=>(<img key={pi} src={p} alt="" style={{width:36,height:36,objectFit:"cover",borderRadius:6,border:"1px solid #e8e8e3"}}/>))}{sub.pendingApproval&&<span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#FFB800",alignSelf:"center",marginLeft:4}}>PENDING</span>}</div>}
+          {sub.videoCount>0&&<div style={{fontSize:11,color:"#007A33",fontFamily:FC,fontWeight:600,marginTop:4}}>{sub.videoCount} video{sub.videoCount>1?"s":""} recorded</div>}
+          <div style={{fontSize:11,color:"#ccc",fontFamily:FB,marginTop:4}}>{new Date(c.submittedAt).toLocaleDateString("en-AU",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</div>
+        </>}
+
+        {/* Expanded full view */}
+        {isExp&&<div onClick={e=>e.stopPropagation()} style={{marginTop:8}}>
+          {/* Text content */}
+          {sub.text&&<div style={{fontSize:14,color:"#333",borderLeft:"3px solid #FFD300",paddingLeft:14,marginBottom:14,lineHeight:1.7,fontFamily:FB,whiteSpace:"pre-wrap"}}>{sub.text}</div>}
+
+          {/* Photos - full size grid */}
+          {sub.photos&&sub.photos.filter(Boolean).length>0&&<div style={{marginBottom:14}}>
+            <div style={{fontFamily:FC,fontWeight:700,fontSize:11,color:"#999",letterSpacing:0.5,marginBottom:8}}>PHOTOS ({sub.photos.filter(Boolean).length})</div>
+            <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(3,1fr)",gap:10}}>
+              {sub.photos.filter(Boolean).map((p,pi)=>(
+                <div key={pi} style={{borderRadius:12,overflow:"hidden",aspectRatio:"1",cursor:"pointer",border:"1px solid #e8e8e3"}} onClick={()=>setLightboxImg(p)}>
+                  <img src={p} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+                </div>
+              ))}
+            </div>
+            {sub.pendingApproval&&<div style={{marginTop:8,padding:"8px 12px",background:"#FFF8E0",borderRadius:8,fontFamily:FC,fontWeight:700,fontSize:11,color:"#FFB800"}}>PENDING REVIEW</div>}
+            {sub.bonusApproved===true&&<div style={{marginTop:8,padding:"8px 12px",background:"#f0f8f0",borderRadius:8,fontFamily:FC,fontWeight:700,fontSize:11,color:"#007A33"}}>BONUS APPROVED</div>}
+          </div>}
+
+          {/* Videos */}
+          {sub.videoCount>0&&<div style={{marginBottom:14}}>
+            <div style={{fontFamily:FC,fontWeight:700,fontSize:11,color:"#999",letterSpacing:0.5,marginBottom:8}}>VIDEOS ({sub.videoCount})</div>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {(sub.items||[]).map((it,ii)=>(<div key={ii} style={{background:"#f5f5f0",borderRadius:10,padding:"12px 14px",border:"1px solid #e8e8e3",display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:40,height:40,borderRadius:8,background:"#000",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFD300" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                </div>
+                <div style={{flex:1}}>
+                  <div style={{fontFamily:FC,fontWeight:700,fontSize:13}}>{it.itemName||`Recording ${ii+1}`}</div>
+                  <div style={{fontSize:12,color:"#888",fontFamily:FB}}>{it.duration?`${it.duration}s`:""} {it.size?`- ${(it.size/1024).toFixed(0)}KB`:""}</div>
+                </div>
+                <div style={{fontFamily:FC,fontWeight:700,fontSize:11,color:"#007A33"}}>RECORDED</div>
+              </div>))}
+              <div style={{fontSize:11,color:"#888",fontFamily:FB,fontStyle:"italic"}}>Videos stored on participant's device - viewable in person</div>
+            </div>
+          </div>}
+
+          {/* File attachments */}
+          {sub.files&&sub.files.length>0&&<div style={{marginBottom:14}}>
+            <div style={{fontFamily:FC,fontWeight:700,fontSize:11,color:"#999",letterSpacing:0.5,marginBottom:8}}>ATTACHMENTS ({sub.files.length})</div>
+            <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(3,1fr)",gap:10}}>
+              {sub.files.map((f,fi)=>(f.type?.startsWith("image/")?
+                <div key={fi} style={{borderRadius:12,overflow:"hidden",aspectRatio:"1",cursor:"pointer",border:"1px solid #e8e8e3"}} onClick={()=>setLightboxImg(f.data)}>
+                  <img src={f.data} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+                </div>:
+                <div key={fi} style={{padding:"14px",background:"#f5f5f0",borderRadius:12,border:"1px solid #e8e8e3",display:"flex",flexDirection:"column",alignItems:"center",gap:6,cursor:"pointer"}} onClick={()=>{const a=document.createElement("a");a.href=f.data;a.download=f.name||"file";document.body.appendChild(a);a.click();document.body.removeChild(a);}}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <div style={{fontFamily:FC,fontWeight:600,fontSize:11,color:"#666",textAlign:"center",wordBreak:"break-all"}}>{f.name||"Download"}</div>
+                </div>
+              ))}
+            </div>
+          </div>}
+
+          {/* Submission data details */}
+          {(sub.score!==undefined||sub.correctCount!==undefined||sub.accuracy!==undefined||sub.decisions||sub.choices||sub.profiles||sub.rounds)&&<div style={{marginBottom:14}}>
+            <div style={{fontFamily:FC,fontWeight:700,fontSize:11,color:"#999",letterSpacing:0.5,marginBottom:8}}>RESULTS</div>
+            <div style={{background:"#f5f5f0",borderRadius:10,padding:14,display:"flex",flexWrap:"wrap",gap:14}}>
+              {sub.score!==undefined&&<div><div style={{fontFamily:FC,fontWeight:800,fontSize:20,color:"#000"}}>{sub.score}</div><div style={{fontSize:10,color:"#999",fontFamily:FC}}>SCORE</div></div>}
+              {sub.correctCount!==undefined&&<div><div style={{fontFamily:FC,fontWeight:800,fontSize:20,color:"#007A33"}}>{sub.correctCount}{sub.decisions?`/${sub.decisions.length}`:sub.profiles?`/${sub.profiles.length}`:""}</div><div style={{fontSize:10,color:"#999",fontFamily:FC}}>CORRECT</div></div>}
+              {sub.accuracy!==undefined&&<div><div style={{fontFamily:FC,fontWeight:800,fontSize:20,color:sub.accuracy>=80?"#007A33":"#E3000B"}}>{sub.accuracy}%</div><div style={{fontSize:10,color:"#999",fontFamily:FC}}>ACCURACY</div></div>}
+              {sub.avgSpeed!==undefined&&<div><div style={{fontFamily:FC,fontWeight:800,fontSize:20}}>{sub.avgSpeed.toFixed(1)}s</div><div style={{fontSize:10,color:"#999",fontFamily:FC}}>AVG SPEED</div></div>}
+              {sub.streak!==undefined&&<div><div style={{fontFamily:FC,fontWeight:800,fontSize:20}}>{sub.streak}</div><div style={{fontSize:10,color:"#999",fontFamily:FC}}>STREAK</div></div>}
+              {sub.finalAHR!==undefined&&<div><div style={{fontFamily:FC,fontWeight:800,fontSize:20,color:sub.finalAHR<=37.10?"#007A33":"#E3000B"}}>${sub.finalAHR.toFixed(2)}</div><div style={{fontSize:10,color:"#999",fontFamily:FC}}>FINAL AHR</div></div>}
+              {sub.totalAnnualSaving!==undefined&&<div><div style={{fontFamily:FC,fontWeight:800,fontSize:20,color:"#007A33"}}>${sub.totalAnnualSaving.toLocaleString()}</div><div style={{fontSize:10,color:"#999",fontFamily:FC}}>ANNUAL SAVING</div></div>}
+              {sub.profile&&<div><div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300",background:"#000",padding:"4px 10px",borderRadius:6}}>{sub.profile}</div><div style={{fontSize:10,color:"#999",fontFamily:FC,marginTop:4}}>PROFILE</div></div>}
+              {sub.rating&&<div><div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300",background:"#000",padding:"4px 10px",borderRadius:6}}>{sub.rating}</div><div style={{fontSize:10,color:"#999",fontFamily:FC,marginTop:4}}>RATING</div></div>}
+              {sub.weakestMoment&&<div><div style={{fontFamily:FC,fontWeight:700,fontSize:13}}>{sub.weakestMoment}</div><div style={{fontSize:10,color:"#999",fontFamily:FC}}>WEAKEST MOMENT</div></div>}
+              {sub.captureRate!==undefined&&<div><div style={{fontFamily:FC,fontWeight:800,fontSize:20,color:sub.captureRate>=80?"#007A33":"#E3000B"}}>{sub.captureRate}%</div><div style={{fontSize:10,color:"#999",fontFamily:FC}}>CAPTURE RATE</div></div>}
+              {sub.totalScore!==undefined&&sub.maxScore&&<div><div style={{fontFamily:FC,fontWeight:800,fontSize:20}}>{sub.totalScore}/{sub.maxScore}</div><div style={{fontSize:10,color:"#999",fontFamily:FC}}>TOTAL SCORE</div></div>}
+            </div>
+          </div>}
+
+          {/* Decision breakdown */}
+          {sub.decisions&&sub.decisions.length>0&&<div style={{marginBottom:14}}>
+            <div style={{fontFamily:FC,fontWeight:700,fontSize:11,color:"#999",letterSpacing:0.5,marginBottom:8}}>DECISIONS ({sub.decisions.length})</div>
+            {sub.decisions.map((d,di)=>(
+              <div key={di} style={{padding:"8px 12px",marginBottom:4,borderRadius:8,background:d.correct?"#f0f8f0":"#fef0f0",borderLeft:`3px solid ${d.correct?"#007A33":"#E3000B"}`,fontSize:12,fontFamily:FB}}>
+                <span style={{fontWeight:700,fontFamily:FC}}>{d.day||d.shiftId?`Shift ${d.shiftId||di+1}`:d.scenarioId?`Scenario ${d.scenarioId}`:d.crewId||`#${di+1}`}</span>
+                <span style={{marginLeft:8,color:d.correct?"#007A33":"#E3000B"}}>{d.correct?"Correct":"Wrong"}</span>
+                {d.choice&&<span style={{marginLeft:8,color:"#888"}}>{d.choice}</span>}
+                {d.extraCost>0&&<span style={{marginLeft:8,color:"#E3000B",fontWeight:700}}>+${d.extraCost.toFixed(0)} extra</span>}
+              </div>
+            ))}
+          </div>}
+
+          {/* Swipe results for Spot the Moment */}
+          {sub.swipeResults&&<div style={{marginBottom:14}}>
+            <div style={{fontFamily:FC,fontWeight:700,fontSize:11,color:"#999",letterSpacing:0.5,marginBottom:8}}>SWIPE RESULTS</div>
+            <div style={{display:"flex",gap:14}}>
+              <div style={{textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:800,fontSize:20,color:"#007A33"}}>{sub.comeBackCount||0}</div><div style={{fontSize:10,color:"#999",fontFamily:FC}}>COME BACK</div></div>
+              <div style={{textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:800,fontSize:20,color:"#E3000B"}}>{sub.nopeCount||0}</div><div style={{fontSize:10,color:"#999",fontFamily:FC}}>NOPE</div></div>
+            </div>
+            {sub.wordPicks&&sub.wordPicks.length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:6,marginTop:8}}>{sub.wordPicks.map((w,wi)=>(<span key={wi} style={{padding:"4px 10px",borderRadius:14,background:"#FFF8E0",fontSize:11,fontFamily:FC,fontWeight:600}}>{w}</span>))}</div>}
+          </div>}
+
+          {/* Timestamp */}
+          <div style={{fontSize:12,color:"#bbb",fontFamily:FB,paddingTop:8,borderTop:"1px solid #f0f0eb"}}>{new Date(c.submittedAt).toLocaleDateString("en-AU",{weekday:"long",day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"})}</div>
         </div>}
-        {c.submission?.photos&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:8}}>{c.submission.photos.filter(Boolean).map((p,pi)=>(<img key={pi} src={p} alt="" style={{width:48,height:48,objectFit:"cover",borderRadius:8,border:"1px solid #e8e8e3"}}/>))}{c.submission.pendingApproval&&<span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#FFB800",alignSelf:"center",marginLeft:4}}>PENDING REVIEW</span>}{c.submission.bonusApproved===true&&<span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#007A33",alignSelf:"center",marginLeft:4}}>BONUS APPROVED</span>}{c.submission.bonusApproved===false&&<span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#E3000B",alignSelf:"center",marginLeft:4}}>REJECTED</span>}</div>}
-        {c.submission?.files&&c.submission.files.length>0&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:8}}>{c.submission.files.map((f,fi)=>(f.type?.startsWith("image/")?<img key={fi} src={f.data} alt="" style={{width:56,height:56,objectFit:"cover",borderRadius:8,border:"1px solid #e8e8e3",cursor:"pointer"}} onClick={()=>{const a=document.createElement("a");a.href=f.data;a.download=f.name||"image";a.target="_blank";document.body.appendChild(a);a.click();document.body.removeChild(a);}}/>:<div key={fi} style={{padding:"6px 10px",background:"#f5f5f0",borderRadius:8,fontSize:12,fontFamily:FC,color:"#666",border:"1px solid #e8e8e3"}}>FILE: {f.name}</div>))}</div>}
-        <div style={{fontSize:12,color:"#bbb",fontFamily:FB}}>{new Date(c.submittedAt).toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</div>
       </div>
     );})}
     {filteredCo.length===0&&<div style={{textAlign:"center",padding:40,color:"#999",fontFamily:FC}}>No submissions match filters</div>}
@@ -5475,6 +5577,12 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
           {tab==="submissions"&&renderSubmissions()}
         </div>
       </div>
+
+      {/* Image Lightbox */}
+      {lightboxImg&&<div style={{position:"fixed",top:0,left:0,right:0,bottom:0,zIndex:9999,background:"rgba(0,0,0,0.92)",display:"flex",alignItems:"center",justifyContent:"center",padding:20,cursor:"pointer"}} onClick={()=>setLightboxImg(null)}>
+        <button onClick={()=>setLightboxImg(null)} style={{position:"absolute",top:16,right:16,width:40,height:40,borderRadius:20,background:"rgba(255,255,255,0.15)",border:"none",color:"#fff",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:700}}>X</button>
+        <img src={lightboxImg} alt="" style={{maxWidth:"100%",maxHeight:"90vh",objectFit:"contain",borderRadius:8}} onClick={e=>e.stopPropagation()}/>
+      </div>}
     </div>
   );
 }
