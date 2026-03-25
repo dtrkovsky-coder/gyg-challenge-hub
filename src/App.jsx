@@ -1017,12 +1017,17 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
     else{setSwipeIdx(nextIdx);setPhase("swipe");}
   };
 
-  // Calculate bonus - how many "come back" swipes on YOUR photos from others
+  // Calculate bonus - per photo: each photo that passes peer review earns points (up to 50 total)
+  const maxBonus=ch.bonusPoints||50;
+  const perPhotoPts=maxBonus/5; // 10 pts per photo if 50 total
   const myPhotoSwipes=(comps||[]).filter(c=>c.challengeId===ch.id&&c.submission?.swipeResults).flatMap(c=>c.submission.swipeResults.filter(s=>s.userId===user.id));
+  // Group swipes by photo index
+  const photoResults=[0,1,2,3,4].map(i=>{const ps=myPhotoSwipes.filter(s=>s.idx===i);const total=ps.length;const comeBack=ps.filter(s=>s.right).length;const rate=total>0?Math.round(comeBack/total*100):0;return{total,comeBack,rate,passed:rate>=60};});
+  const passedCount=photoResults.filter(p=>p.passed).length;
+  const earnedBonusPts=Math.round(passedCount*perPhotoPts);
+  const earnedBonus=earnedBonusPts>0;
   const approvalRate=myPhotoSwipes.length>0?Math.round(myPhotoSwipes.filter(s=>s.right).length/myPhotoSwipes.length*100):0;
-  const bonusThreshold=actCfg?.spot_the_moment?.bonusThreshold||60;
-  const earnedBonus=approvalRate>=bonusThreshold;
-  const bonusPts=ch.bonusPoints||50;
+  const bonusPts=maxBonus;
 
   const shotList=actCfg?.spot_the_moment?.shotList||SHOT_LIST;
   const swipeWords=actCfg?.spot_the_moment?.words||SWIPE_WORDS;
@@ -1117,15 +1122,24 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
         </div>
       </div>
 
-      {/* Chain effect info */}
+      {/* Chain effect info - per photo breakdown */}
       <div style={{background:"#f0f8f0",border:"1px solid #d4e8d4",borderRadius:14,padding:16,marginBottom:24}}>
-        <div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#007A33",marginBottom:6}}>CHAIN EFFECT</div>
-        <div style={{fontSize:13,color:"#555",fontFamily:FB,lineHeight:1.5}}>Your photos are now in the deck for others to swipe. When {bonusThreshold}%+ of your batch swipes "come back" on your photos, you earn a +{bonusPts} bonus.</div>
-        {myPhotoSwipes.length>0&&<div style={{marginTop:8,fontFamily:FC,fontWeight:700,fontSize:13,color:earnedBonus?"#007A33":"#888"}}>Current approval: {approvalRate}% ({myPhotoSwipes.length} swipes received)</div>}
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#007A33",marginBottom:6}}>CHAIN EFFECT - BONUS POINTS</div>
+        <div style={{fontSize:13,color:"#555",fontFamily:FB,lineHeight:1.5,marginBottom:12}}>Your photos are now in the deck for others to swipe. Each photo that 60%+ of swipers say "come back" to earns you +{Math.round(perPhotoPts)} bonus points (up to +{maxBonus} total).</div>
+        {myPhotoSwipes.length>0&&(<div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:6,marginBottom:8}}>
+            {photoResults.map((pr,i)=>(<div key={i} style={{textAlign:"center",background:pr.total===0?"#f5f5f0":pr.passed?"rgba(0,122,51,0.1)":"rgba(227,0,11,0.1)",borderRadius:8,padding:"8px 4px"}}>
+              <div style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#999",marginBottom:2}}>PHOTO {i+1}</div>
+              {pr.total>0?<div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:pr.passed?"#007A33":"#E3000B"}}>{pr.rate}%</div>:<div style={{fontFamily:FC,fontWeight:700,fontSize:11,color:"#bbb"}}>PENDING</div>}
+              {pr.total>0&&<div style={{fontFamily:FC,fontWeight:700,fontSize:10,color:pr.passed?"#007A33":"#E3000B"}}>{pr.passed?`+${Math.round(perPhotoPts)}`:"0 PTS"}</div>}
+            </div>))}
+          </div>
+          <div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:earnedBonus?"#007A33":"#888"}}>Total bonus: +{earnedBonusPts} / {maxBonus} PTS ({passedCount}/5 photos passed)</div>
+        </div>)}
       </div>
 
       <button style={{...BY,width:"100%"}} onClick={()=>{
-        onS({text:"Spot the Moment completed",photos,swipeResults:swipes,comeBackCount:swipes.filter(s=>s.right).length,nopeCount:swipes.filter(s=>!s.right).length,wordPicks:swipes.map(s=>s.word).filter(Boolean),claimedBonus:earnedBonus,autoBonus:earnedBonus,points:ch.points,pendingApproval:!earnedBonus,bonusApproved:earnedBonus?true:null});
+        onS({text:"Spot the Moment completed",photos,swipeResults:swipes,comeBackCount:swipes.filter(s=>s.right).length,nopeCount:swipes.filter(s=>!s.right).length,wordPicks:swipes.map(s=>s.word).filter(Boolean),claimedBonus:earnedBonus,autoBonus:earnedBonus,bonusPoints:earnedBonusPts,points:ch.points,pendingApproval:passedCount<5&&myPhotoSwipes.length<10,bonusApproved:earnedBonus?true:null,photoResults});
       }}>SUBMIT CHALLENGE</button>
     </div>)}
   </div>);
