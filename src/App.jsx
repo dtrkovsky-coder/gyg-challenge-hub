@@ -2309,23 +2309,26 @@ function TeachIt({ch,done,onS,onB,user}){
 
 // ─── THE SHIFT LEADER LENS (LE Week 4) ──────────────────────────────────────
 const SLL_CLIPS=[
-  {id:"c1",title:"The Quiet One",desc:"A crew member has been silent all shift. They're doing their job but haven't spoken to anyone. It's 2pm.",q:"What do you do?",options:["Check in privately","Leave them alone","Assign them a task with a partner","Ask another crew member what's up"]},
-  {id:"c2",title:"The Shortcut",desc:"You catch a crew member skipping the handwash step between raw and ready-to-eat. The line is slammed.",q:"What do you do?",options:["Stop them immediately, in front of guests","Pull them aside after the rush","Wash your own hands visibly nearby","Report it to the RM"]},
-  {id:"c3",title:"The Late Start",desc:"A crew member arrives 15 minutes late. No call. No text. They look rough.",q:"What do you do?",options:["Ask if they're okay first","Tell them being late isn't acceptable","Dock their break time","Note it and address it at end of shift"]},
-  {id:"c4",title:"The Guest Compliment",desc:"A guest tells you that one of your crew members was 'amazing'. The crew member doesn't know.",q:"What do you do?",options:["Tell them immediately in front of the team","Write it on the board","Tell them privately after shift","Pass it to the RM to handle"]},
-  {id:"c5",title:"The Dead Period",desc:"It's 3pm. Four crew. Zero guests. Everyone is standing around.",q:"What do you do?",options:["Deep clean challenge","Let them have a breather","Training moment","Send one home early"]},
-  {id:"c6",title:"The Tension",desc:"Two crew members clearly aren't speaking. The vibe on the line is off.",q:"What do you do?",options:["Talk to each separately","Bring them together","Ignore it unless it affects guests","Move one to a different station"]},
-  {id:"c7",title:"The New Start",desc:"It's their first shift. They look terrified. The trainer called in sick.",q:"What do you do?",options:["Train them yourself","Buddy them with your best person","Give them easy tasks and check in often","Send them home and reschedule"]},
-  {id:"c8",title:"The Request",desc:"A crew member asks to leave 2 hours early. You're already short. They say it's personal.",q:"What do you do?",options:["Let them go, figure it out","Ask what's going on","Say no, you need them","Offer a compromise - leave 1 hour early"]},
+  {id:"c1",title:"The Quiet One",desc:"A crew member has been silent all shift. They're doing their job but haven't spoken to anyone. It's 2pm.",q:"What do you do?",options:["Check in privately","Leave them alone","Assign them a task with a partner","Ask another crew member what's up"],best:0,feedback:"Check in privately. Something might be going on - or they might just be focused. A quick 'You okay?' costs nothing and shows you noticed."},
+  {id:"c2",title:"The Shortcut",desc:"You catch a crew member skipping the handwash step between raw and ready-to-eat. The line is slammed.",q:"What do you do?",options:["Stop them immediately, in front of guests","Pull them aside after the rush","Wash your own hands visibly nearby","Report it to the RM"],best:0,feedback:"Stop them immediately. Food safety is non-negotiable - it doesn't wait for a quiet moment. Be direct but not aggressive. The guest risk is now, not after the rush."},
+  {id:"c3",title:"The Late Start",desc:"A crew member arrives 15 minutes late. No call. No text. They look rough.",q:"What do you do?",options:["Ask if they're okay first","Tell them being late isn't acceptable","Dock their break time","Note it and address it at end of shift"],best:0,feedback:"Ask if they're okay first. Lead with care, then address the behaviour. If something is genuinely wrong, jumping to discipline makes it worse. Address the lateness after you understand the context."},
+  {id:"c4",title:"The Guest Compliment",desc:"A guest tells you that one of your crew members was 'amazing'. The crew member doesn't know.",q:"What do you do?",options:["Tell them immediately in front of the team","Write it on the board","Tell them privately after shift","Pass it to the RM to handle"],best:0,feedback:"Tell them immediately in front of the team. Public recognition is powerful. It reinforces the behaviour for everyone, not just that person. Don't save good news for later."},
+  {id:"c5",title:"The Dead Period",desc:"It's 3pm. Four crew. Zero guests. Everyone is standing around.",q:"What do you do?",options:["Deep clean challenge","Let them have a breather","Training moment","Send one home early"],best:3,feedback:"Send one home early. Four crew with zero guests is a cost problem. One crew member going home saves labour without impacting service. Deep clean and training are good but they don't address the labour cost."},
+  {id:"c6",title:"The Tension",desc:"Two crew members clearly aren't speaking. The vibe on the line is off.",q:"What do you do?",options:["Talk to each separately","Bring them together","Ignore it unless it affects guests","Move one to a different station"],best:0,feedback:"Talk to each separately first. You need to understand both sides before deciding what to do next. Bringing them together too early can escalate. Moving stations avoids the issue."},
+  {id:"c7",title:"The New Start",desc:"It's their first shift. They look terrified. The trainer called in sick.",q:"What do you do?",options:["Train them yourself","Buddy them with your best person","Give them easy tasks and check in often","Send them home and reschedule"],best:1,feedback:"Buddy them with your best person. Your job is to run the shift, not train. Your best crew member gives them a real-world buddy experience. Sending them home wastes the opportunity and their motivation."},
+  {id:"c8",title:"The Request",desc:"A crew member asks to leave 2 hours early. You're already short. They say it's personal.",q:"What do you do?",options:["Let them go, figure it out","Ask what's going on","Say no, you need them","Offer a compromise - leave 1 hour early"],best:1,feedback:"Ask what's going on. You need context before deciding. If it's genuine, a compromise shows you care. If it's avoidable, you can hold them. But you can't make that call without understanding the situation."},
 ];
 function ShiftLeaderLens({ch,done,onS,onB,user,actCfg}){
   const clips=actCfg?.shift_leader_lens?.clips||SLL_CLIPS;
-  const[phase,setPhase]=useState("intro");// intro, play, results
+  const[phase,setPhase]=useState("intro");// intro, play, reveal, results
   const[clipIdx,setClipIdx]=useState(0);
-  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[phase]);
+  const[showReveal,setShowReveal]=useState(false);
+  const[lastAnswer,setLastAnswer]=useState(null);
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[phase,clipIdx,showReveal]);
   const[answers,setAnswers]=useState([]);
   const[selected,setSelected]=useState(null);
   const[why,setWhy]=useState("");
+  const correctCount=answers.filter((a,i)=>{const c=clips[i];return c&&a.choiceIdx===c.best;}).length;
   const clip=clips[clipIdx]||null;
   if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
   if(phase==="intro")return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("play")} startLabel="START ASSESSMENT"/>;
@@ -2333,13 +2336,27 @@ function ShiftLeaderLens({ch,done,onS,onB,user,actCfg}){
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
     <div style={{padding:"24px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:24}}><div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:0.5,color:"#000"}}>YOUR LEADERSHIP PROFILE</div><div style={{fontSize:14,color:"#999",fontFamily:FC,fontWeight:600,marginTop:6,letterSpacing:0.5}}>{answers.length} situations assessed</div></div>
-      {answers.map((a,i)=>(<div key={i} style={{background:"#fff",borderRadius:14,padding:16,marginBottom:10,border:"1px solid #e8e8e3"}}>
-        <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:0.5,color:"#000"}}>{a.title.toUpperCase()}</div>
-        <div style={{fontSize:15,color:"#007A33",fontFamily:FB,marginTop:6,fontWeight:600}}>{a.choice}</div>
-        {a.why&&<div style={{fontSize:14,color:"#555",fontFamily:FB,marginTop:4,fontStyle:"italic"}}>{a.why}</div>}
-      </div>))}
-      <button style={{...BY,width:"100%",fontSize:17,marginTop:20}} onClick={()=>{onS({text:"Shift Leader Lens completed",answers,claimedBonus:answers.length>=clips.length,autoBonus:true,points:ch.points});}}>SUBMIT CHALLENGE</button>
+      {/* Score card */}
+      <div style={{background:"#000",borderRadius:14,padding:"24px 20px",textAlign:"center",marginBottom:20}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:56,color:"#FFD300"}}>{correctCount}/{clips.length}</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#ccc",letterSpacing:1}}>STRONG CALLS</div>
+      </div>
+      <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5,marginBottom:16}}>YOUR DECISIONS</div>
+      {answers.map((a,i)=>{const c=clips[i];return(<div key={i} style={{background:"#fff",borderRadius:14,padding:16,marginBottom:10,border:"1px solid #e8e8e3",borderLeft:`4px solid ${a.correct?"#007A33":"#E3000B"}`}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+          <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:0.5,color:"#000"}}>{a.title.toUpperCase()}</div>
+          <span style={{fontFamily:FC,fontWeight:800,fontSize:11,color:a.correct?"#007A33":"#E3000B",background:a.correct?"#f0f8f0":"#fef0f0",padding:"4px 8px 3px",borderRadius:6,lineHeight:1}}>{a.correct?"CORRECT":"WRONG"}</span>
+        </div>
+        <div style={{fontSize:15,color:a.correct?"#007A33":"#E3000B",fontFamily:FB,marginTop:6,fontWeight:600}}>{a.choice}</div>
+        {!a.correct&&c&&<div style={{fontSize:13,color:"#888",fontFamily:FB,marginTop:4}}>Best: {c.options[c.best!==undefined?c.best:0]}</div>}
+      </div>);})}
+      {(()=>{const earnedPts=Math.round(ch.points*(correctCount/clips.length));const bonusEarned=correctCount===clips.length;return(<>
+        <div style={{background:"#000",borderRadius:14,padding:"18px 20px",marginTop:16,marginBottom:16,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div><div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#FFD300",letterSpacing:0.5}}>POINTS EARNED</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:"#fff",marginTop:4}}>{earnedPts}</div></div>
+          {bonusEarned&&<div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#FFD300",background:"rgba(255,211,0,0.15)",padding:"8px 14px",borderRadius:8}}>+{ch.bonusPoints} BONUS</div>}
+        </div>
+        <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{onS({text:"Shift Leader Lens completed",answers,correctCount,totalClips:clips.length,claimedBonus:bonusEarned,autoBonus:bonusEarned,points:earnedPts});}}>SUBMIT CHALLENGE</button>
+      </>);})()}
     </div>
   </div>);
   // Play phase
@@ -2347,7 +2364,7 @@ function ShiftLeaderLens({ch,done,onS,onB,user,actCfg}){
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
     <div style={{padding:"24px 20px"}}>
-      {clip?(
+      {clip&&!showReveal?(
         <div>
           <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:4}}>{clipIdx+1} OF {clips.length}</div>
           <div style={{height:4,background:"#e8e8e3",borderRadius:2,marginBottom:16}}><div style={{height:"100%",background:"#FFD300",borderRadius:2,width:`${((clipIdx+1)/clips.length)*100}%`,transition:"width 0.3s"}}/></div>
@@ -2357,19 +2374,45 @@ function ShiftLeaderLens({ch,done,onS,onB,user,actCfg}){
           </div>
           <div style={{...qStyle,marginTop:20}}>{clip.q}</div>
           <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:16}}>
-            {(clip.options||[]).map((opt,i)=>(<button key={i} onClick={()=>setSelected(i)} style={optCard(selected===i)}>{opt}</button>))}
+            {(clip.options||[]).map((opt,i)=>(<button key={i} onClick={()=>setSelected(i)} style={{...optCard(selected===i),color:"#333"}}>{opt}</button>))}
           </div>
-          {selected!==null&&(<div style={{marginBottom:16}}>
-            <div style={{fontFamily:FC,fontWeight:700,fontSize:11,letterSpacing:1,color:"#999",marginBottom:6}}>WHY? (OPTIONAL)</div>
-            <textarea value={why} onChange={e=>setWhy(e.target.value)} placeholder="Brief reason..." rows={2} style={{width:"100%",padding:"12px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:15,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
-          </div>)}
-          <button style={{...BY,width:"100%",opacity:selected!==null?1:0.4}} disabled={selected===null} onClick={()=>{
-            const newAnswers=[...answers,{clipId:clip.id,title:clip.title,choice:clip.options[selected],choiceIdx:selected,why}];
-            setAnswers(newAnswers);setSelected(null);setWhy("");
+          <button style={{...BY,width:"100%",fontSize:17,opacity:selected!==null?1:0.4}} disabled={selected===null} onClick={()=>{
+            const ans={clipId:clip.id,title:clip.title,choice:clip.options[selected],choiceIdx:selected,correct:selected===(clip.best!==undefined?clip.best:0),why};
+            setLastAnswer(ans);setShowReveal(true);
+          }}>LOCK IN</button>
+        </div>
+      ):showReveal&&lastAnswer?(
+        <div>
+          <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:4}}>{clipIdx+1} OF {clips.length}</div>
+          <div style={{height:4,background:"#e8e8e3",borderRadius:2,marginBottom:16}}><div style={{height:"100%",background:"#FFD300",borderRadius:2,width:`${((clipIdx+1)/clips.length)*100}%`,transition:"width 0.3s"}}/></div>
+          {/* Result feedback */}
+          <div style={{textAlign:"center",marginBottom:16}}>
+            {lastAnswer.correct?
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>:
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#E3000B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>}
+            <div style={{fontFamily:FC,fontWeight:900,fontSize:18,color:lastAnswer.correct?"#007A33":"#E3000B",marginTop:8}}>{lastAnswer.correct?"STRONG CALL":"NOT QUITE"}</div>
+          </div>
+          {/* Your answer */}
+          <div style={{padding:14,borderRadius:14,marginBottom:10,border:`2px solid ${lastAnswer.correct?"#007A33":"#E3000B"}`,background:lastAnswer.correct?"#f0f8f0":"#fef0f0"}}>
+            <div style={{fontFamily:FC,fontWeight:700,fontSize:11,color:lastAnswer.correct?"#007A33":"#E3000B",letterSpacing:0.5,marginBottom:4}}>YOUR ANSWER</div>
+            <div style={{fontFamily:FB,fontSize:15,color:"#333"}}>{lastAnswer.choice}</div>
+          </div>
+          {/* Best answer + coaching */}
+          {!lastAnswer.correct&&clip.options[clip.best!==undefined?clip.best:0]&&(
+            <div style={{padding:14,borderRadius:14,marginBottom:10,border:"2px solid #007A33",background:"#f0f8f0"}}>
+              <div style={{fontFamily:FC,fontWeight:700,fontSize:11,color:"#007A33",letterSpacing:0.5,marginBottom:4}}>BEST APPROACH</div>
+              <div style={{fontFamily:FB,fontSize:15,color:"#333",fontWeight:600}}>{clip.options[clip.best!==undefined?clip.best:0]}</div>
+            </div>
+          )}
+          {clip.feedback&&<div style={{background:"#fff",border:"1px solid #e8e8e3",borderRadius:14,padding:16,marginBottom:16}}>
+            <div style={{fontFamily:FC,fontWeight:800,fontSize:12,color:"#000",letterSpacing:0.5,marginBottom:6}}>COACHING</div>
+            <div style={{fontFamily:FB,fontSize:15,color:"#555",lineHeight:1.6}}>{clip.feedback}</div>
+          </div>}
+          <button style={{...BY,width:"100%",fontSize:17}} onClick={()=>{
+            const newAnswers=[...answers,lastAnswer];setAnswers(newAnswers);
+            setSelected(null);setWhy("");setShowReveal(false);setLastAnswer(null);
             if(clipIdx<clips.length-1){setClipIdx(c=>c+1);}else{setPhase("results");}
-          }}>
-            {clipIdx<clips.length-1?"NEXT":"FINISH"}
-          </button>
+          }}>{clipIdx<clips.length-1?"NEXT SITUATION":"SEE RESULTS"}</button>
         </div>
       ):(<div style={{textAlign:"center",padding:40,color:"#888"}}>No situations configured</div>)}
     </div>
