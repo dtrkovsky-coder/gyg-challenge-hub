@@ -347,7 +347,7 @@ export default function App(){
         sel.type==="hazard_hunt"?<HazardHunt ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig.hazard_hunt}/>:
         sel.type==="shift_in_chaos"?<ShiftInChaos ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users} actCfg={activityConfig.shift_in_chaos}/>:
         sel.type==="spot_the_moment"?<SpotTheMoment ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users} actCfg={activityConfig}/>:
-        sel.type==="thirty_second_sell"?<ThirtySecondSell ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
+        sel.type==="thirty_second_sell"?<ThirtySecondSell ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         sel.type==="recovery_race"?<RecoveryRace ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
         sel.type==="shift_leader_lens"?<ShiftLeaderLens ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
         <ChV ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}}/>
@@ -1151,10 +1151,12 @@ const SELL_ITEMS=[
   {id:"item_2",name:"Pulled Pork Bowl",day:3},
   {id:"item_3",name:"Chips & Guac",day:5},
 ];
-function ThirtySecondSell({ch,done,onS,onB,user}){
+function ThirtySecondSell({ch,done,onS,onB,user,actCfg}){
+  const sellItems=actCfg?.thirty_second_sell?.items||SELL_ITEMS;
+  const recDuration=actCfg?.thirty_second_sell?.timer||30;
   const[currentItem,setCurrentItem]=useState(0);
   const[phase,setPhase]=useState("ready");// ready | countdown | recording | uploading | done
-  const[timer,setTimer]=useState(30);
+  const[timer,setTimer]=useState(recDuration);
   const[countdown,setCountdown]=useState(3);
   const[items,setItems]=useState([]);
   const[uploading,setUploading]=useState(false);
@@ -1195,30 +1197,37 @@ function ThirtySecondSell({ch,done,onS,onB,user}){
     const reader=new FileReader();
     reader.onloadend=()=>{
       const b64=reader.result;
-      const newItems=[...items,{itemId:SELL_ITEMS[currentItem].id,duration:30-timer,video:b64,size:blob.size}];
+      const newItems=[...items,{itemId:sellItems[currentItem].id,itemName:sellItems[currentItem].name,duration:recDuration-timer,video:b64,size:blob.size}];
       setItems(newItems);
       setUploading(false);
-      if(currentItem<2){setCurrentItem(c=>c+1);setPhase("ready");setTimer(30);}
-      else{onS({text:"The 30-Second Sell completed",items:newItems.map(x=>({...x,video:x.video?.substring(0,100)+"..."})),videoCount:newItems.length,claimedBonus:false,autoBonus:false,points:ch.points,files:newItems.map((x,i)=>({name:`sell_item_${i+1}.webm`,type:"video/webm",data:x.video}))});}
+      if(currentItem<sellItems.length-1){setCurrentItem(c=>c+1);setPhase("ready");setTimer(recDuration);}
+      else{
+        // Store videos in IndexedDB (too large for Firestore)
+        const dbReq=indexedDB.open("gyg_videos",1);
+        dbReq.onupgradeneeded=e=>e.target.result.createObjectStore("videos");
+        dbReq.onsuccess=e=>{const db=e.target.result;const tx=db.transaction("videos","readwrite");const store=tx.objectStore("videos");
+          newItems.forEach((x,i)=>{if(x.video)store.put(x.video,`${user.id}_sell_${i+1}`);});};
+        onS({text:"The 30-Second Sell completed",items:newItems.map(x=>({itemId:x.itemId,duration:x.duration,size:x.size,hasVideo:true})),videoCount:newItems.length,claimedBonus:false,autoBonus:false,points:ch.points});
+      }
     };
     reader.readAsDataURL(blob);
   };
 
-  const beginRecording=()=>{setCountdown(3);setTimer(30);setPhase("countdown");};
+  const beginRecording=()=>{setCountdown(3);setTimer(recDuration);setPhase("countdown");};
 
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div>
     <div style={{padding:"24px 20px"}}>
-      {phase==="ready"&&currentItem<3&&(<div>
+      {phase==="ready"&&currentItem<sellItems.length&&(<div>
         <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
         <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
-        <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:20}}>{SELL_ITEMS.map((_,i)=>(<div key={i} style={{width:12,height:12,borderRadius:6,background:i<currentItem?"#007A33":i===currentItem?"#FFD300":"#ddd"}}/>))}</div>
+        <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:20}}>{sellItems.map((_,i)=>(<div key={i} style={{width:12,height:12,borderRadius:6,background:i<currentItem?"#007A33":i===currentItem?"#FFD300":"#ddd"}}/>))}</div>
         <div style={{background:"#000",borderRadius:16,padding:24,textAlign:"center",marginBottom:20}}>
-          <div style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#FFD300",letterSpacing:1,marginBottom:8}}>ITEM {currentItem+1} OF 3</div>
-          <div style={{fontSize:28,fontFamily:F107,fontWeight:900,color:"#fff"}}>{SELL_ITEMS[currentItem].name.toUpperCase()}</div>
-          <div style={{fontSize:14,color:"#888",marginTop:8}}>You have 30 seconds to sell it on camera</div>
+          <div style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#FFD300",letterSpacing:1,marginBottom:8}}>ITEM {currentItem+1} OF {sellItems.length}</div>
+          <div style={{fontSize:28,fontFamily:F107,fontWeight:900,color:"#fff"}}>{sellItems[currentItem].name.toUpperCase()}</div>
+          <div style={{fontSize:14,color:"#888",marginTop:8}}>You have {recDuration} seconds to sell it on camera</div>
         </div>
         <div style={{background:"#f8f8f5",borderRadius:12,padding:14,marginBottom:20,fontSize:13,color:"#666",fontFamily:FB,lineHeight:1.5}}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{verticalAlign:"middle",marginRight:6}}><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
@@ -1232,7 +1241,7 @@ function ThirtySecondSell({ch,done,onS,onB,user}){
 
       {phase==="countdown"&&(<div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"60vh",flexDirection:"column"}}>
         <div style={{fontSize:120,fontWeight:900,fontFamily:F107,color:countdown>0?"#FFD300":"#007A33"}}>{countdown>0?countdown:"GO!"}</div>
-        <div style={{fontSize:16,fontFamily:FC,fontWeight:700,color:"#888",marginTop:12}}>SELL: {SELL_ITEMS[currentItem].name.toUpperCase()}</div>
+        <div style={{fontSize:16,fontFamily:FC,fontWeight:700,color:"#888",marginTop:12}}>SELL: {sellItems[currentItem].name.toUpperCase()}</div>
       </div>)}
 
       {phase==="recording"&&(<div>
@@ -1247,7 +1256,7 @@ function ThirtySecondSell({ch,done,onS,onB,user}){
             <span style={{fontSize:18,fontWeight:900,fontFamily:FG,color:timer<=5?"#E3000B":timer<=10?"#FFD300":"#fff"}}>{timer}s</span>
           </div>
         </div>
-        <div style={{fontSize:18,fontFamily:FC,fontWeight:800,textAlign:"center",color:"#555",marginBottom:8}}>SELL: {SELL_ITEMS[currentItem].name.toUpperCase()}</div>
+        <div style={{fontSize:18,fontFamily:FC,fontWeight:800,textAlign:"center",color:"#555",marginBottom:8}}>SELL: {sellItems[currentItem].name.toUpperCase()}</div>
         <div style={{textAlign:"center",fontSize:12,color:"#999",fontFamily:FB}}>Recording stops automatically at 0</div>
       </div>)}
 
@@ -3368,6 +3377,12 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
             </span>}</span>}
         </div>
         {c.submission?.text&&<div style={{fontSize:14,color:"#555",borderLeft:"3px solid #e8e8e3",paddingLeft:12,marginBottom:8,lineHeight:1.6,fontFamily:FB}}>{c.submission.text}</div>}
+        {c.submission?.videoCount>0&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:8}}>
+          {(c.submission.items||[]).map((it,ii)=>(<div key={ii} style={{background:"#f5f5f0",borderRadius:8,padding:"8px 12px",border:"1px solid #e8e8e3",display:"flex",alignItems:"center",gap:6}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            <div><div style={{fontFamily:FC,fontWeight:700,fontSize:11}}>{SELL_ITEMS.find(s=>s.id===it.itemId)?.name||`Item ${ii+1}`}</div><div style={{fontSize:10,color:"#888"}}>{it.duration}s{it.size?` - ${(it.size/1024).toFixed(0)}KB`:""}</div></div>
+          </div>))}
+        </div>}
         {c.submission?.photos&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:8}}>{c.submission.photos.filter(Boolean).map((p,pi)=>(<img key={pi} src={p} alt="" style={{width:48,height:48,objectFit:"cover",borderRadius:8,border:"1px solid #e8e8e3"}}/>))}{c.submission.pendingApproval&&<span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#FFB800",alignSelf:"center",marginLeft:4}}>PENDING REVIEW</span>}{c.submission.bonusApproved===true&&<span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#007A33",alignSelf:"center",marginLeft:4}}>BONUS APPROVED</span>}{c.submission.bonusApproved===false&&<span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#E3000B",alignSelf:"center",marginLeft:4}}>REJECTED</span>}</div>}
         {c.submission?.files&&c.submission.files.length>0&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:8}}>{c.submission.files.map((f,fi)=>(f.type?.startsWith("image/")?<img key={fi} src={f.data} alt="" style={{width:56,height:56,objectFit:"cover",borderRadius:8,border:"1px solid #e8e8e3",cursor:"pointer"}} onClick={()=>{const a=document.createElement("a");a.href=f.data;a.download=f.name||"image";a.target="_blank";document.body.appendChild(a);a.click();document.body.removeChild(a);}}/>:<div key={fi} style={{padding:"6px 10px",background:"#f5f5f0",borderRadius:8,fontSize:12,fontFamily:FC,color:"#666",border:"1px solid #e8e8e3"}}>FILE: {f.name}</div>))}</div>}
         <div style={{fontSize:12,color:"#bbb",fontFamily:FB}}>{new Date(c.submittedAt).toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</div>
@@ -3503,6 +3518,28 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
               )}
 
               {/* Shift in Chaos Editor */}
+              {c.type==="thirty_second_sell"&&(
+                <div style={{marginTop:16,borderTop:"1px solid #e8e8e3",paddingTop:16}}>
+                  <div style={{...subLabel,fontSize:12,fontWeight:900,color:"#000"}}>30-SECOND SELL CONFIG</div>
+                  <div style={{marginBottom:16,background:"#f8f8f5",borderRadius:12,padding:14}}>
+                    <div style={{...subLabel,marginBottom:8}}>RECORDING DURATION</div>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <input type="number" value={acfg.thirty_second_sell?.timer||30} onChange={e=>saveAcfg("thirty_second_sell",{timer:parseInt(e.target.value)||30})} style={{...inp,width:70,textAlign:"center",padding:"8px"}}/>
+                      <span style={{fontSize:12,color:"#888",fontFamily:FC}}>seconds</span>
+                    </div>
+                  </div>
+                  <div style={{...subLabel,marginBottom:8}}>MENU ITEMS ({(acfg.thirty_second_sell?.items||SELL_ITEMS).length})</div>
+                  <div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:8}}>Each item gets one 30-second recording.</div>
+                  {(acfg.thirty_second_sell?.items||SELL_ITEMS).map((item,ii)=>(
+                    <div key={ii} style={{background:"#f8f8f5",borderRadius:8,padding:10,marginBottom:4,display:"flex",alignItems:"center",gap:8}}>
+                      <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{ii+1}</span>
+                      <input value={item.name} onChange={e=>{const items=[...(acfg.thirty_second_sell?.items||[...SELL_ITEMS])];items[ii]={...items[ii],name:e.target.value};saveAcfg("thirty_second_sell",{items});}} style={{...inp,flex:1,fontSize:13,padding:"6px 10px"}}/>
+                      <button onClick={()=>{const items=[...(acfg.thirty_second_sell?.items||[...SELL_ITEMS])];items.splice(ii,1);saveAcfg("thirty_second_sell",{items});}} style={{width:24,height:24,borderRadius:12,background:"#E3000B",color:"#fff",border:"none",fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>x</button>
+                    </div>
+                  ))}
+                  <button onClick={()=>{const items=[...(acfg.thirty_second_sell?.items||[...SELL_ITEMS]),{id:`item_${Date.now()}`,name:"New Item"}];saveAcfg("thirty_second_sell",{items});}} style={{width:"100%",padding:"8px",background:"#fff",border:"1px dashed #ccc",borderRadius:8,fontFamily:FC,fontWeight:700,fontSize:12,cursor:"pointer",marginTop:4}}>+ ADD ITEM</button>
+                </div>
+              )}
               {c.type==="shift_in_chaos"&&(
                 <div style={{marginTop:16,borderTop:"1px solid #e8e8e3",paddingTop:16}}>
                   <div style={{...subLabel,fontSize:12,fontWeight:900,color:"#000"}}>SHIFT IN CHAOS CONFIG</div>
