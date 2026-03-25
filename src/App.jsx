@@ -3906,33 +3906,32 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                   </div>)}
 
                   {/* Make the Call */}
-                  {item.type==="make_the_call"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                  {item.type==="make_the_call"&&(()=>{const mtcCrew=acfg.make_the_call?.crew||MTC_CREW;const mtcDecs=acfg.make_the_call?.decisions||MTC_DECISIONS;return(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
                     <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Make the Call Settings</div>
-                    <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:12}}>6 shift decisions with live hours tracking and overtime mechanics. Starting AHR: $36.80, Target: $37.10.</div>
-                    <div style={subLabel}>CREW ({(acfg.make_the_call?.crew||MTC_CREW).length})</div>
-                    {(acfg.make_the_call?.crew||MTC_CREW).map((c,ci)=>(
+                    <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:12}}>6 roster decisions with dual AHR ($39.20) + SPLH ($122) tracking. Includes send-home, fill-shift, and react-up decisions.</div>
+                    <div style={subLabel}>CREW ({mtcCrew.length})</div>
+                    {mtcCrew.map((c,ci)=>(
                       <div key={ci} style={{display:"flex",gap:6,alignItems:"center",marginBottom:3,background:"#fff",borderRadius:8,padding:"6px 10px"}}>
-                        <input value={c.name} onChange={e=>{const cr=[...(acfg.make_the_call?.crew||[...MTC_CREW])];cr[ci]={...cr[ci],name:e.target.value};saveAcfg("make_the_call",{crew:cr});}} style={{...inp,width:65,fontWeight:700,fontSize:12,padding:"4px 6px"}}/>
+                        <input value={c.name} onChange={e=>{const cr=[...mtcCrew];cr[ci]={...cr[ci],name:e.target.value};saveAcfg("make_the_call",{crew:cr});}} style={{...inp,width:65,fontWeight:700,fontSize:12,padding:"4px 6px"}}/>
                         <span style={{fontSize:10,color:"#888",fontFamily:FC}}>{c.classification}</span>
                         <span style={{fontSize:10,color:"#888"}}>${c.rate}</span>
                         <span style={{fontSize:10,color:"#888"}}>{c.baseHours}hrs</span>
                         <span style={{fontSize:9,fontFamily:FC,fontWeight:700,color:c.status==="Available"?"#007A33":c.status.includes("limit")?"#E3000B":"#FFB800"}}>{c.status}</span>
                       </div>
                     ))}
-                    <div style={{...subLabel,marginTop:12}}>SHIFTS ({(acfg.make_the_call?.shifts||MTC_SHIFTS).length})</div>
-                    {(acfg.make_the_call?.shifts||MTC_SHIFTS).map((sh,si)=>(
-                      <div key={si} style={{background:"#fff",borderRadius:8,padding:10,marginBottom:4}}>
-                        <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
-                          <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:18,height:18,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{si+1}</span>
-                          <span style={{fontFamily:FC,fontWeight:700,fontSize:12}}>{sh.day} {sh.time}</span>
-                          <span style={{fontSize:10,color:"#888"}}>{sh.duration}hrs</span>
-                          {sh.dayType!=="weekday"&&<span style={{fontSize:9,fontFamily:FC,fontWeight:700,color:"#FFB800"}}>{sh.dayType.toUpperCase()}</span>}
-                          <span style={{fontSize:10,color:"#007A33",fontFamily:FC,fontWeight:700,marginLeft:"auto"}}>Correct: {crew.find(c=>c.id===sh.correctPick)?.name||sh.correctPick}</span>
+                    <div style={{...subLabel,marginTop:12}}>DECISIONS ({mtcDecs.length})</div>
+                    {mtcDecs.map((dec,di)=>(
+                      <div key={di} style={{background:"#fff",borderRadius:8,padding:10,marginBottom:4}}>
+                        <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4,flexWrap:"wrap"}}>
+                          <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:18,height:18,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{di+1}</span>
+                          <span style={{fontFamily:FC,fontWeight:700,fontSize:12}}>{dec.day} {dec.time}</span>
+                          <span style={{fontSize:9,fontFamily:FC,fontWeight:700,padding:"2px 6px",borderRadius:4,background:dec.type==="send_home"?"#f0f8f0":dec.type==="react_up"?"#fef0f0":"#FFF8E0",color:dec.type==="send_home"?"#007A33":dec.type==="react_up"?"#E3000B":"#B8860B"}}>{dec.type.replace(/_/g," ").toUpperCase()}</span>
+                          {(dec.labels||[]).map((l,li)=>(<span key={li} style={{fontSize:8,fontFamily:FC,fontWeight:700,color:"#FFB800"}}>{l}</span>))}
                         </div>
-                        <div style={{fontSize:10,color:"#888",fontFamily:FB}}>A: {crew.find(c=>c.id===sh.optionA.crewId)?.name||sh.optionA.crewId} | B: {crew.find(c=>c.id===sh.optionB.crewId)?.name||sh.optionB.crewId}</div>
+                        <div style={{fontSize:10,color:"#888",fontFamily:FB}}>A: {dec.optionA.label||mtcCrew.find(c=>c.id===dec.optionA.crewId)?.name||"Option A"} {dec.optionA.correct?"(correct)":""} | B: {dec.optionB.label||mtcCrew.find(c=>c.id===dec.optionB.crewId)?.name||"Option B"} {dec.optionB.correct?"(correct)":""}</div>
                       </div>
                     ))}
-                  </div>)}
+                  </div>);})()}
 
                   {/* Swap the Shift */}
                   {item.type==="swap_the_shift"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
