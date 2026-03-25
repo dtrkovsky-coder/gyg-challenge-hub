@@ -3674,7 +3674,7 @@ function HuddleBuilder({act,u,onComplete,onB}){
           {focus===k&&(
             <div className="anim-fade-up" style={{display:"flex",flexWrap:"wrap",gap:10,marginTop:12,paddingLeft:4}}>
               {v.subs.map(s=>(
-                <button key={s.id} className="btn-hover" onClick={()=>{setSubFocus(s.id);setScript(["","","","","","",""]);setScreen(2);}} style={{padding:"12px 18px",background:subFocus===s.id?"#FFD300":"#fff",border:subFocus===s.id?"2px solid #FFD300":"2px solid #e8e8e3",borderRadius:12,fontSize:15,fontWeight:700,fontFamily:FC,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s cubic-bezier(0.16,1,0.3,1)"}}>{s.label}</button>
+                <button key={s.id} className="btn-hover" onClick={()=>{setSubFocus(s.id);setScript(["","","","","","",""]);setScreen(2);}} style={{padding:"13px 18px 11px",background:subFocus===s.id?"#FFD300":"#fff",color:subFocus===s.id?"#000":"#333",border:subFocus===s.id?"2px solid #FFD300":"2px solid #e8e8e3",borderRadius:12,fontSize:15,fontWeight:700,fontFamily:FC,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s cubic-bezier(0.16,1,0.3,1)",lineHeight:1}}>{s.label}</button>
               ))}
             </div>
           )}
