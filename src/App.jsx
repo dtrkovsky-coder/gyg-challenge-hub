@@ -41,6 +41,28 @@ const ICONS = {
   churro: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUxIiBoZWlnaHQ9IjI1NCIgdmlld0JveD0iMCAwIDI1MSAyNTQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMF81Nl80NzIpIj4KPHBhdGggZD0iTTI0Mi42MSAzNy42N0MyMzMuMDUgMjcuODIgMjIzLjU3IDE3Ljg1IDIxMy4zNiA4LjcxQzIwOC45OCA0Ljc5IDIwMi44NCAyLjg0IDE5Ny41MSAwQzE5Ny4yMiAwLjUgMTk2Ljk0IDAuOTkgMTk2LjY1IDEuNDlDMTk0Ljk4IDEuNjggMTkzLjA4IDEuNDEgMTkxLjY3IDIuMTJDMTc1LjE1IDEwLjQyIDE2My4yMiAyMy41NSAxNTMuNDkgMzguOTJDMTUxLjUgNDIuMDYgMTUwLjI4IDQ1Ljg5IDE0Ny43NCA0OC40NEMxMDEuMjEgOTUuMjEgNTQuNTE5OCAxNDEuODMgNy44ODk4MSAxODguNUMtMi40NzAxOSAxOTguODggLTIuNTMwMTkgMjA4LjA0IDcuMTM5ODEgMjE4LjY2QzguODc5ODEgMjIwLjU3IDEwLjE5OTggMjIzLjQ1IDEwLjQ4OTggMjI2LjAyQzExLjY1OTggMjM2LjM5IDE3LjY2OTggMjQyLjM0IDI4LjI4OTggMjQzLjI5QzMwLjIzOTggMjQzLjQ2IDMyLjQ4OTggMjQ0LjIgMzMuOTM5OCAyNDUuNDRDNDcuMTU5OCAyNTYuNzUgNTQuMTU5OCAyNTYuNTMgNjYuNjI5OCAyNDQuMDlDMTA5LjkxIDIwMC44OCAxNTMuMDYgMTU3LjU0IDE5Ni41NCAxMTQuNTNDMjExLjUzIDk5LjY5IDIyNy41NSA4NS45IDI0Mi42NCA3MS4xN0MyNTIuNzEgNjEuMzMgMjUyLjQyIDQ3Ljc3IDI0Mi42MSAzNy42N1pNMTYuMjg5OCAyMTEuMjhDOS44Nzk4MSAyMDUuNTUgOS40MTk4MSAyMDIuNzggMTQuNjE5OCAxOTcuNTdDNjEuNTM5OCAxNTAuNTYgMTA4LjU0IDEwMy42MiAxNTUuNTMgNTYuNjdDMTU2LjAxIDU2LjE5IDE1Ni43IDU1LjkzIDE1Ny4yOSA1NS41NkMxNTcuODIgNTUuOSAxNTguMzQgNTYuMjQgMTU4Ljg2IDU2LjU4QzE1Ny42NiA1OC4zNyAxNTYuNjcgNjAuMzcgMTU1LjIyIDYxLjkxQzE1MS4yNiA2Ni4xMSAxNDYuODkgNjkuOTUgMTQzLjEgNzQuMjlDMTQxLjEyIDc2LjU1IDEzOC40MiA3OS44MiAxMzguNzkgODIuMjJDMTM5LjkgODkuMzUgMTM1LjEyIDkyLjYxIDEzMS4xNyA5Ni41N0M5NC42MTk4IDEzMy4xOSA1OC4wMzk4IDE2OS43OSAyMS40NTk4IDIwNi4zOEMxOS43Njk4IDIwOC4wNyAxNy45OTk4IDIwOS42NiAxNi4yODk4IDIxMS4yOFpNMTk0LjcxIDcxLjIzQzE4NC4xIDgyLjY3IDE4My43OSA4OC43NSAxOTQuMjMgMTAwLjQ0QzE0Ny45NyAxNDYuNzkgMTAyLjExIDE5Mi43OSA1Ni4xNzk4IDIzOC43M0M1MC45NTk4IDI0My45NCA0Ny44Mjk4IDI0My40OSA0Mi40NTk4IDIzNy4xN0M0NC4yMDk4IDIzNS4zMyA0NS45NTk4IDIzMy40MSA0Ny43ODk4IDIzMS41N0M4Ni40MDk4IDE5Mi45NSAxMjUuMDMgMTU0LjMzIDE2My42NSAxMTUuN0MxNjUuMzQgMTE0IDE2Ny41NiAxMTIuNDIgMTY4LjM0IDExMC4zNEMxNjkuMDMgMTA4LjQ5IDE2OC44MyAxMDUuMjYgMTY3LjYyIDEwNC4wMkMxNjYuMzkgMTAyLjc3IDE2My4yMyAxMDIuNTMgMTYxLjI5IDEwMy4xQzE1OS40MiAxMDMuNjQgMTU3Ljk2IDEwNS43MiAxNTYuNDMgMTA3LjI0QzExNi43OCAxNDYuODcgNzcuMTM5OCAxODYuNTIgMzcuNDg5OCAyMjYuMTZDMzUuOTY5OCAyMjcuNjkgMzQuNTM5OCAyMzAuMDYgMzIuNzQ5OCAyMzAuNDFDMjkuODE5OCAyMzAuOTkgMjUuNTI5OCAyMzEuMzYgMjMuODU5OCAyMjkuNzJDMjIuMjA5OCAyMjguMTEgMjIuNTM5OCAyMjMuNzkgMjMuMDk5OCAyMjAuODdDMjMuNDQ5OCAyMTkuMDkgMjUuODM5OCAyMTcuNjcgMjcuMzY5OCAyMTYuMTRDNjUuNjQ5OCAxNzcuODUgMTAzLjg5IDEzOS41MyAxNDIuMzIgMTAxLjM5QzE0NC41NSA5OS4xNyAxNDguMzMgOTguNTEgMTUxLjM2IDk3LjA4QzE1NC45NSA5NS4zOCAxNTkuMTYgOTQuMzQgMTYxLjk0IDkxLjc2QzE3MS4xMSA4My4yNiAxNzkuNzIgNzQuMTYgMTg4LjY0IDY1LjM4QzE5MS4wNyA2Mi45OCAxOTMuODQgNTguODIgMTk3LjI5IDYzLjE1QzE5OC4zIDY0LjQzIDE5Ni41NCA2OS4yNiAxOTQuNzEgNzEuMjNaTTIzNS40MiA2Mi42NkMyMjYuODEgNzEuNzQgMjE4IDgwLjY2IDIwOC43NyA4OS4xQzIwNy4wNSA5MC42OCAyMDMgODkuNzIgMjAwLjAyIDg5Ljk0QzIwMC4zNSA4Ni45NyAyMDAuMiA4My44NSAyMDEuMTYgODEuMTFDMjAxLjgyIDc5LjI2IDIwNC4xMyA3OC4wNCAyMDUuNTMgNzYuMzlDMjExLjIzIDY5LjY0IDIxMC45NiA2MC43NyAyMDQuOTQgNTQuOUMxOTkuMDIgNDkuMTEgMTg5Ljg5IDQ4LjkxIDE4My40OCA1NS4wMUMxNzQuNDEgNjMuNjQgMTY1LjcyIDcyLjY2IDE1Ni44MyA4MS40NkMxNTUuMDYgODMuMjEgMTUzLjEgODQuNzYgMTUxLjIzIDg2LjQxQzE1MC40NSA4NS42NSAxNDkuNjcgODQuOSAxNDguODkgODQuMTRDMTUzLjE0IDc5Ljg2IDE1Ny4zOCA3NS41OCAxNjEuNjMgNzEuMzFDMTcxLjU5IDYxLjMxIDE3MS43NSA1OC45IDE2NS40MyA0Ni4yNEMxNjQuNCA0NC4xNyAxNjUuMSAzOS44NSAxNjYuNjkgMzguMDlDMTczLjYzIDMwLjQzIDE4MS4wMyAyMy4xNyAxODguNTcgMTYuMDhDMTkzLjc3IDExLjE5IDIwMC4yIDExLjI0IDIwNS40IDE2LjI1QzIxNS40NSAyNS45NCAyMjUuMzIgMzUuODIgMjM1LjAyIDQ1Ljg2QzI0MC4xNSA1MS4xNiAyNDAuMzYgNTcuNDUgMjM1LjQyIDYyLjY2WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTE1OC44NiA1Ni41ODAxQzE1Ny42NiA1OC4zNzAxIDE1Ni42NyA2MC4zNzAxIDE1NS4yMiA2MS45MTAxQzE1MS4yNiA2Ni4xMTAxIDE0Ni44OSA2OS45NTAxIDE0My4xIDc0LjI5MDFDMTQxLjEyIDc2LjU1MDEgMTM4LjQyIDc5LjgyMDEgMTM4Ljc5IDgyLjIyMDFDMTM5LjkgODkuMzUwMSAxMzUuMTIgOTIuNjEwMSAxMzEuMTcgOTYuNTcwMUM5NC42MTk5IDEzMy4xOSA1OC4wMzk5IDE2OS43OSAyMS40NTk5IDIwNi4zOEMxOS43Njk5IDIwOC4wNyAxNy45OTk5IDIwOS42NiAxNi4yODk5IDIxMS4yOEM5Ljg3OTg3IDIwNS41NSA5LjQxOTg3IDIwMi43OCAxNC42MTk5IDE5Ny41N0M2MS41Mzk5IDE1MC41NiAxMDguNTQgMTAzLjYyIDE1NS41MyA1Ni42NzAxQzE1Ni4wMSA1Ni4xOTAxIDE1Ni43IDU1LjkzMDEgMTU3LjI5IDU1LjU2MDFDMTU3LjgyIDU1LjkwMDEgMTU4LjM0IDU2LjI0MDEgMTU4Ljg2IDU2LjU4MDFaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTk0LjcxIDcxLjIzMDFDMTg0LjEgODIuNjcwMSAxODMuNzkgODguNzUwMSAxOTQuMjMgMTAwLjQ0QzE0Ny45NyAxNDYuNzkgMTAyLjExIDE5Mi43OSA1Ni4xNzk5IDIzOC43M0M1MC45NTk5IDI0My45NCA0Ny44Mjk5IDI0My40OSA0Mi40NTk5IDIzNy4xN0M0NC4yMDk5IDIzNS4zMyA0NS45NTk5IDIzMy40MSA0Ny43ODk5IDIzMS41N0M4Ni40MDk5IDE5Mi45NSAxMjUuMDMgMTU0LjMzIDE2My42NSAxMTUuN0MxNjUuMzQgMTE0IDE2Ny41NiAxMTIuNDIgMTY4LjM0IDExMC4zNEMxNjkuMDMgMTA4LjQ5IDE2OC44MyAxMDUuMjYgMTY3LjYyIDEwNC4wMkMxNjYuMzkgMTAyLjc3IDE2My4yMyAxMDIuNTMgMTYxLjI5IDEwMy4xQzE1OS40MiAxMDMuNjQgMTU3Ljk2IDEwNS43MiAxNTYuNDMgMTA3LjI0QzExNi43OCAxNDYuODcgNzcuMTM5OSAxODYuNTIgMzcuNDg5OSAyMjYuMTZDMzUuOTY5OSAyMjcuNjkgMzQuNTM5OSAyMzAuMDYgMzIuNzQ5OSAyMzAuNDFDMjkuODE5OSAyMzAuOTkgMjUuNTI5OSAyMzEuMzYgMjMuODU5OSAyMjkuNzJDMjIuMjA5OSAyMjguMTEgMjIuNTM5OSAyMjMuNzkgMjMuMDk5OSAyMjAuODdDMjMuNDQ5OSAyMTkuMDkgMjUuODM5OSAyMTcuNjcgMjcuMzY5OSAyMTYuMTRDNjUuNjQ5OSAxNzcuODUgMTAzLjg5IDEzOS41MyAxNDIuMzIgMTAxLjM5QzE0NC41NSA5OS4xNzAxIDE0OC4zMyA5OC41MTAxIDE1MS4zNiA5Ny4wODAxQzE1NC45NSA5NS4zODAxIDE1OS4xNiA5NC4zNDAxIDE2MS45NCA5MS43NjAxQzE3MS4xMSA4My4yNjAxIDE3OS43MiA3NC4xNjAxIDE4OC42NCA2NS4zODAxQzE5MS4wNyA2Mi45ODAxIDE5My44NCA1OC44MjAxIDE5Ny4yOSA2My4xNTAxQzE5OC4zIDY0LjQzMDEgMTk2LjU0IDY5LjI2MDEgMTk0LjcxIDcxLjIzMDFaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMjM1LjQyIDYyLjY2MDFDMjI2LjgxIDcxLjc0MDEgMjE4IDgwLjY2MDEgMjA4Ljc3IDg5LjEwMDFDMjA3LjA1IDkwLjY4MDEgMjAzIDg5LjcyMDEgMjAwLjAyIDg5Ljk0MDFDMjAwLjM1IDg2Ljk3MDEgMjAwLjIgODMuODUwMSAyMDEuMTYgODEuMTEwMUMyMDEuODIgNzkuMjYwMSAyMDQuMTMgNzguMDQwMSAyMDUuNTMgNzYuMzkwMUMyMTEuMjMgNjkuNjQwMSAyMTAuOTYgNjAuNzcwMSAyMDQuOTQgNTQuOTAwMUMxOTkuMDIgNDkuMTEwMSAxODkuODkgNDguOTEwMSAxODMuNDggNTUuMDEwMUMxNzQuNDEgNjMuNjQwMSAxNjUuNzIgNzIuNjYwMSAxNTYuODMgODEuNDYwMUMxNTUuMDYgODMuMjEwMSAxNTMuMSA4NC43NjAxIDE1MS4yMyA4Ni40MTAxQzE1MC40NSA4NS42NTAxIDE0OS42NyA4NC45MDAxIDE0OC44OSA4NC4xNDAxQzE1My4xNCA3OS44NjAxIDE1Ny4zOCA3NS41ODAxIDE2MS42MyA3MS4zMTAxQzE3MS41OSA2MS4zMTAxIDE3MS43NSA1OC45MDAxIDE2NS40MyA0Ni4yNDAxQzE2NC40IDQ0LjE3MDEgMTY1LjEgMzkuODUwMSAxNjYuNjkgMzguMDkwMUMxNzMuNjMgMzAuNDMwMSAxODEuMDMgMjMuMTcwMSAxODguNTcgMTYuMDgwMUMxOTMuNzcgMTEuMTkwMSAyMDAuMiAxMS4yNDAxIDIwNS40IDE2LjI1MDFDMjE1LjQ1IDI1Ljk0MDEgMjI1LjMyIDM1LjgyMDEgMjM1LjAyIDQ1Ljg2MDFDMjQwLjE1IDUxLjE2MDEgMjQwLjM2IDU3LjQ1MDEgMjM1LjQyIDYyLjY2MDFaIiBmaWxsPSIjRkZDRDAwIi8+CjwvZz4KPGRlZnM+CjxjbGlwUGF0aCBpZD0iY2xpcDBfNTZfNDcyIj4KPHJlY3Qgd2lkdGg9IjI1MC4wOCIgaGVpZ2h0PSIyNTMuNjgiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==",
 };
 
+// Quarterly workshop content library
+const QUARTERLY_WORKSHOPS = {
+  essentials: {
+    Q1: { name: "Guest Obsessed", active: true },
+    Q2: { name: "Train the Trainer Frontline", active: false },
+    Q3: { name: "Leading Your Crew", active: false },
+    Q4: { name: "TBC", active: false },
+  },
+  nextgen: {
+    Q1: { name: "Driving Profitability", active: true },
+    Q2: { name: "Train the Trainer Advanced", active: false },
+    Q3: { name: "Performance Leadership", active: false },
+    Q4: { name: "TBC", active: false },
+  },
+  elite: {
+    Q1: { name: "Running Your Restaurant", active: true },
+    Q2: { name: "Train the Trainer Excellence", active: false },
+    Q3: { name: "Power of Influence", active: false },
+    Q4: { name: "TBC", active: false },
+  },
+  // LSE doesn't change by quarter
+};
 const DEFAULT_CHALLENGES = {
   nextgen: [
     { id: "ng-w1", week: 1, type: "shift_call", title: "SHIFT CALL", subtitle: "React or hold?", points: 100, bonusPoints: 50, bonusCondition: "Perfect round (8/8 correct)", description: "Mid-shift scenarios. Sales data, headcount, model. You have 10 seconds to decide: react or do nothing. Eight rounds. Speed matters.", deliverable: "8 scenario decisions with speed scores", tip: "The skill isn't always cutting. It's reading the data and knowing when to hold.", icon: "sticky_tape" },
@@ -345,7 +367,7 @@ export default function App(){
       {view==="splash"&&<SplashV onL={()=>setView("login")} onR={()=>setView("register")}/>}
       {view==="login"&&<LoginV onL={login} onB={()=>setView("splash")}/>}
       {view==="register"&&<RegV onR={reg} onB={()=>setView("splash")} lunchConfig={lunchConfig} existingUsers={users}/>}
-      {view==="dashboard"&&user&&user.id&&<DashV u={user} ch={(challenges||DEFAULT_CHALLENGES)[user.program]||[]} co={comps.filter(c=>c.userId===user.id)} wk={getUserWeek(user.createdAt)} sc={pts(user.id,user.program)} onCh={c=>{setSel(c);setView("challenge");}} onBd={()=>setView("leaderboard")} onPr={()=>setView("profile")} actComps={activityComps.filter(c=>c.userId===user.id)} acts={DEFAULT_ACTIVITIES[user.program]||[]}/>}
+      {view==="dashboard"&&user&&user.id&&<DashV u={user} ch={(challenges||DEFAULT_CHALLENGES)[user.program]||[]} co={comps.filter(c=>c.userId===user.id)} wk={getUserWeek(user.createdAt)} sc={pts(user.id,user.program)} onCh={c=>{setSel(c);setView("challenge");}} onBd={()=>setView("leaderboard")} onPr={()=>setView("profile")} actComps={activityComps.filter(c=>c.userId===user.id)} acts={DEFAULT_ACTIVITIES[user.program]||[]} activeQuarter={activityConfig.activeQuarter?.[user.program]||"Q1"}/>}
       {view==="challenge"&&sel&&user&&(
         sel.type==="hazard_hunt"?<HazardHunt ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig.hazard_hunt}/>:
         sel.type==="shift_in_chaos"?<ShiftInChaos ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users} actCfg={activityConfig.shift_in_chaos}/>:
@@ -540,11 +562,11 @@ function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);c
 );}
 
 // ─── DASHBOARD ───────────────────────────────────────────────────────────────
-function DashV({u,ch,co,wk,sc,onCh,onBd,onPr,actComps,acts}){const did=co.map(c=>c.challengeId);const pg=PROGRAMS[u.program];const[expandedAct,setExpandedAct]=useState(null);const doneActs=actComps||[];return (
+function DashV({u,ch,co,wk,sc,onCh,onBd,onPr,actComps,acts,activeQuarter}){const did=co.map(c=>c.challengeId);const pg=PROGRAMS[u.program];const[expandedAct,setExpandedAct]=useState(null);const doneActs=actComps||[];const workshopName=QUARTERLY_WORKSHOPS[u.program]?.[activeQuarter||"Q1"]?.name||null;return (
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:90}}>
     <div style={{margin:"16px 16px 0",background:"#000",borderRadius:16,padding:"16px 20px 14px",color:"#fff"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-        <div><div style={{fontSize:22,fontWeight:900,fontFamily:FG,letterSpacing:1}}>HOLA, {u.name.split(" ")[0].toUpperCase()}!</div>
+        <div><div style={{fontSize:22,fontWeight:900,fontFamily:FG,letterSpacing:1}}>HOLA, {u.name.split(" ")[0].toUpperCase()}!</div>{workshopName&&<div style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#FFD300",letterSpacing:0.5,marginTop:2}}>{workshopName.toUpperCase()}</div>}
           <div style={{marginTop:8,padding:"6px 12px",background:"rgba(255,211,0,0.1)",borderRadius:8,display:"inline-block"}}><span style={{fontSize:13,fontFamily:FC,fontWeight:700,color:"#FFD300",letterSpacing:1}}>{u.batch}</span></div>
         </div>
         {LOGOS[u.program]&&<img src={LOGOS[u.program]} alt={pg?.name} style={{height:52,objectFit:"contain"}}/>}
@@ -3616,6 +3638,8 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
     ];
     // Batch controls for this program
     const progBatches=batches.filter(b=>us.some(u=>u.batch===b&&u.program===contentProg));
+    const activeQ=acfg.activeQuarter?.[contentProg]||"Q1";
+    const activeQW=QUARTERLY_WORKSHOPS[contentProg]?.[activeQ]||null;
 
     return(<div>
       {/* Program selector */}
@@ -3630,11 +3654,34 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div>
             <div style={{fontFamily:F107,fontWeight:900,fontSize:isMobile?20:24,letterSpacing:0.5}}>{prog?.name||contentProg.toUpperCase()}</div>
-            <div style={{fontSize:13,color:"#888",fontFamily:FB,marginTop:4}}>{allItems.length} items - {progBatches.length} active batches</div>
+            <div style={{fontSize:13,color:"#888",fontFamily:FB,marginTop:4}}>
+              {QUARTERLY_WORKSHOPS[contentProg]?(<>{activeQW?.name||"No workshop selected"} - </>):""}{allItems.length} items - {progBatches.length} active batches
+            </div>
           </div>
           {LOGOS[contentProg]&&<img src={LOGOS[contentProg]} alt="" style={{height:contentProg==="essentials"?56:52,objectFit:"contain",opacity:0.9}}/>}
         </div>
       </div>
+
+      {/* Quarter switcher - not for LSE */}
+      {QUARTERLY_WORKSHOPS[contentProg]&&(<div style={{...card,padding:isMobile?16:20,marginTop:8}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+          <div style={{fontFamily:FC,fontWeight:800,fontSize:14}}>CONTENT LIBRARY</div>
+          <div style={{fontSize:11,color:"#888",fontFamily:FC}}>Active quarter highlighted</div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+          {Object.entries(QUARTERLY_WORKSHOPS[contentProg]).map(([qKey,qVal])=>{
+            const isActive=(acfg.activeQuarter?.[contentProg]||"Q1")===qKey;
+            return(<button key={qKey} onClick={()=>{const aq={...(acfg.activeQuarter||{}),  [contentProg]:qKey};saveAcfg("activeQuarter",aq);flash(`${qKey} activated for ${prog?.short||contentProg}`,true);}} style={{padding:"12px 14px",borderRadius:12,border:isActive?"2px solid #FFD300":"1px solid #e8e8e3",background:isActive?"#FFF8E0":"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.2s"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{fontFamily:FC,fontWeight:900,fontSize:16,color:isActive?"#000":"#888"}}>{qKey}</span>
+                {isActive&&<span style={{fontSize:9,fontFamily:FC,fontWeight:800,color:"#007A33",background:"#f0f8f0",padding:"3px 8px",borderRadius:6}}>ACTIVE</span>}
+              </div>
+              <div style={{fontSize:12,fontFamily:FC,fontWeight:600,color:isActive?"#555":"#bbb",marginTop:4}}>{qVal.name}</div>
+            </button>);
+          })}
+        </div>
+        <div style={{fontSize:11,color:"#999",fontFamily:FB,marginTop:10,lineHeight:1.5}}>Switching quarters changes which challenges participants see. Existing submissions are preserved. Build challenges for each quarter in the challenge editor below.</div>
+      </div>)}
 
       {/* Content items */}
       <div style={{marginTop:8}}>
