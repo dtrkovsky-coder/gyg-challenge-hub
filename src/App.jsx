@@ -2701,7 +2701,19 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:16}}>
                     <div><div style={subLabel}>POINTS</div><input type="number" value={item.points} onChange={e=>saveCh(contentProg,chIdx,"points",parseInt(e.target.value)||0)} style={{...inp,textAlign:"center"}}/></div>
                     <div><div style={subLabel}>BONUS PTS</div><input type="number" value={item.bonusPoints} onChange={e=>saveCh(contentProg,chIdx,"bonusPoints",parseInt(e.target.value)||0)} style={{...inp,textAlign:"center"}}/></div>
-                    <div><div style={subLabel}>ICON</div><select value={item.icon||""} onChange={e=>saveCh(contentProg,chIdx,"icon",e.target.value)} style={inp}>{Object.keys(ICONS).map(k=><option key={k} value={k}>{k.replace(/_/g," ")}</option>)}</select></div>
+                    <div><div style={subLabel}>ICON</div>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        {item.icon&&item.icon!=="none"&&(item.icon.startsWith("data:")?<img src={item.icon} alt="" style={{width:32,height:32,objectFit:"contain",borderRadius:6,background:"#fff",border:"1px solid #e8e8e3",padding:2}}/>:ICONS[item.icon]?<img src={ICONS[item.icon]} alt="" style={{width:32,height:32,objectFit:"contain",borderRadius:6,background:"#fff",border:"1px solid #e8e8e3",padding:2}}/>:null)}
+                        <select value={item.icon?.startsWith("data:")?"custom":item.icon||""} onChange={e=>{if(e.target.value!=="custom")saveCh(contentProg,chIdx,"icon",e.target.value);}} style={{...inp,flex:1}}>
+                          <option value="none">No icon</option>
+                          {Object.keys(ICONS).map(k=><option key={k} value={k}>{k.replace(/_/g," ")}</option>)}
+                          {item.icon?.startsWith("data:")&&<option value="custom">Custom upload</option>}
+                        </select>
+                        <label style={{padding:"6px 12px",borderRadius:8,background:"#f5f5f0",border:"1px solid #e0e0db",fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+                          UPLOAD<input type="file" accept="image/*" style={{display:"none"}} onChange={async e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,64/Math.max(img.width,img.height));c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);saveCh(contentProg,chIdx,"icon",c.toDataURL("image/png"));};img.src=URL.createObjectURL(f);}}/>
+                        </label>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Hazard Hunt specific */}
