@@ -259,7 +259,7 @@ export default function App(){
   const[user,setUser]=useState(null);
   const[view,setView]=useState("splash");
   const[prevView,setPrevView]=useState(null);
-  useEffect(()=>{window.scrollTo(0,0);},[view]);
+  useEffect(()=>{window.scrollTo(0,0);},[view,sel]);
   const[users,setUsers]=useState([]);
   const[challenges,setChallenges]=useState(null);
   const[lunchConfig,setLunchConfigState]=useState(null);
