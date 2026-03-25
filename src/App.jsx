@@ -411,7 +411,8 @@ export default function App(){
   // Completion updates are handled per-operation via db.js
 
   const reg=async d=>{
-    if(users.find(u=>u.email===d.email||u.username===d.username)){flash("Email or username taken",false);return;}
+    d.username=d.username.toLowerCase();d.email=d.email.toLowerCase();
+    if(users.find(u=>u.email===d.email||u.username===d.username)){flash("Email or username already taken",false);return;}
     const now=new Date().toISOString();
     const batch=generateBatch(d.program,now,d.state);
     const currentQ=activityConfig.activeQuarter?.[d.program]||"Q1";
@@ -422,9 +423,10 @@ export default function App(){
     setUser(nu);setSession({id:nu.id});setView(getInitialView(nu,batchControl,activityComps));flash("Welcome to Challenge Hub!");
   };
   const login=async(un,pw)=>{
-    if(un==="gyg-admin"&&pw==="devdays2026"){setUser({id:"admin",name:"Admin",isAdmin:true});setView("admin");return;}
-    if(un==="test-all"&&pw==="test"){setUser({id:"test-all",name:"Test All",program:"lse",batch:"TEST",position:"Tester",restaurant:"Test"});setView("testbed");return;}
-    const f=users.find(u=>u.username===un&&u.password===pw);
+    const unl=un.toLowerCase();
+    if(unl==="gyg-admin"&&pw==="devdays2026"){setUser({id:"admin",name:"Admin",isAdmin:true});setView("admin");return;}
+    if(unl==="test-all"&&pw==="test"){setUser({id:"test-all",name:"Test All",program:"lse",batch:"TEST",position:"Tester",restaurant:"Test"});setView("testbed");return;}
+    const f=users.find(u=>u.username===unl&&u.password===pw);
     if(!f){flash("Invalid credentials",false);return;}
     // Check if quarter changed since last login - re-trigger lunch order
     const currentQ=activityConfig.activeQuarter?.[f.program]||"Q1";
@@ -625,7 +627,16 @@ function LunchReorder({user,lunchConfig,onDone}){
     <button style={{...BY,width:"100%",marginTop:8,opacity:lt&&lf?1:0.4}} disabled={!lt||!lf} onClick={()=>onDone(lt,lf)}>UPDATE ORDER</button>
   </div>);
 }
-function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);const[f,sF]=useState({name:"",email:"",username:"",password:"",position:"",program:"",restaurant:"",state:"",lunchType:"",lunchFilling:""});const[err,setErr]=useState("");const u=(k,v)=>sF(p=>({...p,[k]:v}));
+function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);const[f,sF]=useState({name:"",email:"",username:"",password:"",position:"",program:"",restaurant:"",state:"",lunchType:"",lunchFilling:""});const[err,setErr]=useState("");const[unErr,setUnErr]=useState("");const[emErr,setEmErr]=useState("");
+  const u=(k,v)=>{
+    // Force lowercase for username and email
+    if(k==="username"||k==="email")v=v.toLowerCase();
+    sF(p=>({...p,[k]:v}));
+    // Live validation for username/email
+    const eu=existingUsers||[];
+    if(k==="username"&&v.trim()){setUnErr(eu.find(x=>x.username===v.toLowerCase())?"Username taken":"");}else if(k==="username"){setUnErr("");}
+    if(k==="email"&&v.trim()){setEmErr(eu.find(x=>x.email===v.toLowerCase())?"Email already registered":"");}else if(k==="email"){setEmErr("");}
+  };
   const pos=["Crew Member","Crew Trainer","Cook","Senior Cook","Head Cook","Shift Leader","Assistant Restaurant Manager","Restaurant Manager"];
   const STATES=[{id:"NSW",name:"New South Wales"},{id:"VIC",name:"Victoria"},{id:"QLD",name:"Queensland"},{id:"WA",name:"Western Australia"},{id:"SA",name:"South Australia"},{id:"TAS",name:"Tasmania"},{id:"ACT",name:"ACT"},{id:"NT",name:"Northern Territory"}];
   const previewBatch=f.program?generateBatch(f.program,null,f.state):null;
@@ -636,11 +647,18 @@ function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);c
     {st===1?(
       <div style={{padding:"24px 20px",display:"flex",flexDirection:"column",gap:16}}>
         <IF l="FULL NAME" v={f.name} onChange={v=>u("name",v)} p="Your full name" ac="name" nm="name"/>
-        <IF l="EMAIL" v={f.email} onChange={v=>u("email",v)} p="your.email@gyg.com.au" t="email" ac="email" nm="email"/>
-        <IF l="USERNAME" v={f.username} onChange={v=>u("username",v)} p="Choose a username" ac="username" nm="username"/>
+        <div>
+          <IF l="EMAIL" v={f.email} onChange={v=>u("email",v)} p="your.email@gyg.com.au" t="email" ac="email" nm="email"/>
+          {emErr&&<div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#E3000B",marginTop:4}}>{emErr} - try signing in</div>}
+        </div>
+        <div>
+          <IF l="USERNAME" v={f.username} onChange={v=>u("username",v)} p="Choose a username" ac="username" nm="username"/>
+          {unErr&&<div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#E3000B",marginTop:4}}>{unErr} - choose another</div>}
+          {f.username&&!unErr&&<div style={{fontSize:11,fontFamily:FC,fontWeight:600,color:"#999",marginTop:4}}>Usernames are lowercase</div>}
+        </div>
         <IF l="PASSWORD" v={f.password} onChange={v=>u("password",v)} p="Create a password" t="password" ac="new-password" nm="password"/>
         {err&&<div style={{background:"#FDE8E8",border:"1px solid #E3000B",borderRadius:10,padding:"10px 14px",fontSize:13,fontFamily:FC,fontWeight:700,color:"#E3000B",letterSpacing:0.5}}>{err}</div>}
-        <button style={{...BY,width:"100%",marginTop:12}} onClick={()=>{if(!f.name||!f.email||!f.username||!f.password){setErr("All fields are required");return;}const eu=existingUsers||[];if(eu.find(x=>x.username===f.username)){setErr("Username already taken - choose another");return;}if(eu.find(x=>x.email===f.email)){setErr("Email already registered - try signing in");return;}setErr("");setSt(2);}}>NEXT</button>
+        <button style={{...BY,width:"100%",marginTop:12,opacity:(!unErr&&!emErr)?1:0.4}} onClick={()=>{if(!f.name||!f.email||!f.username||!f.password){setErr("All fields are required");return;}if(unErr||emErr){setErr(unErr||emErr);return;}const eu=existingUsers||[];if(eu.find(x=>x.username===f.username.toLowerCase())){setErr("Username already taken");return;}if(eu.find(x=>x.email===f.email.toLowerCase())){setErr("Email already registered");return;}setErr("");setSt(2);}}>NEXT</button>
       </div>
     ):st===2?(
       <div style={{padding:"24px 20px",display:"flex",flexDirection:"column",gap:16}}>
