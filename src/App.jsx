@@ -667,7 +667,7 @@ function HazardHunt({ch,done,onS,onB,user,actCfg}){
   // Score count-up animation
   useEffect(()=>{if(screen===3&&animScore<score){const t=setTimeout(()=>setAnimScore(s=>Math.min(s+Math.ceil(score/20),score)),40);return()=>clearTimeout(t);}},[screen,animScore,score]);
   const tapZone=(zone)=>{if(found.includes(zone.id))return;const fb=cfgFeedback[zone.id]||{};if(!fb.hazard)setDecoyTapped(true);setFound(p=>[...p,zone.id]);setFeedback({...fb,id:zone.id});setTimeout(()=>setFeedback(null),2000);};
-  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div><div style={{fontSize:13,fontFamily:FC,fontWeight:600,color:"#888",marginTop:12,letterSpacing:0.5}}>WEEK 2 UNLOCKS WHEN AVAILABLE</div></div></div>);
+  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div><div style={{fontSize:13,fontFamily:FC,fontWeight:600,color:"#888",marginTop:12,letterSpacing:0.5}}>WEEK 2 UNLOCKS WHEN AVAILABLE</div></div></div>);
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div>
@@ -801,7 +801,7 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users,actCfg}){
   const onDragEnd=()=>{if(dragIdx===null)return;const offset=Math.round(dragY/itemHeight);const newIdx=Math.max(0,Math.min(ranking.length-1,dragIdx+offset));
     if(newIdx!==dragIdx){const n=[...ranking];const[item]=n.splice(dragIdx,1);n.splice(newIdx,0,item);setRanking(n);}
     setDragIdx(null);setDragY(0);};
-  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div><div style={{fontSize:13,fontFamily:FC,fontWeight:600,color:"#888",marginTop:12,letterSpacing:0.5}}>WEEK 3 UNLOCKS WHEN AVAILABLE</div></div></div>);
+  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div><div style={{fontSize:13,fontFamily:FC,fontWeight:600,color:"#888",marginTop:12,letterSpacing:0.5}}>WEEK 3 UNLOCKS WHEN AVAILABLE</div></div></div>);
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div>
@@ -958,7 +958,7 @@ function SwipeCard({photo,caption,onSwipe,cardIdx,total}){
   if(exiting)return(
     <div style={{position:"relative",height:380,transition:"all 0.25s ease-out",transform:`translateX(${offset}px) rotate(${rot}deg)`,opacity}}>
       <div style={{width:"100%",height:"100%",borderRadius:20,overflow:"hidden",background:"#222"}}>
-        <img src={photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} crossOrigin="anonymous"/>
+        <img src={photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
       </div>
     </div>
   );
@@ -971,7 +971,7 @@ function SwipeCard({photo,caption,onSwipe,cardIdx,total}){
       onMouseDown={e=>{onStart(e.clientX);const mm=ev=>onMove(ev.clientX);const mu=()=>{onEnd();window.removeEventListener("mousemove",mm);window.removeEventListener("mouseup",mu);};window.addEventListener("mousemove",mm);window.addEventListener("mouseup",mu);}}>
       {/* Card */}
       <div style={{width:"100%",height:"100%",borderRadius:20,overflow:"hidden",background:"#222",boxShadow:"0 8px 30px rgba(0,0,0,0.15)",position:"relative"}}>
-        <img src={photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} crossOrigin="anonymous"/>
+        <img src={photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
         {/* Overlay labels */}
         {showRight&&<div style={{position:"absolute",top:24,left:20,padding:"8px 18px",border:"3px solid #007A33",borderRadius:10,color:"#007A33",fontFamily:FC,fontWeight:900,fontSize:22,letterSpacing:2,transform:"rotate(-15deg)",background:"rgba(255,255,255,0.85)"}}>COME BACK</div>}
         {showLeft&&<div style={{position:"absolute",top:24,right:20,padding:"8px 18px",border:"3px solid #E3000B",borderRadius:10,color:"#E3000B",fontFamily:FC,fontWeight:900,fontSize:22,letterSpacing:2,transform:"rotate(15deg)",background:"rgba(255,255,255,0.85)"}}>NOPE</div>}
@@ -1027,7 +1027,7 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
   const shotList=actCfg?.spot_the_moment?.shotList||SHOT_LIST;
   const swipeWords=actCfg?.spot_the_moment?.words||SWIPE_WORDS;
 
-  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
@@ -1052,8 +1052,9 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
           </div>
         </div>
       );})}
-      {uploadCount>=5&&(<button style={{...BY,width:"100%",marginTop:16}} onClick={()=>{if(allSwipePhotos.length>0)setPhase("swipe");else onS({text:"Spot the Moment - photos uploaded",photos,claimedBonus:false,autoBonus:false,points:ch.points});}}>START THE SWIPE GAME</button>)}
+      {uploadCount>=5&&(<button style={{...BY,width:"100%",marginTop:16}} onClick={()=>{if(allSwipePhotos.length>0)setPhase("swipe");else onS({text:"Spot the Moment - photos uploaded",photos,claimedBonus:false,autoBonus:false,points:ch.points});}}>START THE SWIPE GAME ({allSwipePhotos.length} photos to review)</button>)}
       {uploadCount<5&&uploadCount>0&&<div style={{textAlign:"center",fontSize:12,color:"#999",fontFamily:FC,marginTop:8}}>{5-uploadCount} more to go</div>}
+      {uploadCount>=5&&allSwipePhotos.length===0&&<div style={{textAlign:"center",fontSize:12,color:"#E3000B",fontFamily:FC,marginTop:8}}>No photos available to swipe yet - check back later or ask admin to add seed photos</div>}
     </div>)}
 
     {/* Phase 2: Swipe cards */}
@@ -1076,7 +1077,9 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
 
     {/* Phase 3: Pick a word */}
     {phase==="word"&&(<div style={{padding:"24px 20px",textAlign:"center"}}>
-      <div style={{fontSize:48,marginBottom:12}}>{lastDir==="right"?"👍":"👎"}</div>
+      <div style={{marginBottom:12}}>{lastDir==="right"
+        ?<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        :<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#E3000B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>}</div>
       <div style={{fontFamily:FC,fontWeight:900,fontSize:20,marginBottom:4,color:lastDir==="right"?"#007A33":"#E3000B"}}>{lastDir==="right"?"I'D COME BACK":"WOULDN'T COME BACK"}</div>
       <div style={{fontSize:14,color:"#888",fontFamily:FB,marginBottom:24}}>Now pick one word that describes this photo</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
@@ -1087,7 +1090,7 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
     {/* Phase 4: Results */}
     {phase==="reveal"&&(<div style={{padding:"24px 20px"}}>
       <div style={{textAlign:"center",marginBottom:24}}>
-        <div style={{fontSize:48,marginBottom:8}}>&#128248;</div>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:8}}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
         <div style={{fontSize:28,fontFamily:FC,fontWeight:900,letterSpacing:1}}>SWIPE RESULTS</div>
         <div style={{fontSize:14,color:"#888",fontFamily:FB,marginTop:4}}>You swiped on {swipes.length} photos</div>
       </div>
@@ -1147,7 +1150,7 @@ function ThirtySecondSell({ch,done,onS,onB,user}){
   useEffect(()=>{if(phase==="countdown"&&countdown>0){const t=setTimeout(()=>setCountdown(c=>c-1),1000);return()=>clearTimeout(t);}if(phase==="countdown"&&countdown===0)setPhase("recording");},[phase,countdown]);
   useEffect(()=>{if(phase==="recording"&&timer>0){timerRef.current=setInterval(()=>setTimer(t=>{if(t<=1){clearInterval(timerRef.current);return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}if(phase==="recording"&&timer===0)setPhase("review");},[phase,timer]);
   const startRecording=()=>{setCountdown(3);setTimer(30);setAttempts(a=>a+1);setPhase("countdown");};
-  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div>
@@ -1180,7 +1183,7 @@ function ThirtySecondSell({ch,done,onS,onB,user}){
         <button style={{...BO,width:"100%",marginTop:24}} onClick={()=>setPhase("review")}>STOP EARLY</button>
       </div>)}
       {phase==="review"&&(<div style={{textAlign:"center"}}>
-        <div style={{fontSize:48,marginBottom:12}}>&#127909;</div>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
         <div style={{fontFamily:FC,fontWeight:800,fontSize:18,marginBottom:4}}>TAKE {attempts}</div>
         <div style={{fontSize:14,color:"#888",marginBottom:24}}>Duration: {30-timer} seconds</div>
         <div style={{display:"flex",gap:12}}>
@@ -1192,7 +1195,7 @@ function ThirtySecondSell({ch,done,onS,onB,user}){
         <div style={{fontFamily:FC,fontWeight:800,fontSize:16,textAlign:"center",marginBottom:8}}>SHOW YOUR VIDEO TO A PARTNER</div>
         <div style={{fontSize:13,color:"#888",textAlign:"center",marginBottom:20}}>They rate: would they order {SELL_ITEMS[currentItem].name}?</div>
         <div style={{background:"#000",borderRadius:14,padding:20,marginBottom:16}}>
-          <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>{RATINGS.map((r,i)=>(<div key={i} style={{textAlign:"center",flex:1}}><div style={{fontSize:20}}>{["&#128530;","&#129300;","&#128528;","&#128523;","&#129297;"][i]}</div><div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:rating===i+1?"#FFD300":"#666",marginTop:4}}>{r.toUpperCase()}</div></div>))}</div>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>{RATINGS.map((r,i)=>{const stars=i+1;return(<div key={i} style={{textAlign:"center",flex:1,cursor:"pointer"}} onClick={()=>setRating(stars)}><div style={{display:"flex",justifyContent:"center",gap:1}}>{[...Array(5)].map((_,si)=>(<svg key={si} width="14" height="14" viewBox="0 0 24 24" fill={si<stars?"#FFD300":"none"} stroke={si<stars?"#FFD300":"#ccc"} strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>))}</div><div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:rating===stars?"#FFD300":"#666",marginTop:4}}>{r.toUpperCase()}</div></div>);})}</div>
           <input type="range" min="1" max="5" value={rating} onChange={e=>setRating(parseInt(e.target.value))} style={{width:"100%",accentColor:"#FFD300"}}/>
           <div style={{textAlign:"center",fontSize:24,fontFamily:FC,fontWeight:900,color:"#FFD300",marginTop:8}}>{rating}/5</div>
         </div>
@@ -1279,7 +1282,7 @@ function RecoveryRace({ch,done,onS,onB,user}){
   const choose=(opt)=>{clearInterval(timerRef.current);setChoices(p=>[...p,opt.outcome]);setLastOutcome(opt);
     if(decIdx<(scen?.decisions.length||4)-1){setTimeout(()=>{setDecIdx(d=>d+1);setDecTimer(scen?.decisions[decIdx+1]?.timer||8);setLastOutcome(null);},2000);}
     else{const goods=choices.filter(c=>c==="good").length+(opt.outcome==="good"?1:0);const total=choices.length+1;setAllResults(p=>[...p,{scenId:scen.id,title:scen.title,goods,total,score:Math.round(goods/total*100)}]);setTimeout(()=>setScreen("result"),2000);}};
-  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 3</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 3</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 3</span><span style={{width:32}}/></div>
@@ -1305,7 +1308,7 @@ function RecoveryRace({ch,done,onS,onB,user}){
         {dec.options.map(opt=>(<button key={opt.id} onClick={()=>choose(opt)} style={{padding:"14px 16px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,color:"#1a1a1a",cursor:"pointer"}}>{opt.text}</button>))}
       </div>)}
       {lastOutcome&&(<div style={{textAlign:"center",padding:16}}>
-        <div style={{fontSize:32}}>{lastOutcome.outcome==="good"?"&#9989;":lastOutcome.outcome==="neutral"?"&#128528;":"&#10060;"}</div>
+        {lastOutcome.outcome==="good"?<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>:lastOutcome.outcome==="neutral"?<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFB800" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>:<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#E3000B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>}
         <div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:lastOutcome.outcome==="good"?"#007A33":lastOutcome.outcome==="bad"?"#E3000B":"#FFB800",marginTop:8}}>{lastOutcome.outcome.toUpperCase()}</div>
       </div>)}
       <div style={{display:"flex",gap:4,marginTop:16,justifyContent:"center"}}>{scen.decisions.map((_,i)=>(<div key={i} style={{width:8,height:8,borderRadius:4,background:i<decIdx?"#007A33":i===decIdx?"#FFD300":"#ddd"}}/>))}</div>
@@ -1347,7 +1350,7 @@ function ShiftLeaderLens({ch,done,onS,onB,user}){
   const[selected,setSelected]=useState(null);
   const[why,setWhy]=useState("");
   const clip=SLL_CLIPS[clipIdx]||null;
-  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 4</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:12}}>&#9989;</div><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 4</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 4</span><span style={{width:32}}/></div>
