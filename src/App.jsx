@@ -280,7 +280,7 @@ const HUDDLE_PLACEHOLDERS = {
 };
 // ─── UTILS ───────────────────────────────────────────────────────────────────
 function getISOWeek(d) { const date = new Date(d); date.setHours(0,0,0,0); date.setDate(date.getDate()+3-(date.getDay()+6)%7); const w1=new Date(date.getFullYear(),0,4); return 1+Math.round(((date-w1)/86400000-3+(w1.getDay()+6)%7)/7); }
-function generateBatch(programId, dateStr) { const d=new Date(dateStr||Date.now()); const wk=getISOWeek(d); const yr=String(d.getFullYear()).slice(-2); const short=PROGRAMS[programId]?.short||"GYG"; return `GYG-${short}-WK${String(wk).padStart(2,"0")}-${yr}`; }
+function generateBatch(programId, dateStr, stateCode) { const d=new Date(dateStr||Date.now()); const wk=getISOWeek(d); const yr=String(d.getFullYear()).slice(-2); const short=PROGRAMS[programId]?.short||"GYG"; const sc=stateCode||""; return `GYG-${short}-${sc?sc+"-":""}WK${String(wk).padStart(2,"0")}-${yr}`; }
 function getUserWeek(createdAt) { if(!createdAt)return 1; return Math.min(Math.max(Math.floor((Date.now()-new Date(createdAt))/604800000)+1,1),4); }
 
 // Storage now handled by Firebase - see db.js
@@ -401,7 +401,7 @@ export default function App(){
   const reg=async d=>{
     if(users.find(u=>u.email===d.email||u.username===d.username)){flash("Email or username taken",false);return;}
     const now=new Date().toISOString();
-    const batch=generateBatch(d.program,now);
+    const batch=generateBatch(d.program,now,d.state);
     const currentQ=activityConfig.activeQuarter?.[d.program]||"Q1";
     const nu={id:`u${Date.now()}`,...d,batch,lastQuarter:currentQ,createdAt:now};
     await addUser(nu);setUsers([...users,nu]);
@@ -597,9 +597,10 @@ function LunchReorder({user,lunchConfig,onDone}){
     <button style={{...BY,width:"100%",marginTop:16,opacity:lt&&lf?1:0.4}} disabled={!lt||!lf} onClick={()=>onDone(lt,lf)}>UPDATE ORDER</button>
   </div>);
 }
-function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);const[f,sF]=useState({name:"",email:"",username:"",password:"",position:"",program:"",restaurant:"",lunchType:"",lunchFilling:""});const[err,setErr]=useState("");const u=(k,v)=>sF(p=>({...p,[k]:v}));
+function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);const[f,sF]=useState({name:"",email:"",username:"",password:"",position:"",program:"",restaurant:"",state:"",lunchType:"",lunchFilling:""});const[err,setErr]=useState("");const u=(k,v)=>sF(p=>({...p,[k]:v}));
   const pos=["Crew Member","Crew Trainer","Cook","Senior Cook","Head Cook","Shift Leader","Assistant Restaurant Manager","Restaurant Manager"];
-  const previewBatch=f.program?generateBatch(f.program):null;
+  const STATES=[{id:"NSW",name:"New South Wales"},{id:"VIC",name:"Victoria"},{id:"QLD",name:"Queensland"},{id:"WA",name:"Western Australia"},{id:"SA",name:"South Australia"},{id:"TAS",name:"Tasmania"},{id:"ACT",name:"ACT"},{id:"NT",name:"Northern Territory"}];
+  const previewBatch=f.program?generateBatch(f.program,null,f.state):null;
   return (
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
     <div style={TBar}><button style={BA} onClick={()=>st===1?onB():setSt(st-1)}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{st===3?"ORDER LUNCH":"JOIN CHALLENGE HUB"}</span><span style={{width:32}}/></div>
@@ -633,11 +634,24 @@ function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);c
           </div>
         </div>
         <IF l="RESTAURANT" v={f.restaurant} onChange={v=>u("restaurant",v)} p="e.g. Capalaba, Logan City"/>
-        {previewBatch&&<div style={{background:"#000",borderRadius:12,padding:"14px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+          <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1}}>STATE</label>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6}}>
+            {STATES.map(s=>(
+              <button key={s.id} onClick={()=>u("state",s.id)} style={{padding:"10px 4px",background:f.state===s.id?"#FFFDE6":"#fff",border:`2px solid ${f.state===s.id?"#FFD300":"#e0e0db"}`,borderRadius:10,cursor:"pointer",fontFamily:FC,fontWeight:800,fontSize:13,letterSpacing:0.5,color:f.state===s.id?"#000":"#666",transition:"all 0.15s"}}>{s.id}</button>
+            ))}
+          </div>
+        </div>
+        {previewBatch&&f.state&&<div style={{background:"#000",borderRadius:12,padding:"14px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div><div style={{fontSize:12,fontWeight:700,fontFamily:FC,color:"#888",letterSpacing:1}}>YOUR BATCH CODE</div><div style={{fontSize:20,fontWeight:900,fontFamily:FC,color:"#FFD300",letterSpacing:1,marginTop:4}}>{previewBatch}</div></div>
-          <div style={{fontSize:12,color:"#666",fontFamily:FC,letterSpacing:1,textAlign:"right"}}>AUTO-ASSIGNED<br/>BASED ON PROGRAM<br/>& WORKSHOP WEEK</div>
+          <div style={{fontSize:12,color:"#666",fontFamily:FC,letterSpacing:1,textAlign:"right"}}>AUTO-ASSIGNED<br/>BASED ON PROGRAM<br/>STATE {"&"} WEEK</div>
         </div>}
-        <button style={{...BY,width:"100%",marginTop:4}} onClick={()=>{if(f.position&&f.program&&f.restaurant){const lc=lunchConfig||{};const progCfg=lc[f.program];if(progCfg&&progCfg.enabled===false){onR(f);}else{setSt(3);}}}}>NEXT</button>
+        <button style={{...BY,width:"100%",marginTop:4}} onClick={()=>{
+          if(!f.position||!f.program||!f.restaurant){setErr("All fields are required");return;}
+          if(!f.state){setErr("Please select your state");return;}
+          setErr("");const lc=lunchConfig||{};const progCfg=lc[f.program];
+          if(progCfg&&progCfg.enabled===false){onR(f);}else{setSt(3);}
+        }}>NEXT</button>
       </div>
     ):(
       <div style={{padding:"24px 20px",display:"flex",flexDirection:"column",gap:16}}>
