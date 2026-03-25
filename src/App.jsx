@@ -452,13 +452,16 @@ export default function App(){
       {view==="splash"&&<SplashV onL={()=>setView("login")} onR={()=>setView("register")}/>}
       {view==="login"&&<LoginV onL={login} onB={()=>setView("splash")}/>}
       {view==="register"&&<RegV onR={reg} onB={()=>setView("splash")} lunchConfig={lunchConfig} existingUsers={users}/>}
-      {view==="reorder_lunch"&&user&&(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",padding:"24px 20px"}}>
-        <div style={TBar}><span style={{width:32}}/><span style={TT}>LUNCH ORDER</span><span style={{width:32}}/></div>
-        <div style={{textAlign:"center",marginBottom:20,marginTop:60}}>
-          <div style={{fontFamily:FC,fontWeight:900,fontSize:22,letterSpacing:1}}>NEW QUARTER</div>
-          <div style={{fontSize:14,color:"#888",fontFamily:FB,marginTop:4}}>Welcome back! Please update your lunch order for this session.</div>
+      {view==="reorder_lunch"&&user&&(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
+        <div style={TBar}><span style={{width:32}}/><span style={TT}>ORDER LUNCH</span><span style={{width:32}}/></div>
+        <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:"100%"}}/></div>
+        <div style={{padding:"24px 20px",display:"flex",flexDirection:"column",gap:16}}>
+          <div style={{textAlign:"center",marginBottom:4}}>
+            <div style={{fontFamily:F107,fontWeight:900,fontSize:20,letterSpacing:1}}>CHOOSE YOUR LUNCH</div>
+            <div style={{fontSize:13,color:"#888",fontFamily:FB,marginTop:4}}>Welcome back! Select your meal for this session.</div>
+          </div>
+          <LunchReorder user={user} lunchConfig={lunchConfig} onDone={async(lt,lf)=>{const updated={...user,lunchType:lt,lunchFilling:lf,lastQuarter:activityConfig.activeQuarter?.[user.program]||"Q1"};await updateUser(updated);setUser(updated);setView(getInitialView(updated,batchControl,activityComps));flash("Lunch order updated!");}}/>
         </div>
-        <LunchReorder user={user} lunchConfig={lunchConfig} onDone={async(lt,lf)=>{const updated={...user,lunchType:lt,lunchFilling:lf,lastQuarter:activityConfig.activeQuarter?.[user.program]||"Q1"};await updateUser(updated);setUser(updated);setView(getInitialView(updated,batchControl,activityComps));flash("Lunch order updated!");}}/>
       </div>)}
 
       {view==="dashboard"&&user&&user.id&&<DashV u={user} ch={getCh(user.program)||[]} co={comps.filter(c=>c.userId===user.id)} wk={getUserWeek(user.createdAt)} sc={pts(user.id,user.program)} onCh={c=>{setSel(c);setView("challenge");}} onBd={()=>setView("leaderboard")} onPr={()=>setView("profile")} actComps={activityComps.filter(c=>c.userId===user.id)} acts={getActs(user.program)||[]} activeQuarter={activityConfig.activeQuarter?.[user.program]||"Q1"}/>}
@@ -589,21 +592,33 @@ function LunchReorder({user,lunchConfig,onDone}){
   const enabledFillings=(progCfg.fillings||LUNCH_MENU.fillings.map(fl=>fl.id)).filter(fid=>LUNCH_MENU.fillings.some(fl=>fl.id===fid));
   const visTypes=LUNCH_MENU.types.filter(t=>enabledTypes.includes(t.id));
   const visFillings=LUNCH_MENU.fillings.filter(fl=>enabledFillings.includes(fl.id));
-  return(<div>
-    <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:12}}>WHAT WOULD YOU LIKE FOR LUNCH?</div>
-    <div style={{display:"grid",gridTemplateColumns:`repeat(${visTypes.length},1fr)`,gap:10,marginBottom:16}}>
-      {visTypes.map(t=>(<button key={t.id} onClick={()=>setLt(t.id)} style={{padding:"18px 12px",background:lt===t.id?"#FFFDE6":"#fff",border:`2px solid ${lt===t.id?"#FFD300":"#e0e0db"}`,borderRadius:14,cursor:"pointer",textAlign:"center"}}>
-        <div style={{fontFamily:FC,fontWeight:800,fontSize:16}}>{t.name}</div>
-      </button>))}
+  return(<div style={{display:"flex",flexDirection:"column",gap:16}}>
+    <div style={{display:"flex",flexDirection:"column",gap:6}}>
+      <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1}}>MEAL TYPE</label>
+      <div style={{display:"grid",gridTemplateColumns:visTypes.length>1?"1fr 1fr":"1fr",gap:10}}>
+        {visTypes.map(t=>(
+          <button key={t.id} onClick={()=>setLt(t.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,padding:"18px 12px",background:lt===t.id?"#FFFDE6":"#fff",border:`2px solid ${lt===t.id?"#FFD300":"#e0e0db"}`,borderRadius:14,cursor:"pointer",textAlign:"center"}}>
+            {LUNCH_IMAGES[t.id]&&<img src={LUNCH_IMAGES[t.id]} alt={t.name} style={{width:80,height:80,objectFit:"contain"}}/>}
+            <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:1}}>{t.name}</div>
+          </button>
+        ))}
+      </div>
     </div>
     {lt&&<div style={{display:"flex",flexDirection:"column",gap:6}}>
-      <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:4}}>CHOOSE YOUR FILLING</div>
-      {visFillings.map((fl,i)=>(<button key={fl.id} onClick={()=>setLf(fl.id)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px",background:lf===fl.id?"#FFFDE6":"#fff",border:"none",borderBottom:i<visFillings.length-1?"1px solid #f0f0eb":"none",cursor:"pointer",width:"100%",textAlign:"left"}}>
-        <span style={{fontSize:16,fontFamily:FB}}>{fl.name}</span>
-        {lf===fl.id&&<span style={{color:"#FFD300",fontSize:18,fontWeight:900}}>&#10003;</span>}
-      </button>))}
+      <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1}}>CHOOSE MAIN FILLING</label>
+      <div style={{display:"flex",flexDirection:"column",gap:0,borderRadius:14,overflow:"hidden",border:"1px solid #e0e0db"}}>
+        {visFillings.map((fl,i)=>(
+          <button key={fl.id} onClick={()=>setLf(fl.id)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px",background:lf===fl.id?"#FFFDE6":"#fff",border:"none",borderBottom:i<visFillings.length-1?"1px solid #f0f0eb":"none",cursor:"pointer",width:"100%",textAlign:"left"}}>
+            <div style={{display:"flex",alignItems:"center",gap:12}}>
+              {LUNCH_IMAGES[fl.id]&&<img src={LUNCH_IMAGES[fl.id]} alt="" style={{width:52,height:52,borderRadius:"50%",objectFit:"cover",border:lf===fl.id?"2px solid #FFD300":"2px solid transparent"}}/>}
+              <span style={{fontFamily:FB,fontSize:15,color:"#1a1a1a"}}>{fl.name}</span>
+            </div>
+            <div style={{width:24,height:24,borderRadius:"50%",border:`2px solid ${lf===fl.id?"#FFD300":"#ddd"}`,background:lf===fl.id?"#FFD300":"transparent",display:"flex",alignItems:"center",justifyContent:"center"}}>{lf===fl.id&&<svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}</div>
+          </button>
+        ))}
+      </div>
     </div>}
-    <button style={{...BY,width:"100%",marginTop:16,opacity:lt&&lf?1:0.4}} disabled={!lt||!lf} onClick={()=>onDone(lt,lf)}>UPDATE ORDER</button>
+    <button style={{...BY,width:"100%",marginTop:8,opacity:lt&&lf?1:0.4}} disabled={!lt||!lf} onClick={()=>onDone(lt,lf)}>UPDATE ORDER</button>
   </div>);
 }
 function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);const[f,sF]=useState({name:"",email:"",username:"",password:"",position:"",program:"",restaurant:"",state:"",lunchType:"",lunchFilling:""});const[err,setErr]=useState("");const u=(k,v)=>sF(p=>({...p,[k]:v}));
