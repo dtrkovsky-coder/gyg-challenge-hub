@@ -77,10 +77,10 @@ const DEFAULT_CHALLENGES = {
     { id: "le-w4", week: 4, type: "shift_leader_lens", title: "THE SHIFT LEADER LENS", subtitle: "What would you do?", points: 100, bonusPoints: 50, bonusCondition: "Completed all clips with consistent leadership profile", description: "Short scenario clips of real restaurant moments. For each one: what would you do, when would you act, what's at risk. Your answers build your shift leader profile.", deliverable: "Clip assessments + leadership profile", tip: "There's no single right answer. But there's a pattern in yours - and that pattern is your leadership style.", icon: "socks" },
   ],
   elite: [
-    { id: "el-w1", week: 1, title: "P&L DEEP DIVE", subtitle: "Read the story", points: 100, bonusPoints: 50, bonusCondition: "Identified 2+ specific action items", description: "Pull your restaurant's P&L for the last period. Identify the 3 biggest variances from budget. For each one, write what caused it and one action to address it.", deliverable: "Your 3 biggest P&L variances with root cause and action plan", tip: "Numbers don't lie. But they don't act either. That's your job.", icon: "bag" },
-    { id: "el-w2", week: 2, title: "SUCCESSION MAP", subtitle: "Who's next?", points: 100, bonusPoints: 50, bonusCondition: "Started a development plan for top candidate", description: "Map your team's succession readiness. For each SL and ARM, rate their readiness. Identify your #1 candidate for the next level. Start their development plan.", deliverable: "Your succession map and the development plan for your top candidate", tip: "If you left tomorrow, who runs your restaurant?", icon: "avocado" },
-    { id: "el-w3", week: 3, title: "CULTURE AUDIT", subtitle: "What's really happening", points: 100, bonusPoints: 50, bonusCondition: "Made one visible change based on feedback", description: "Have a genuine 1:1 with 3 different team members from different levels. Ask: What's working? What's frustrating? What would you change? Act on one thing this week.", deliverable: "Key themes from your 3 conversations and the one action you took", tip: "Culture is what happens when you're not watching. Go find out.", icon: "lime" },
-    { id: "el-w4", week: 4, title: "THE RM RHYTHM", subtitle: "Build your week", points: 100, bonusPoints: 50, bonusCondition: "Ran the full rhythm for one complete week", description: "Design and execute your ideal weekly rhythm. Map when you check each number, when you coach, when you plan, when you react. Run it for one full week.", deliverable: "Your weekly rhythm template and a reflection on how it went", tip: "Consistency beats intensity. Build the week that runs the business.", icon: "sundae" },
+    { id: "el-w1", week: 1, type: "guest_dollar_trail", title: "THE GUEST DOLLAR TRAIL", subtitle: "Follow the money", points: 100, bonusPoints: 50, bonusCondition: "All 5 correct choices", description: "Follow one guest through 5 moments in your restaurant. Each choice adds to or subtracts from a running dollar counter. See the annual revenue impact.", deliverable: "5 moment decisions + weakest moment selection", tip: "Five 10-second moments. Over a million dollars a year. Same menu. Same prices. Different experience.", icon: "taco" },
+    { id: "el-w2", week: 2, type: "triage_call", title: "TRIAGE CALL", subtitle: "Your ARMs are calling", points: 100, bonusPoints: 50, bonusCondition: "All 6 correct triage decisions", description: "6 ARM calls back-to-back. Each delivers a two-sentence situation. You have 10 seconds to triage: act now or hold.", deliverable: "6 triage decisions + coaching profile", tip: "Some calls need you in the conversation today. Some need space. Know the difference.", icon: "fire_burrito" },
+    { id: "el-w3", week: 3, type: "rm_brief", title: "THE RM BRIEF", subtitle: "One message. Five minutes.", points: 100, bonusPoints: 50, bonusCondition: "All 3 selections align to the live problem", description: "Saturday 10:45am. AHR above target. Build your 5-minute pre-shift brief: one focus, one number, one call to action.", deliverable: "Assembled brief + quality rating", tip: "The best briefs say one thing clearly. The worst briefs say five things vaguely.", icon: "churros" },
+    { id: "el-w4", week: 4, type: "numbers_dont_lie", title: "THE NUMBERS DON'T LIE", subtitle: "Read the whole picture", points: 100, bonusPoints: 50, bonusCondition: "All 3 rounds perfect (24+ points)", description: "3 restaurant P&L snapshots. Identify the real problem, diagnose the root cause, select the right lever.", deliverable: "9 diagnostic decisions + commercial profile", tip: "A high labour % might be a sales problem. A good week might be hiding next week's disaster.", icon: "bag" },
   ],
   lse: [
     { id: "lse-w1", week: 1, type: "hazard_hunt", title: "HAZARD HUNT", subtitle: "Find the dangers", points: 100, bonusPoints: 50, bonusCondition: "All 5 found under 60 seconds + decoy avoided", description: "A 360-degree kitchen image loads on screen. 90-second timer starts. Six hazards are hidden - five real, one decoy. Tap every hazard you can find before the clock runs out.", deliverable: "Hazard taps + open text response", tip: "The standard you walk past is the standard you accept. Go right, not just fast.", icon: "fire_burrito" },
@@ -363,6 +363,8 @@ export default function App(){
       if(ch2.essentials&&ch2.essentials[0]&&!ch2.essentials[0].type){ch2.essentials=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.essentials));try{await dbSetChallenges(ch2);}catch(e){}}
       // Force-update NGL challenges to new interactive types
       if(ch2.nextgen&&ch2.nextgen[0]&&(!ch2.nextgen[0].type||ch2.nextgen.some(c=>c.type==="bench_builder"||c.type==="swap_the_shift"))){ch2.nextgen=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.nextgen));try{await dbSetChallenges(ch2);}catch(e){}}
+      // Force-update EL challenges to new interactive types
+      if(ch2.elite&&ch2.elite[0]&&!ch2.elite[0].type){ch2.elite=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.elite));try{await dbSetChallenges(ch2);}catch(e){}}
       // Seed Q2/Q3/Q4 challenges if not present
       let needsSave=false;["essentials","nextgen","elite"].forEach(prog=>{["Q2","Q3"].forEach(q=>{const key=`${prog}_${q}`;if(!ch2[key]&&DEFAULT_CHALLENGES[key]){ch2[key]=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES[key]));needsSave=true;}});});
       if(needsSave){try{await dbSetChallenges(ch2);}catch(e){}}
@@ -457,6 +459,10 @@ export default function App(){
         sel.type==="spot_the_moment"?<SpotTheMoment ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users} actCfg={activityConfig}/>:
         sel.type==="thirty_second_sell"?<ThirtySecondSell ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         sel.type==="recovery_race"?<RecoveryRace ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
+        sel.type==="guest_dollar_trail"?<GuestDollarTrail ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
+        sel.type==="triage_call"?<TriageCall ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
+        sel.type==="rm_brief"?<RMBrief ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
+        sel.type==="numbers_dont_lie"?<NumbersDontLie ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         sel.type==="waste_audit"?<WasteAudit ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
         sel.type==="teach_it"?<TeachIt ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
         sel.type==="shift_leader_lens"?<ShiftLeaderLens ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
@@ -2600,6 +2606,335 @@ function YourRestaurant({ch,done,onS,onB,user,comps,users,actCfg}){
   </div>);
 }
 
+// ─── GUEST DOLLAR TRAIL (EL Week 1) ─────────────────────────────────────────
+const GDT_MOMENTS=[
+  {id:1,title:"THE GREETING",scene:"Guest walks to the counter.",
+    optA:{label:"Crew doesn't look up",detail:"\"Next.\"",correct:false,counterChange:0,insight:"Guest orders the minimum. No browsing. No add-ons."},
+    optB:{label:"Crew makes eye contact, slight smile",detail:"\"Hey, welcome in! What can I get you?\"",correct:true,counterChange:3.70,insight:"Guest feels welcome. They browse. They ask about the queso. They add it."},
+    reveal:"Guests who feel welcomed spend 20-25% more per visit. That's one add-on per order. Across 200 transactions a day, that's $740 in add-ons - from a greeting."},
+  {id:2,title:"THE RECOMMENDATION",scene:"Guest is mid-order. Crew has a chance to suggest.",
+    optA:{label:"\"Anything else?\"",detail:"Guest says \"No thanks.\"",correct:false,counterChange:0,insight:"\"Anything else?\" converts at under 5%."},
+    optB:{label:"\"The chipotle goes really well with that\"",detail:"\"It's $3.70, want to try it?\" Guest: \"Yeah, go on then.\"",correct:true,counterChange:3.70,insight:"A specific recommendation with a price. 50% say yes."},
+    reveal:"Same crew member. Same guest. Different sentence. $3.70 difference."},
+  {id:3,title:"THE WAIT",scene:"Guest ordered and paid. Standing at pickup. 4 minutes... 6 minutes... 8 minutes.",
+    optA:{label:"Nobody acknowledges the guest",detail:"8 minutes. Arms cross. Phone comes out.",correct:false,counterChange:-218.40,insight:"They'll probably still eat the food. But they're not coming back."},
+    optB:{label:"At 4 minutes: \"Yours is next. Two more minutes.\"",detail:"Guest nods. Expression stays relaxed.",correct:true,counterChange:0,insight:"Acknowledged. Not forgotten. They'll be back next week."},
+    reveal:"A guest who's told 'two more minutes' waits differently from a guest who's been forgotten. That's $218 per guest per year."},
+  {id:4,title:"THE PROBLEM",scene:"Guest opens their bag. Wrong item. Their face drops.",
+    optA:{label:"\"Oh, sorry\" - remakes without urgency",detail:"No eye contact. No timeline.",correct:false,counterChange:-218.40,insight:"Return probability drops to 15%. This guest is almost certainly gone forever."},
+    optB:{label:"TACOS recovery",detail:"\"That's not good enough - I'm remaking that right now. Front of the line. Three minutes.\"",correct:true,counterChange:0,insight:"The service recovery paradox: solved well = MORE loyal."},
+    reveal:"The mistake wasn't the disaster. What happened in the next 30 seconds was. That's $184 saved from a 30-second conversation."},
+  {id:5,title:"THE EXIT",scene:"Guest is leaving. At the door.",
+    optA:{label:"Nobody says anything",detail:"Guest walks out.",correct:false,counterChange:0,insight:"Transaction complete. Guest gone. No lasting impression."},
+    optB:{label:"\"Enjoy! See you next time.\"",detail:"Eye contact. Four words.",correct:true,counterChange:47.00,insight:"Guests who receive a farewell are 14% more likely to return within 7 days."},
+    reveal:"Two seconds. Four words. $47 per guest per year. Costs absolutely nothing."},
+];
+function GuestDollarTrail({ch,done,onS,onB,user,actCfg}){
+  const moments=actCfg?.guest_dollar_trail?.moments||GDT_MOMENTS;
+  const[step,setStep]=useState(0);const[counter,setCounter]=useState(0);const[choices,setChoices]=useState([]);const[weakest,setWeakest]=useState(null);const[showReveal,setShowReveal]=useState(false);
+  const[dispCounter,setDispCounter]=useState(0);
+  const animCounter=(from,to)=>{const steps=20;const sv=(to-from)/steps;let cur=from;let s=0;const iv=setInterval(()=>{s++;cur+=sv;setDispCounter(cur);if(s>=steps){clearInterval(iv);setDispCounter(to);}},50);};
+  const choose=(opt,key)=>{const m=moments[step-1];const change=opt.counterChange;const newC=counter+change;setCounter(newC);animCounter(dispCounter,newC);
+    setChoices(p=>[...p,{momentId:m.id,chosen:key,correct:opt.correct,change}]);setShowReveal(true);};
+  const next=()=>{setShowReveal(false);if(step<moments.length)setStep(s=>s+1);else setStep(99);};
+  const correctCount=choices.filter(c=>c.correct).length;
+  const pathAVal=50.40;const pathBVal=513;const gap=463;const annualImpact=1685320;
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+    {/* Dollar counter - always visible */}
+    {step>0&&step<=moments.length&&<div style={{position:"sticky",top:56,background:"#000",zIndex:10,padding:"10px 20px",display:"flex",justifyContent:"center",alignItems:"center"}}>
+      <span style={{fontFamily:FC,fontWeight:900,fontSize:28,color:dispCounter>=0?"#007A33":"#E3000B"}}>${dispCounter>=0?"+":""}{ dispCounter.toFixed(2)}</span>
+    </div>}
+    {/* Intro */}
+    {step===0&&(<div style={{padding:"24px 20px"}}>
+      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:26,textAlign:"center",margin:"0 0 4px"}}>{ch.title}</h2>
+      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
+      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
+      <button style={{...BY,width:"100%"}} onClick={()=>setStep(1)}>FOLLOW THE GUEST</button>
+    </div>)}
+    {/* Moments */}
+    {step>=1&&step<=moments.length&&!showReveal&&(()=>{const m=moments[step-1];return(<div style={{padding:"24px 20px"}}>
+      <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:12}}>MOMENT {step}/{moments.length}</div>
+      <div style={{background:"#000",borderRadius:16,padding:20,marginBottom:16,color:"#fff"}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:18,color:"#FFD300",marginBottom:8}}>{m.title}</div>
+        <div style={{fontSize:15,lineHeight:1.6}}>{m.scene}</div>
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:10}}>
+        {[["A",m.optA],["B",m.optB]].map(([key,opt])=>(<button key={key} onClick={()=>choose(opt,key)} style={{padding:16,background:"#fff",border:"1px solid #e8e8e3",borderRadius:14,textAlign:"left",cursor:"pointer"}}>
+          <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:4}}>{opt.label}</div>
+          <div style={{fontSize:13,color:"#888",fontFamily:FB,fontStyle:"italic"}}>{opt.detail}</div>
+        </button>))}
+      </div>
+    </div>);})()}
+    {/* Reveal */}
+    {showReveal&&step<=moments.length&&(()=>{const m=moments[step-1];const c=choices[choices.length-1];return(<div style={{padding:"24px 20px"}}>
+      <div style={{background:c.correct?"rgba(0,122,51,0.08)":"rgba(227,0,11,0.08)",border:`2px solid ${c.correct?"#007A33":"#E3000B"}`,borderRadius:16,padding:20,marginBottom:16}}>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,color:c.correct?"#007A33":"#E3000B",marginBottom:8}}>{c.correct?"RIGHT CALL":"WRONG CALL"}</div>
+        <div style={{fontSize:14,color:"#555",fontFamily:FB,lineHeight:1.6,marginBottom:12}}>{c.correct?m.optB.insight:m.optA.insight}</div>
+        {c.change!==0&&<div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:c.change>0?"#007A33":"#E3000B"}}>{c.change>0?"+$":"$"}{c.change.toFixed(2)} per guest</div>}
+      </div>
+      <div style={{background:"#f8f8f5",borderRadius:12,padding:14,marginBottom:16,fontSize:13,color:"#555",fontFamily:FB,lineHeight:1.6}}>{m.reveal}</div>
+      <button style={{...BY,width:"100%"}} onClick={next}>{step<moments.length?"NEXT MOMENT":"SEE THE FULL PICTURE"}</button>
+    </div>);})()}
+    {/* Multiplier reveal */}
+    {step===99&&!weakest&&(<div style={{padding:"24px 20px"}}>
+      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontSize:22,fontFamily:FC,fontWeight:900}}>THE FULL PICTURE</div></div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>
+        <div style={{background:"#fff",borderRadius:14,padding:16,textAlign:"center",border:"1px solid #e8e8e3"}}><div style={{fontSize:11,fontFamily:FC,color:"#E3000B",fontWeight:700}}>ALL WRONG</div><div style={{fontFamily:FC,fontWeight:900,fontSize:24,marginTop:4}}>${pathAVal.toFixed(2)}</div><div style={{fontSize:11,color:"#888"}}>per guest/year</div></div>
+        <div style={{background:"#fff",borderRadius:14,padding:16,textAlign:"center",border:"2px solid #007A33"}}><div style={{fontSize:11,fontFamily:FC,color:"#007A33",fontWeight:700}}>ALL RIGHT</div><div style={{fontFamily:FC,fontWeight:900,fontSize:24,marginTop:4}}>${pathBVal}</div><div style={{fontSize:11,color:"#888"}}>per guest/year</div></div>
+      </div>
+      <div style={{background:"#000",borderRadius:16,padding:24,textAlign:"center",marginBottom:20}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:8}}>THE GAP</div>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:36,color:"#E3000B"}}>${gap}/guest</div>
+        <div style={{marginTop:16,fontFamily:FC,fontWeight:700,fontSize:12,color:"#888"}}>ANNUAL RESTAURANT IMPACT</div>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:40,color:"#FFD300",marginTop:4}}>${annualImpact.toLocaleString()}</div>
+        <div style={{fontSize:13,color:"#888",fontFamily:FB,marginTop:8}}>Same menu. Same prices. Different experience.</div>
+      </div>
+      <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:12}}>WHICH MOMENT IS YOUR RESTAURANT WEAKEST AT?</div>
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {moments.map(m=>(<button key={m.id} onClick={()=>setWeakest(m.id)} style={{padding:"14px 16px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontFamily:FC,fontWeight:700,fontSize:14,cursor:"pointer"}}>{m.title}</button>))}
+      </div>
+    </div>)}
+    {/* Final */}
+    {weakest&&(<div style={{padding:"24px 20px",textAlign:"center"}}>
+      <div style={{fontFamily:FC,fontWeight:900,fontSize:18,marginBottom:8}}>YOUR FOCUS THIS WEEK</div>
+      <div style={{fontFamily:FC,fontWeight:800,fontSize:22,color:"#FFD300",marginBottom:20}}>{moments.find(m=>m.id===weakest)?.title}</div>
+      {correctCount===moments.length&&<div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300",marginBottom:16}}>BONUS EARNED +{ch.bonusPoints} PTS</div>}
+      <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"Guest Dollar Trail completed",choices,correctCount,pathAValue:pathAVal,pathBValue:pathBVal,gapPerGuest:gap,annualImpact,weakestMoment:weakest,claimedBonus:correctCount===moments.length,autoBonus:correctCount===moments.length,points:ch.points});}}>COMPLETE CHALLENGE</button>
+    </div>)}
+  </div>);
+}
+
+// ─── TRIAGE CALL (EL Week 2) ────────────────────────────────────────────────
+const TRIAGE_CALLS=[
+  {id:1,arm:"Raj",restaurant:"Parramatta",situation:"AHR is at $39.20 this week. I think it is the public holiday loadings.",correct:"act",rationale:"$39.20 is $2.10 above target. Attributing it to public holidays without checking the roster mix is a pattern. Coach Raj to interrogate the data."},
+  {id:2,arm:"Priya",restaurant:"Fortitude Valley",situation:"SPLH dropped to $109 on Sunday. It was raining all day.",correct:"act",rationale:"SPLH of $109 is below the $115 floor. Blaming weather without examining the roster means Priya is over-staffed on soft days."},
+  {id:3,arm:"Damon",restaurant:"Capalaba",situation:"Jake just told me he wants to go permanent. I don't know if the hours are there.",correct:"hold",rationale:"Jake expressing interest is good news. The hours question is answerable at the next roster review. Not urgent."},
+  {id:4,arm:"Sasha",restaurant:"Logan City",situation:"I sent two people home early at 2pm. Sales picked back up at 4pm. Was that right?",correct:"hold",rationale:"Sasha made a call and it worked. She's seeking validation, not rescue. Acknowledge at next check-in."},
+  {id:5,arm:"Leo",restaurant:"Harrington Park",situation:"Labour is at 34% for the week. Should I react or wait until Friday?",correct:"act",rationale:"34% with multiple days left requires action now. Waiting until Friday closes the window."},
+  {id:6,arm:"Cam",restaurant:"Sydney CBD",situation:"I've got three casuals who've been here over 12 months all on 35-plus hours. Haven't had the perm chat yet.",correct:"act",rationale:"Three crew at 35+ hours for 12+ months - potential Fair Work obligation. Legal and cost risk. Highest priority."},
+];
+function TriageCall({ch,done,onS,onB,user,actCfg}){
+  const calls=actCfg?.triage_call?.calls||TRIAGE_CALLS;const timeLimit=actCfg?.triage_call?.timeLimit||10;
+  const[idx,setIdx]=useState(-1);const[timer,setTimer]=useState(timeLimit);const[results,setResults]=useState([]);const[flash2,setFlash2]=useState(null);
+  const timerRef=useRef(null);
+  useEffect(()=>{if(idx>=0&&idx<calls.length&&timer>0){timerRef.current=setInterval(()=>setTimer(t=>{if(t<=1){clearInterval(timerRef.current);handleChoice("hold");return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}return()=>clearInterval(timerRef.current);},[idx]);
+  const handleChoice=(choice)=>{clearInterval(timerRef.current);const c=calls[idx];const speed=timeLimit-timer;const correct=choice===c.correct;const pts=correct?(speed<5?3:speed<10?2:1):0;
+    const r={callId:c.id,arm:c.arm,choice,correct,speed,points:pts};setResults(p=>[...p,r]);
+    setFlash2({correct,rationale:c.rationale,arm:c.arm});setTimeout(()=>{setFlash2(null);if(idx<calls.length-1){setIdx(i=>i+1);setTimer(timeLimit);}else setIdx(99);},2000);};
+  const correctCount=results.filter(r=>r.correct).length;const totalPts=results.reduce((s,r)=>s+r.points,0)+(correctCount===calls.length?5:0);
+  const actCount=results.filter(r=>r.choice==="act").length;
+  const profile=actCount>=5?{name:"OVER-REACTOR",text:"You want to fix things fast. Some calls needed space, not speed."}:actCount<=1?{name:"UNDER-REACTOR",text:"You held back. Two of those calls needed you in the conversation today."}:correctCount>=5?{name:"SHARP",text:"Strong read. You know the difference between coaching moments and compliance moments."}:{name:"CALIBRATED",text:"Good instinct on most calls. Review the misses."};
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+    {/* Intro */}
+    {idx===-1&&(<div style={{padding:"24px 20px"}}>
+      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:26,textAlign:"center",margin:"0 0 4px"}}>{ch.title}</h2>
+      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
+      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
+      <button style={{...BY,width:"100%"}} onClick={()=>{setIdx(0);setTimer(timeLimit);}}>START CALLS</button>
+    </div>)}
+    {/* Call */}
+    {idx>=0&&idx<calls.length&&!flash2&&(()=>{const c=calls[idx];return(<div style={{padding:"24px 20px"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#999"}}>{idx+1}/{calls.length}</span>
+        <div style={{flex:1,marginLeft:12,height:6,background:"#e8e8e3",borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",background:timer<=2?"#E3000B":timer<=5?"#FFD300":"#007A33",width:`${(timer/timeLimit)*100}%`,transition:"width 1s linear"}}/></div>
+      </div>
+      <div style={{background:"#000",borderRadius:16,padding:20,marginBottom:20,color:"#fff"}}>
+        <div style={{display:"inline-block",padding:"4px 12px",background:"#FFD300",color:"#000",borderRadius:8,fontFamily:FC,fontWeight:800,fontSize:12,marginBottom:12}}>{c.arm} - {c.restaurant}</div>
+        <div style={{fontSize:16,lineHeight:1.6,fontFamily:FB}}>{c.situation}</div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+        <button onClick={()=>handleChoice("hold")} style={{padding:"20px 16px",background:"#1a1a1a",color:"#fff",border:"none",borderRadius:14,fontFamily:FC,fontWeight:900,fontSize:16,cursor:"pointer",minHeight:70}}>HOLD</button>
+        <button onClick={()=>handleChoice("act")} style={{padding:"20px 16px",background:"#FFD300",color:"#000",border:"none",borderRadius:14,fontFamily:FC,fontWeight:900,fontSize:16,cursor:"pointer",minHeight:70}}>ACT NOW</button>
+      </div>
+    </div>);})()}
+    {/* Flash */}
+    {flash2&&(<div style={{padding:"24px 20px",textAlign:"center"}}>
+      <div style={{background:flash2.correct?"rgba(0,122,51,0.08)":"rgba(227,0,11,0.08)",border:`2px solid ${flash2.correct?"#007A33":"#E3000B"}`,borderRadius:16,padding:24}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:16,color:flash2.correct?"#007A33":"#E3000B",marginBottom:8}}>{flash2.correct?"CORRECT":"WRONG"}</div>
+        <div style={{fontSize:13,color:"#555",fontFamily:FB,lineHeight:1.6}}>{flash2.rationale}</div>
+      </div>
+    </div>)}
+    {/* Results */}
+    {idx===99&&(<div style={{padding:"24px 20px"}}>
+      <div style={{textAlign:"center",marginBottom:20}}>
+        <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{correctCount}/{calls.length}</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888"}}>CORRECT CALLS</div>
+      </div>
+      {results.map((r,i)=>{const c=calls.find(x=>x.id===r.callId);return(<div key={i} style={{borderLeft:`3px solid ${r.correct?"#007A33":"#E3000B"}`,background:"#fff",borderRadius:"0 12px 12px 0",padding:12,marginBottom:4}}>
+        <div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontFamily:FC,fontWeight:700,fontSize:13}}>{c?.arm} - {c?.restaurant}</span><span style={{fontFamily:FC,fontWeight:800,fontSize:12,color:r.correct?"#007A33":"#E3000B"}}>{r.choice.toUpperCase()}</span></div>
+        <div style={{fontSize:11,color:"#888",fontFamily:FB,marginTop:4}}>{c?.rationale}</div>
+      </div>);})}
+      <div style={{background:"#000",borderRadius:14,padding:16,marginTop:16,marginBottom:16}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:4}}>YOUR PROFILE: {profile.name}</div>
+        <div style={{fontSize:13,color:"#fff",fontFamily:FB,lineHeight:1.6}}>{profile.text}</div>
+      </div>
+      {correctCount===calls.length&&<div style={{textAlign:"center",marginBottom:16,fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300"}}>BONUS EARNED +{ch.bonusPoints} PTS</div>}
+      <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"Triage Call completed",score:totalPts,correctCount,decisions:results,profile:profile.name,claimedBonus:correctCount===calls.length,autoBonus:correctCount===calls.length,points:ch.points});}}>COMPLETE CHALLENGE</button>
+    </div>)}
+  </div>);
+}
+
+// ─── RM BRIEF (EL Week 3) ──────────────────────────────────────────────────
+const RMB_FOCUS=[{id:"sales",text:"Sales target for today",correct:false},{id:"labour",text:"Labour cost awareness",correct:true},{id:"perm",text:"Permanency reminder for ARMs",correct:true},{id:"guest",text:"Guest experience standard",correct:false}];
+const RMB_DATA=[{id:"ahr",text:"Our AHR this week is $38.40. Network target is $37.10.",correct:true},{id:"casuals",text:"We have four casuals eligible for permanent today.",correct:true},{id:"splh",text:"SPLH target today is $120.",correct:false},{id:"labour_pct",text:"We are 2% over on labour this week.",correct:false}];
+const RMB_CTA=[{id:"section",text:"Everyone check your section at 12:30.",correct:false},{id:"arm_catch",text:"ARMs, I want to catch you after the rush for 5 minutes each.",correct:true},{id:"send_home",text:"If it goes quiet after 1pm, talk to me before you send anyone home.",correct:true},{id:"lean",text:"Remind your team we are running lean today.",correct:false}];
+function RMBrief({ch,done,onS,onB,user,actCfg}){
+  const[step,setStep]=useState(0);const[focus,setFocus]=useState(null);const[data,setData]=useState(null);const[cta,setCta]=useState(null);const[showModel,setShowModel]=useState(false);
+  const focusOpts=actCfg?.rm_brief?.focus||RMB_FOCUS;const dataOpts=actCfg?.rm_brief?.data||RMB_DATA;const ctaOpts=actCfg?.rm_brief?.cta||RMB_CTA;
+  const focusCorrect=focusOpts.find(f=>f.id===focus)?.correct;const dataCorrect=dataOpts.find(d=>d.id===data)?.correct;const ctaCorrect=ctaOpts.find(c=>c.id===cta)?.correct;const allCorrect=focusCorrect&&dataCorrect&&ctaCorrect;
+  const rating=allCorrect?{label:"STRONG",text:"Tight. One problem, one number, one action. Your team leaves knowing exactly what matters today."}:focusCorrect&&(!dataCorrect||!ctaCorrect)?{label:"TOO BROAD",text:"Right problem but the message got loose. One irrelevant data point dilutes the brief."}:focusCorrect&&dataCorrect&&!ctaCorrect?{label:"MISSING THE CTA",text:"Good setup, no follow-through. Context without direction is just information."}:{label:"OFF-MESSAGE",text:"You built a tight brief - but not for the problems you have today."};
+  const modelBrief="This week our AHR is $38.40. Network target is $37.10. That gap costs us every shift we don't act. Today after the rush, ARMs - I need 5 minutes each with you. We have crew ready for permanent and the conversation hasn't happened. Let's fix that today.";
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+    <div style={{padding:"24px 20px"}}>
+      {step===0&&(<div>
+        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:24,textAlign:"center",margin:"0 0 16px"}}>{ch.title}</h2>
+        <div style={{background:"#000",borderRadius:14,padding:16,color:"#fff",marginBottom:20}}>
+          <div style={{fontSize:14,fontFamily:FB,lineHeight:1.6}}>Saturday 10:45am. Lunch rush starts at 11:30. 5 minutes with your team. AHR this week: $38.40. Two ARMs haven't had permanency conversations yet.</div>
+        </div>
+        <button style={{...BY,width:"100%"}} onClick={()=>setStep(1)}>BUILD YOUR BRIEF</button>
+      </div>)}
+      {step===1&&(<div>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:12}}>1. CHOOSE YOUR FOCUS</div>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {focusOpts.map(f=>(<button key={f.id} onClick={()=>{setFocus(f.id);setStep(2);}} style={{padding:"14px 16px",background:focus===f.id?"#FFF8E0":"#fff",border:focus===f.id?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,cursor:"pointer"}}>{f.text}</button>))}
+        </div>
+      </div>)}
+      {step===2&&(<div>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:12}}>2. CHOOSE YOUR DATA POINT</div>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {dataOpts.map(d=>(<button key={d.id} onClick={()=>{setData(d.id);setStep(3);}} style={{padding:"14px 16px",background:data===d.id?"#FFF8E0":"#fff",border:data===d.id?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,cursor:"pointer"}}>{d.text}</button>))}
+        </div>
+      </div>)}
+      {step===3&&(<div>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:12}}>3. CHOOSE YOUR CALL TO ACTION</div>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {ctaOpts.map(c=>(<button key={c.id} onClick={()=>{setCta(c.id);setStep(4);}} style={{padding:"14px 16px",background:cta===c.id?"#FFF8E0":"#fff",border:cta===c.id?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,cursor:"pointer"}}>{c.text}</button>))}
+        </div>
+      </div>)}
+      {step===4&&(<div>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:12}}>YOUR BRIEF</div>
+        <div style={{background:"#000",borderRadius:14,padding:20,color:"#fff",marginBottom:16}}>
+          <div style={{fontSize:15,fontFamily:FB,lineHeight:1.8}}>{focusOpts.find(f=>f.id===focus)?.text}. {dataOpts.find(d=>d.id===data)?.text} {ctaOpts.find(c=>c.id===cta)?.text}</div>
+        </div>
+        <div style={{background:allCorrect?"rgba(0,122,51,0.08)":"rgba(227,0,11,0.08)",border:`2px solid ${allCorrect?"#007A33":"#E3000B"}`,borderRadius:14,padding:16,marginBottom:16}}>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:16,color:allCorrect?"#007A33":"#E3000B",marginBottom:6}}>{rating.label}</div>
+          <div style={{fontSize:14,color:"#555",fontFamily:FB,lineHeight:1.6}}>{rating.text}</div>
+        </div>
+        {!showModel?<button onClick={()=>setShowModel(true)} style={{...BO,width:"100%",marginBottom:16}}>SEE MODEL BRIEF</button>
+        :<div style={{borderLeft:"4px solid #FFD300",background:"#fff",borderRadius:"0 14px 14px 0",padding:16,marginBottom:16}}>
+          <div style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#FFB800",marginBottom:4}}>MODEL BRIEF</div>
+          <div style={{fontSize:14,fontFamily:FB,lineHeight:1.8,color:"#555"}}>{modelBrief}</div>
+        </div>}
+        {allCorrect&&<div style={{textAlign:"center",marginBottom:16,fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300"}}>BONUS EARNED +{ch.bonusPoints} PTS</div>}
+        <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"RM Brief completed",focus,dataPoint:data,cta,allCorrect,rating:rating.label,claimedBonus:allCorrect,autoBonus:allCorrect,points:ch.points});}}>COMPLETE CHALLENGE</button>
+      </div>)}
+    </div>
+  </div>);
+}
+
+// ─── NUMBERS DON'T LIE (EL Week 4) ─────────────────────────────────────────
+const NDL_ROUNDS=[
+  {id:1,restaurant:"Parramatta",pl:{netSales:"$62,000",salesTarget:"$65,000",labourCost:"$20,460",labourPct:"33%",labourTarget:"28-32%",ahr:"$37.42",ahrTarget:"$37.10",splh:"$113",splhTarget:"$115-$125",crewHours:"546"},
+    taps:[
+      {q:"What is the primary problem?",opts:[{id:"a",text:"Labour % is above the 28-32% target",correct:false},{id:"b",text:"Sales are $3,000 under forecast",correct:true},{id:"c",text:"AHR is above $37.10",correct:false}]},
+      {q:"What is the root cause?",opts:[{id:"a",text:"AHR needs to come down",correct:false},{id:"b",text:"Roster built for $65K, trade came in at $62K - no mid-shift reaction",correct:true},{id:"c",text:"Crew hours are too high",correct:false}]},
+      {q:"What is the right lever?",opts:[{id:"a",text:"Review ARM's permanency pipeline to reduce AHR",correct:false},{id:"b",text:"Coach ARM on mid-shift reaction - send people home when sales miss",correct:true},{id:"c",text:"Cut crew hours across the board next week",correct:false}]}],
+    explanation:"Labour % blew out because sales came in $3,000 short, not because labour was mismanaged. One mid-shift send-home on Tuesday and Thursday would have saved the week.",
+    numbers:"3 people sent home 2 hrs early on 2 days: 3 x 2 x $37.10 = $445 saved. Labour % drops from 33% to 32.3%."},
+  {id:2,restaurant:"Fortitude Valley",subtitle:"24-hour operation",pl:{netSales:"$71,000",salesTarget:"$68,000",labourCost:"$25,916",labourPct:"36.5%",labourTarget:"28-32%",ahr:"$39.20",ahrTarget:"$37.10",splh:"$118",splhTarget:"$115-$125",crewHours:"661"},
+    taps:[
+      {q:"What is the primary problem?",opts:[{id:"a",text:"AHR is $2.10 above target",correct:false},{id:"b",text:"Labour % is 4.5 points over target",correct:false},{id:"c",text:"Two separate problems: AHR driven by overnight classification, hours inflated by over-rostering dead overnight",correct:true}]},
+      {q:"What is the root cause?",opts:[{id:"a",text:"ARM using Casual 21+ to fill overnight gaps instead of cheaper classifications",correct:true},{id:"b",text:"Sales too high and SPLH masking the labour problem",correct:false},{id:"c",text:"Permanency pipeline needs work",correct:false}]},
+      {q:"What is the right lever?",opts:[{id:"a",text:"Coach ARM to fill overnight with Casual 16 or PT first",correct:true},{id:"b",text:"Reduce total crew hours by 10%",correct:false},{id:"c",text:"Run a permanency drive",correct:false}]}],
+    explanation:"Overnight shifts filled with Casual 21+ at weekend penalty rates. Fix the classification and cut dead overnight hours.",
+    numbers:"Casual 21+ Sat overnight: $46.47/hr vs Casual 16: $23.20/hr. Saving: $23.27/hr. Annual: ~$109K."},
+  {id:3,restaurant:"Sydney CBD",subtitle:"High volume, 7-day",pl:{netSales:"$95,000",salesTarget:"$88,000",labourCost:"$30,400",labourPct:"32%",labourTarget:"28-32%",ahr:"$38.10",ahrTarget:"$37.10",splh:"$124",splhTarget:"$115-$125",crewHours:"800"},
+    taps:[
+      {q:"What is the primary problem?",opts:[{id:"a",text:"AHR is $1 above target",correct:false},{id:"b",text:"Labour % is at 32% - top of target band",correct:false},{id:"c",text:"Sales $7K above forecast. If sales normalise, labour % blows to 34.5%",correct:true}]},
+      {q:"What is the root cause?",opts:[{id:"a",text:"ARM over-rostered and got lucky that trade was strong",correct:true},{id:"b",text:"AHR needs to come down before next week",correct:false},{id:"c",text:"SPLH near top of band means slightly under-staffed",correct:false}]},
+      {q:"What is the right lever?",opts:[{id:"a",text:"Coach ARM to build next week's roster to $88K forecast, not $95K actual",correct:true},{id:"b",text:"Run a permanency conversion",correct:false},{id:"c",text:"Hold current roster - restaurant is performing well",correct:false}]}],
+    explanation:"This week looks fine. Next week it won't. Labour % at 32% is only in band because sales over-delivered by $7K.",
+    numbers:"This week: $30,400/$95,000 = 32%. Next week: $30,400/$88,000 = 34.5%. Required saving: $2,240 (59 hrs)."},
+];
+function NumbersDontLie({ch,done,onS,onB,user,actCfg}){
+  const rounds=actCfg?.numbers_dont_lie?.rounds||NDL_ROUNDS;
+  const[roundIdx,setRoundIdx]=useState(-1);const[tapIdx,setTapIdx]=useState(0);const[roundResults,setRoundResults]=useState([]);const[currentTaps,setCurrentTaps]=useState([]);const[showExplain,setShowExplain]=useState(false);
+  const round=rounds[roundIdx]||null;const tap=round?.taps[tapIdx]||null;
+  const totalScore=roundResults.reduce((s,r)=>s+r.points,0);const maxScore=30;const allPerfect=totalScore>=24;
+  const profile=totalScore>=24?{name:"THE COMMERCIAL LEADER",text:"You read all three snapshots correctly - symptom from cause, cause from lever, and the risk inside the good number."}:roundResults[2]?.allCorrect?{name:"THE FORECASTER",text:"You caught the risk hiding inside a good week. That separates managing the present from managing the future."}:{name:"THE REACTOR",text:"You spot the number that's off. But you go after the symptom before you find the cause. Spend more time on the why."};
+  const chooseTap=(optId)=>{const opt=tap.opts.find(o=>o.id===optId);const pts=opt.correct?([2,3,3][tapIdx]):0;const newTaps=[...currentTaps,{tapIdx,chosen:optId,correct:opt.correct,points:pts}];setCurrentTaps(newTaps);
+    if(tapIdx<2)setTapIdx(t=>t+1);
+    else{const roundPts=newTaps.reduce((s,t)=>s+t.points,0);const allCorrect=newTaps.every(t=>t.correct);setRoundResults(p=>[...p,{roundId:round.id,restaurant:round.restaurant,taps:newTaps,points:roundPts,allCorrect}]);setShowExplain(true);}};
+  const nextRound=()=>{setShowExplain(false);setTapIdx(0);setCurrentTaps([]);if(roundIdx<rounds.length-1)setRoundIdx(r=>r+1);else setRoundIdx(99);};
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+    {/* Intro */}
+    {roundIdx===-1&&(<div style={{padding:"24px 20px"}}>
+      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:24,textAlign:"center",margin:"0 0 4px"}}>{ch.title}</h2>
+      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
+      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
+      <button style={{...BY,width:"100%"}} onClick={()=>setRoundIdx(0)}>START ROUND 1</button>
+    </div>)}
+    {/* P&L + taps */}
+    {round&&!showExplain&&tap&&(<div style={{padding:"16px 20px"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <span style={{fontFamily:FC,fontWeight:900,fontSize:16}}>{round.restaurant}</span>
+        <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888"}}>ROUND {roundIdx+1}/{rounds.length}</span>
+      </div>
+      {/* P&L card */}
+      <div style={{background:"#fff",borderRadius:14,padding:14,marginBottom:16,border:"1px solid #e8e8e3"}}>
+        {Object.entries(round.pl).filter(([k])=>!k.includes("Target")).map(([k,v])=>{const targetKey=k+"Target";const target=round.pl[targetKey];return(
+          <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid #f5f5f0"}}>
+            <span style={{fontSize:13,color:"#555",textTransform:"capitalize"}}>{k.replace(/([A-Z])/g," $1").trim()}</span>
+            <div><span style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{v}</span>{target&&<span style={{fontSize:11,color:"#aaa",marginLeft:6}}>({target})</span>}</div>
+          </div>);})}
+      </div>
+      {/* Tap question */}
+      <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:8}}>TAP {tapIdx+1}/3: {tap.q}</div>
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {tap.opts.map(opt=>(<button key={opt.id} onClick={()=>chooseTap(opt.id)} style={{padding:"14px 16px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:13,fontFamily:FB,cursor:"pointer"}}>{opt.text}</button>))}
+      </div>
+    </div>)}
+    {/* Explanation */}
+    {showExplain&&round&&(<div style={{padding:"24px 20px"}}>
+      <div style={{textAlign:"center",marginBottom:16}}>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:24,color:roundResults[roundResults.length-1]?.allCorrect?"#007A33":"#E3000B"}}>{roundResults[roundResults.length-1]?.points}/8</div>
+        <div style={{fontSize:12,color:"#888",fontFamily:FC}}>{round.restaurant} SCORE</div>
+      </div>
+      <div style={{background:"#000",borderRadius:14,padding:16,color:"#fff",marginBottom:16}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:6}}>THE REAL STORY</div>
+        <div style={{fontSize:14,fontFamily:FB,lineHeight:1.6}}>{round.explanation}</div>
+      </div>
+      <div style={{background:"#f8f8f5",borderRadius:12,padding:14,marginBottom:16,fontSize:13,color:"#555",fontFamily:FB,lineHeight:1.6}}>{round.numbers}</div>
+      <button style={{...BY,width:"100%"}} onClick={nextRound}>{roundIdx<rounds.length-1?"NEXT ROUND":"SEE RESULTS"}</button>
+    </div>)}
+    {/* Final results */}
+    {roundIdx===99&&(<div style={{padding:"24px 20px"}}>
+      <div style={{textAlign:"center",marginBottom:20}}>
+        <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{totalScore}/{maxScore}</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888"}}>TOTAL SCORE</div>
+      </div>
+      {roundResults.map((r,i)=>(<div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div><div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{r.restaurant}</div><div style={{fontSize:12,color:"#888"}}>{r.taps.filter(t=>t.correct).length}/3 correct</div></div>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:r.allCorrect?"#007A33":r.points>=5?"#FFB800":"#E3000B"}}>{r.points}/8</div>
+      </div>))}
+      <div style={{background:"#000",borderRadius:14,padding:16,marginTop:16,marginBottom:16}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:4}}>YOUR PROFILE: {profile.name}</div>
+        <div style={{fontSize:13,color:"#fff",fontFamily:FB,lineHeight:1.6}}>{profile.text}</div>
+      </div>
+      {allPerfect&&<div style={{textAlign:"center",marginBottom:16,fontFamily:FC,fontWeight:800,fontSize:14,color:"#FFD300"}}>BONUS EARNED +{ch.bonusPoints} PTS</div>}
+      <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"The Numbers Don't Lie completed",rounds:roundResults,totalScore,maxScore,profile:profile.name,claimedBonus:allPerfect,autoBonus:allPerfect,points:ch.points});}}>COMPLETE CHALLENGE</button>
+    </div>)}
+  </div>);
+}
+
 // ─── LEADERBOARD ─────────────────────────────────────────────────────────────
 function LbV({us,co,cu,onB,onP,defaultProg,defaultBatch}){const[fi,sF]=useState(defaultProg||"all");const[fb,sFb]=useState(defaultBatch||"all");
   const bd=us.filter(u=>{if(fi!=="all"&&u.program!==fi)return false;if(fb!=="all"&&u.batch!==fb)return false;return true;}).map(u=>({u,p:co.filter(c=>c.userId===u.id).reduce((s,c)=>s+c.points+(c.bonusApproved?c.bonusPoints||0:0),0),d:co.filter(c=>c.userId===u.id).length})).sort((a,b)=>b.p-a.p);const batches=[...new Set(us.filter(u=>fi==="all"||u.program===fi).map(u=>u.batch).filter(Boolean))].sort().reverse();
@@ -4041,6 +4376,56 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                     </div>
                   </div>)}
 
+                  {/* Guest Dollar Trail */}
+                  {item.type==="guest_dollar_trail"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Guest Dollar Trail Settings</div>
+                    <div style={subLabel}>MOMENTS ({(acfg.guest_dollar_trail?.moments||GDT_MOMENTS).length})</div>
+                    {(acfg.guest_dollar_trail?.moments||GDT_MOMENTS).map((m,mi)=>(<div key={mi} style={{background:"#fff",borderRadius:10,padding:10,marginBottom:6}}>
+                      <div style={{fontFamily:FC,fontWeight:800,fontSize:13,marginBottom:4}}>{m.title}</div>
+                      <div style={{fontSize:11,color:"#888",fontFamily:FB}}>{m.scene}</div>
+                      <div style={{display:"flex",gap:6,marginTop:4}}>
+                        <span style={{fontSize:10,fontFamily:FC,color:"#007A33"}}>Right: +${m.optB.counterChange}</span>
+                        <span style={{fontSize:10,fontFamily:FC,color:"#E3000B"}}>Wrong: ${m.optA.counterChange}</span>
+                      </div>
+                    </div>))}
+                  </div>)}
+                  {/* Triage Call */}
+                  {item.type==="triage_call"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Triage Call Settings</div>
+                    <div style={{marginBottom:12}}><div style={subLabel}>TIME LIMIT</div><div style={{display:"flex",alignItems:"center",gap:4}}><input type="number" value={acfg.triage_call?.timeLimit||10} onChange={e=>saveAcfg("triage_call",{timeLimit:parseInt(e.target.value)||10})} style={{...inp,width:60,textAlign:"center"}}/><span style={{fontSize:11,color:"#999"}}>sec</span></div></div>
+                    <div style={subLabel}>CALLS ({(acfg.triage_call?.calls||TRIAGE_CALLS).length})</div>
+                    {(acfg.triage_call?.calls||TRIAGE_CALLS).map((c2,ci)=>(<div key={ci} style={{background:"#fff",borderRadius:10,padding:10,marginBottom:4}}>
+                      <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
+                        <input value={c2.arm} onChange={e=>{const cl=[...(acfg.triage_call?.calls||[...TRIAGE_CALLS])];cl[ci]={...cl[ci],arm:e.target.value};saveAcfg("triage_call",{calls:cl});}} style={{...inp,width:70,fontWeight:700,fontSize:12,padding:"4px 6px"}}/>
+                        <input value={c2.restaurant} onChange={e=>{const cl=[...(acfg.triage_call?.calls||[...TRIAGE_CALLS])];cl[ci]={...cl[ci],restaurant:e.target.value};saveAcfg("triage_call",{calls:cl});}} style={{...inp,flex:1,fontSize:12,padding:"4px 6px"}}/>
+                        <select value={c2.correct} onChange={e=>{const cl=[...(acfg.triage_call?.calls||[...TRIAGE_CALLS])];cl[ci]={...cl[ci],correct:e.target.value};saveAcfg("triage_call",{calls:cl});}} style={{...inp,width:65,fontSize:10,padding:"4px"}}><option value="act">Act</option><option value="hold">Hold</option></select>
+                      </div>
+                      <textarea value={c2.situation} onChange={e=>{const cl=[...(acfg.triage_call?.calls||[...TRIAGE_CALLS])];cl[ci]={...cl[ci],situation:e.target.value};saveAcfg("triage_call",{calls:cl});}} rows={2} style={{...inp,resize:"vertical",fontSize:11,padding:"4px 8px"}}/>
+                    </div>))}
+                  </div>)}
+                  {/* RM Brief */}
+                  {item.type==="rm_brief"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>RM Brief Settings</div>
+                    {[["FOCUS OPTIONS",acfg.rm_brief?.focus||RMB_FOCUS,"focus"],[" DATA OPTIONS",acfg.rm_brief?.data||RMB_DATA,"data"],["CTA OPTIONS",acfg.rm_brief?.cta||RMB_CTA,"cta"]].map(([label,opts,key])=>(<div key={key} style={{marginBottom:12}}>
+                      <div style={subLabel}>{label}</div>
+                      {opts.map((o,oi)=>(<div key={oi} style={{display:"flex",gap:4,alignItems:"center",marginBottom:2}}>
+                        <span style={{width:8,height:8,borderRadius:4,background:o.correct?"#007A33":"#E3000B",flexShrink:0}}/>
+                        <input value={o.text} onChange={e=>{const arr=[...opts];arr[oi]={...arr[oi],text:e.target.value};saveAcfg("rm_brief",{[key]:arr});}} style={{...inp,flex:1,fontSize:11,padding:"4px 8px"}}/>
+                      </div>))}
+                    </div>))}
+                  </div>)}
+                  {/* Numbers Don't Lie */}
+                  {item.type==="numbers_dont_lie"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Numbers Don't Lie Settings</div>
+                    <div style={subLabel}>ROUNDS ({(acfg.numbers_dont_lie?.rounds||NDL_ROUNDS).length})</div>
+                    {(acfg.numbers_dont_lie?.rounds||NDL_ROUNDS).map((r,ri)=>(<div key={ri} style={{background:"#fff",borderRadius:10,padding:10,marginBottom:6}}>
+                      <div style={{fontFamily:FC,fontWeight:800,fontSize:13,marginBottom:4}}>{r.restaurant}{r.subtitle?` (${r.subtitle})`:""}</div>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+                        {Object.entries(r.pl).filter(([k])=>!k.includes("Target")).map(([k,v])=>(<span key={k} style={{fontSize:10,fontFamily:FC,color:"#888"}}>{k}: {v}</span>))}
+                      </div>
+                      <div style={{fontSize:10,color:"#007A33",fontFamily:FC,marginTop:4}}>3 taps per round. Max 8 pts.</div>
+                    </div>))}
+                  </div>)}
                   {/* Shift Call */}
                   {item.type==="shift_call"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
                     <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Shift Call Settings</div>
@@ -4065,7 +4450,15 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                   {/* Make the Call */}
                   {item.type==="make_the_call"&&(()=>{const mtcCrew=acfg.make_the_call?.crew||MTC_CREW;const mtcDecs=acfg.make_the_call?.decisions||MTC_DECISIONS;return(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
                     <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Make the Call Settings</div>
-                    <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:12}}>6 roster decisions with dual AHR ($39.20) + SPLH ($122) tracking. Includes send-home, fill-shift, and react-up decisions.</div>
+                    <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:12}}>6 roster decisions with dual AHR + SPLH tracking.</div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}}>
+                      <div><div style={{fontSize:10,color:"#888",fontFamily:FC}}>Starting AHR</div><input type="number" step="0.01" value={acfg.make_the_call?.startAHR||39.20} onChange={e=>saveAcfg("make_the_call",{startAHR:parseFloat(e.target.value)||39.20})} style={{...inp,textAlign:"center",fontSize:12}}/></div>
+                      <div><div style={{fontSize:10,color:"#888",fontFamily:FC}}>AHR Target</div><input type="number" step="0.01" value={acfg.make_the_call?.targetAHR||37.10} onChange={e=>saveAcfg("make_the_call",{targetAHR:parseFloat(e.target.value)||37.10})} style={{...inp,textAlign:"center",fontSize:12}}/></div>
+                      <div><div style={{fontSize:10,color:"#888",fontFamily:FC}}>Total Hours</div><input type="number" value={acfg.make_the_call?.totalHours||546} onChange={e=>saveAcfg("make_the_call",{totalHours:parseInt(e.target.value)||546})} style={{...inp,textAlign:"center",fontSize:12}}/></div>
+                      <div><div style={{fontSize:10,color:"#888",fontFamily:FC}}>Starting SPLH</div><input type="number" value={acfg.make_the_call?.startSPLH||122} onChange={e=>saveAcfg("make_the_call",{startSPLH:parseInt(e.target.value)||122})} style={{...inp,textAlign:"center",fontSize:12}}/></div>
+                      <div><div style={{fontSize:10,color:"#888",fontFamily:FC}}>SPLH Low</div><input type="number" value={acfg.make_the_call?.splhLow||115} onChange={e=>saveAcfg("make_the_call",{splhLow:parseInt(e.target.value)||115})} style={{...inp,textAlign:"center",fontSize:12}}/></div>
+                      <div><div style={{fontSize:10,color:"#888",fontFamily:FC}}>SPLH High</div><input type="number" value={acfg.make_the_call?.splhHigh||125} onChange={e=>saveAcfg("make_the_call",{splhHigh:parseInt(e.target.value)||125})} style={{...inp,textAlign:"center",fontSize:12}}/></div>
+                    </div>
                     <div style={subLabel}>CREW ({mtcCrew.length})</div>
                     {mtcCrew.map((c,ci)=>(
                       <div key={ci} style={{display:"flex",gap:6,alignItems:"center",marginBottom:3,background:"#fff",borderRadius:8,padding:"6px 10px"}}>
