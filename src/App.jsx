@@ -4800,12 +4800,16 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                       </div>)}
                     </div>
                     {/* Hotspot list */}
+                    <div style={{fontFamily:FC,fontWeight:700,fontSize:11,color:"#999",letterSpacing:0.5,marginTop:12,marginBottom:6}}>HOTSPOTS ({(acfg.hazard_hunt?.zones||HAZARD_ZONES).length})</div>
                     {(acfg.hazard_hunt?.zones||HAZARD_ZONES).map((z,zi)=>{const fb2=(acfg.hazard_hunt?.feedback||HAZARD_FEEDBACK)[z.id]||{};return(
-                      <div key={z.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 0",borderTop:zi>0?"1px solid #e8e8e3":"none"}}>
-                        <span style={{fontFamily:FC,fontWeight:900,fontSize:12,background:fb2.hazard?"#007A33":"#E3000B",color:"#fff",width:22,height:22,borderRadius:11,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{zi+1}</span>
-                        <input value={fb2.title||""} onChange={e=>updateHotspotFb(z.id,"title",e.target.value)} style={{...inp,flex:1,fontSize:13,padding:"8px 12px"}} placeholder="Title"/>
-                        <button onClick={()=>updateHotspotFb(z.id,"hazard",!fb2.hazard)} style={{padding:"5px 10px",borderRadius:8,border:"none",background:fb2.hazard?"#007A33":"#E3000B",color:"#fff",fontSize:10,fontFamily:FC,fontWeight:700,cursor:"pointer",flexShrink:0}}>{fb2.hazard?"HAZ":"DEC"}</button>
-                        <button onClick={()=>removeHotspot(z.id)} style={{padding:"5px 8px",borderRadius:8,border:"none",background:"#f0f0eb",color:"#E3000B",fontSize:11,cursor:"pointer",flexShrink:0}}>X</button>
+                      <div key={z.id} style={{background:"#fff",borderRadius:12,padding:12,marginBottom:8,border:`2px solid ${fb2.hazard?"#007A33":"#E3000B"}`}}>
+                        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                          <span style={{fontFamily:FC,fontWeight:900,fontSize:12,background:fb2.hazard?"#007A33":"#E3000B",color:"#fff",width:22,height:22,borderRadius:11,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,lineHeight:1}}>{zi+1}</span>
+                          <input value={fb2.title||""} onChange={e=>updateHotspotFb(z.id,"title",e.target.value)} style={{...inp,flex:1,fontSize:13,fontWeight:700,padding:"6px 10px"}} placeholder="Hazard title"/>
+                          <button onClick={()=>updateHotspotFb(z.id,"hazard",!fb2.hazard)} style={{padding:"5px 10px 4px",borderRadius:8,border:"none",background:fb2.hazard?"#007A33":"#E3000B",color:"#fff",fontSize:10,fontFamily:FC,fontWeight:700,cursor:"pointer",flexShrink:0,lineHeight:1}}>{fb2.hazard?"HAZARD":"DECOY"}</button>
+                          <button onClick={()=>removeHotspot(z.id)} style={{padding:"5px 8px",borderRadius:8,border:"none",background:"#f0f0eb",color:"#E3000B",fontSize:11,cursor:"pointer",flexShrink:0}}>X</button>
+                        </div>
+                        <textarea value={fb2.desc||""} onChange={e=>updateHotspotFb(z.id,"desc",e.target.value)} rows={2} placeholder="Description shown in popup when tapped (e.g. 'Cross-contamination risk. Chemicals must be stored away from food prep areas.')" style={{...inp,fontSize:12,padding:"8px 10px",resize:"vertical",width:"100%",boxSizing:"border-box",color:"#555"}}/>
                       </div>
                     );})}
                   </div>)}
