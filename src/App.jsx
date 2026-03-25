@@ -1332,8 +1332,8 @@ function RecoveryRace({ch,done,onS,onB,user}){
   const scen=RECOVERY_SCENARIOS[scenIdx]||null;
   const dec=scen?.decisions[decIdx]||null;
   useEffect(()=>{if(screen==="play"&&dec&&decTimer>0){timerRef.current=setInterval(()=>setDecTimer(t=>{if(t<=1){clearInterval(timerRef.current);return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}return()=>clearInterval(timerRef.current);},[screen,decIdx,decTimer]);
-  const choose=(opt)=>{clearInterval(timerRef.current);setChoices(p=>[...p,opt.outcome]);setLastOutcome(opt);
-    if(decIdx<(scen?.decisions.length||4)-1){setTimeout(()=>{setDecIdx(d=>d+1);setDecTimer(scen?.decisions[decIdx+1]?.timer||8);setLastOutcome(null);},2000);}
+  const choose=(opt)=>{clearInterval(timerRef.current);setDecTimer(0);setChoices(p=>[...p,opt.outcome]);setLastOutcome(opt);
+    if(decIdx<(scen?.decisions.length||4)-1){setTimeout(()=>{setDecIdx(d=>d+1);const nextT=scen?.decisions[decIdx+1]?.timer||8;setDecTimer(nextT);setLastOutcome(null);},2000);}
     else{const goods=choices.filter(c=>c==="good").length+(opt.outcome==="good"?1:0);const total=choices.length+1;setAllResults(p=>[...p,{scenId:scen.id,title:scen.title,goods,total,score:Math.round(goods/total*100)}]);setTimeout(()=>setScreen("result"),2000);}};
   if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 3</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
   return(
@@ -1352,7 +1352,8 @@ function RecoveryRace({ch,done,onS,onB,user}){
     {screen==="play"&&scen&&dec&&(<div style={{padding:"24px 20px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
         <span style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:0.5}}>{scen.title.toUpperCase()}</span>
-        <span style={{fontFamily:FC,fontWeight:900,fontSize:20,color:decTimer<=3?"#E3000B":decTimer<=5?"#FFD300":"#000"}}>{decTimer}s</span>
+        {!lastOutcome&&<span style={{fontFamily:FC,fontWeight:900,fontSize:20,color:decTimer<=3?"#E3000B":decTimer<=5?"#FFD300":"#000"}}>{decTimer}s</span>}
+        {lastOutcome&&<span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:lastOutcome.outcome==="good"?"#007A33":lastOutcome.outcome==="bad"?"#E3000B":"#FFB800",background:lastOutcome.outcome==="good"?"#f0f8f0":lastOutcome.outcome==="bad"?"#fef0f0":"#fff8e0",padding:"4px 10px",borderRadius:6}}>{lastOutcome.outcome==="good"?"GREAT CALL":lastOutcome.outcome==="neutral"?"OKAY":"POOR CHOICE"}</span>}
       </div>
       <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:16,color:"#fff"}}>
         <div style={{fontSize:15,lineHeight:1.6}}>{lastOutcome?lastOutcome.next:(dec.situation||scen.setup)}</div>
@@ -1381,7 +1382,17 @@ function RecoveryRace({ch,done,onS,onB,user}){
       <div style={{textAlign:"center",marginBottom:20}}><div style={{fontSize:24,fontFamily:FC,fontWeight:900}}>RECOVERY RACE COMPLETE</div></div>
       {allResults.map((r,i)=>(<div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{r.title}</div><div style={{fontSize:12,color:"#888"}}>{r.goods}/{r.total} good choices</div></div><div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:r.score>=75?"#007A33":r.score>=50?"#FFB800":"#E3000B"}}>{r.score}%</div></div>))}
       <div style={{textAlign:"center",marginTop:16}}><div style={{fontSize:16,fontFamily:FC,fontWeight:800,color:"#000"}}>AVG: {Math.round(allResults.reduce((s,r)=>s+r.score,0)/allResults.length)}%</div></div>
-      <button style={{...BY,width:"100%",marginTop:16}} onClick={()=>{const avg=Math.round(allResults.reduce((s,r)=>s+r.score,0)/allResults.length);onS({text:"Recovery Race completed",scenarios:allResults,avgScore:avg,claimedBonus:avg>=75,autoBonus:avg>=75,points:ch.points});}}>SUBMIT</button>
+      {(()=>{const avg=Math.round(allResults.reduce((s,r)=>s+r.score,0)/allResults.length);const earnedPts=Math.round(ch.points*(avg/100));const bonusEarned=avg>=75;return(<>
+        <div style={{background:"#000",borderRadius:14,padding:16,marginTop:16,marginBottom:16}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div><div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",letterSpacing:0.5}}>POINTS EARNED</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:"#fff",marginTop:4}}>{earnedPts}<span style={{fontSize:14,color:"#888"}}>/{ch.points}</span></div></div>
+            <div style={{textAlign:"right"}}><div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",letterSpacing:0.5}}>ACCURACY</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:avg>=75?"#007A33":avg>=50?"#FFB800":"#E3000B",marginTop:4}}>{avg}%</div></div>
+          </div>
+          {bonusEarned&&<div style={{marginTop:10,padding:"8px 12px",background:"rgba(255,211,0,0.15)",borderRadius:8,fontFamily:FC,fontWeight:800,fontSize:13,color:"#FFD300",textAlign:"center"}}>BONUS EARNED +{ch.bonusPoints} PTS (75%+ accuracy)</div>}
+          {!bonusEarned&&<div style={{marginTop:10,fontSize:12,color:"#888",fontFamily:FB,textAlign:"center"}}>75%+ accuracy needed for +{ch.bonusPoints} bonus</div>}
+        </div>
+        <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"Recovery Race completed",scenarios:allResults,avgScore:avg,claimedBonus:bonusEarned,autoBonus:bonusEarned,points:earnedPts});}}>SUBMIT</button>
+      </>);})()}
     </div>)}
   </div>);
 }
