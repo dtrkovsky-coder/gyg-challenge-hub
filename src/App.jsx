@@ -756,6 +756,52 @@ function DashV({u,ch,co,wk,sc,onCh,onBd,onPr,actComps,acts,activeQuarter}){const
   </div>
 );}
 
+// ─── SHARED CHALLENGE INTRO ─────────────────────────────────────────────────
+// Every activity/challenge uses this for its briefing screen
+const ChallengeIntro=({icon,title,subtitle,description,points,bonusPoints,bonusCondition,tip,onStart,onB,startLabel="START"})=>(
+  <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{title}</span><span style={{width:32}}/></div>
+    <div style={{padding:"28px 20px",display:"flex",flexDirection:"column",alignItems:"center",gap:16,flex:1}}>
+      {icon&&<div style={{width:72,height:72,borderRadius:36,background:"#000",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:4}}>{typeof icon==="string"?<img src={icon} alt="" style={{width:40,height:40,objectFit:"contain",filter:"brightness(0) invert(1)"}}/>:icon}</div>}
+      <div style={{textAlign:"center"}}>
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:1,lineHeight:1.2}}>{title}</div>
+        {subtitle&&<div style={{fontFamily:FC,fontWeight:600,fontSize:14,color:"#888",marginTop:6}}>{subtitle}</div>}
+      </div>
+      {description&&<div style={{fontSize:15,color:"#555",fontFamily:FB,lineHeight:1.7,textAlign:"center",maxWidth:480}}>{description}</div>}
+      {/* Points card - always present */}
+      <div style={{width:"100%",background:"#000",borderRadius:14,padding:16}}>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:12,color:"#FFD300",letterSpacing:1,marginBottom:10}}>HOW POINTS WORK</div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+          <span style={{fontFamily:FC,fontSize:14,color:"#ccc"}}>Complete challenge</span>
+          <span style={{fontFamily:FC,fontWeight:800,fontSize:16,color:"#fff"}}>{points} pts</span>
+        </div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingTop:8,borderTop:"1px solid #333"}}>
+          <span style={{fontFamily:FC,fontSize:14,color:"#FFD300",fontWeight:700}}>Bonus</span>
+          <span style={{fontFamily:FC,fontWeight:900,fontSize:16,color:"#FFD300"}}>+{bonusPoints} pts</span>
+        </div>
+        {bonusCondition&&<div style={{fontFamily:FC,fontSize:11,color:"#888",marginTop:6,fontStyle:"italic"}}>{bonusCondition}</div>}
+      </div>
+      {/* Tip card */}
+      {tip&&<div style={{width:"100%",background:"#f0f8f0",border:"1px solid #d4e8d4",borderRadius:14,padding:16}}>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:12,color:"#007A33",letterSpacing:1,marginBottom:6}}>PRO TIP</div>
+        <div style={{fontSize:14,color:"#666",fontFamily:FB,lineHeight:1.5}}>{tip}</div>
+      </div>}
+      <button style={{...BY,width:"100%",marginTop:8}} onClick={onStart}>{startLabel}</button>
+    </div>
+  </div>
+);
+
+// ─── Shared interactive styles ──────────────────────────────────────────────
+const qStyle={fontFamily:FC,fontWeight:800,fontSize:16,color:"#000",marginBottom:12};
+const bodyStyle={fontSize:15,color:"#555",fontFamily:FB,lineHeight:1.6};
+const optCard=(sel)=>({padding:16,background:sel?"#FFF8E0":"#fff",border:`2px solid ${sel?"#FFD300":"#e8e8e3"}`,borderRadius:14,cursor:"pointer",transition:"all 0.15s",fontFamily:FB,fontSize:15});
+const binBtn=(isRight)=>({flex:1,minHeight:70,display:"flex",alignItems:"center",justifyContent:"center",background:isRight?"#FFD300":"#1a1a1a",color:isRight?"#000":"#fff",fontFamily:FC,fontWeight:900,fontSize:16,borderRadius:14,border:"none",cursor:"pointer",letterSpacing:0.5});
+const scenarioBox={background:"#000",padding:20,borderRadius:16,color:"#fff"};
+const scenarioBadge={display:"inline-block",padding:"4px 12px",background:"#FFD300",color:"#000",borderRadius:8,fontFamily:FC,fontWeight:800,fontSize:12,letterSpacing:0.5};
+const resultCorrect={background:"#f0f8f0",border:"2px solid #007A33",borderRadius:14,padding:16};
+const resultWrong={background:"#fef0f0",border:"2px solid #E3000B",borderRadius:14,padding:16};
+const selectStyle={padding:"14px 16px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,fontFamily:FB,fontSize:14,color:"#1a1a1a",width:"100%",boxSizing:"border-box",appearance:"auto"};
+
 // ─── HAZARD HUNT (LSE Week 1) ───────────────────────────────────────────────
 const HAZARD_FEEDBACK={
   wet_floor:{hazard:true,title:"WET FLOOR - NO SIGNAGE",desc:"Slip risk. Wet floor sign must go up immediately - before mopping, not after."},
@@ -833,26 +879,11 @@ function HazardHunt({ch,done,onS,onB,user,actCfg}){
   // Score count-up animation
   useEffect(()=>{if(screen===3&&animScore<score){const t=setTimeout(()=>setAnimScore(s=>Math.min(s+Math.ceil(score/20),score)),40);return()=>clearTimeout(t);}},[screen,animScore,score]);
   const tapZone=(zone)=>{if(found.includes(zone.id))return;const fb=cfgFeedback[zone.id]||{};if(!fb.hazard)setDecoyTapped(true);setFound(p=>[...p,zone.id]);setFeedback({...fb,id:zone.id});setTimeout(()=>setFeedback(null),2000);};
-  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div><div style={{fontSize:13,fontFamily:FC,fontWeight:600,color:"#888",marginTop:12,letterSpacing:0.5}}>WEEK 2 UNLOCKS WHEN AVAILABLE</div></div></div>);
+  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  if(screen===1)return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>{setCountdown(3);setScreen(2);}} startLabel="START HAZARD HUNT"/>;
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}>
-    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div>
-    {screen===1&&(
-      <div style={{padding:"24px 20px"}}>
-        <div style={{display:"flex",justifyContent:"center",marginBottom:16}}><div style={{width:96,height:96,borderRadius:48,background:"#000",display:"flex",alignItems:"center",justifyContent:"center"}}>{ICONS[ch.icon]&&<img src={ICONS[ch.icon]} alt="" style={{width:64,height:64,objectFit:"contain"}}/>}</div></div>
-        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
-        <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
-        <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
-        <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:20,color:"#fff"}}>
-          <div style={{fontSize:12,fontWeight:800,fontFamily:FC,color:"#FFD300",letterSpacing:1,marginBottom:12}}>POINTS BREAKDOWN</div>
-          {[[`Each hazard found (x${realHazards.length})`,`${cfgPtsPerHz} pts each`],[`Speed bonus (all ${realHazards.length} under ${cfgSpeedThresh}s)`,`+${cfgSpeedPts} pts`],["Decoy NOT tapped",`+${cfgDecoyAvoid} pts`],["Open text response",`+${cfgTextPts} pts`],["MAX POSSIBLE",`${realHazards.length*cfgPtsPerHz+cfgSpeedPts+cfgDecoyAvoid+cfgTextPts} pts`]].map(([l,r],i)=>(
-            <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:13,fontFamily:FC,fontWeight:i===4?800:500,color:i===4?"#FFD300":"#ccc",borderTop:i===4?"1px solid #333":"none",paddingTop:i===4?8:0,marginTop:i===4?8:4}}><span>{l}</span><span>{r}</span></div>
-          ))}
-        </div>
-        <div style={{background:"#f0f8f0",border:"1px solid #d4e8d4",borderRadius:14,padding:16,marginBottom:24}}><div style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#007A33",letterSpacing:1,marginBottom:6}}>TIP</div><p style={{fontSize:14,color:"#666",lineHeight:1.5,margin:0}}>{ch.tip}</p></div>
-        <button style={{...BY,width:"100%"}} onClick={()=>{setCountdown(3);setScreen(2);}}>START HAZARD HUNT</button>
-      </div>
-    )}
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
     {screen===2&&(
       <div style={{position:"relative",height:"calc(100vh - 48px)",display:"flex",flexDirection:"column"}}>
         {/* Countdown overlay */}
@@ -967,26 +998,11 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users,actCfg}){
   const onDragEnd=()=>{if(dragIdx===null)return;const offset=Math.round(dragY/itemHeight);const newIdx=Math.max(0,Math.min(ranking.length-1,dragIdx+offset));
     if(newIdx!==dragIdx){const n=[...ranking];const[item]=n.splice(dragIdx,1);n.splice(newIdx,0,item);setRanking(n);}
     setDragIdx(null);setDragY(0);};
-  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div><div style={{fontSize:13,fontFamily:FC,fontWeight:600,color:"#888",marginTop:12,letterSpacing:0.5}}>WEEK 3 UNLOCKS WHEN AVAILABLE</div></div></div>);
+  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  if(screen===1)return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setScreen(2)} startLabel="START RANKING"/>;
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
-    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div>
-    {screen===1&&(
-      <div style={{padding:"24px 20px"}}>
-        <div style={{display:"flex",justifyContent:"center",marginBottom:16}}><div style={{width:96,height:96,borderRadius:48,background:"#000",display:"flex",alignItems:"center",justifyContent:"center"}}>{ICONS[ch.icon]&&<img src={ICONS[ch.icon]} alt="" style={{width:64,height:64,objectFit:"contain"}}/>}</div></div>
-        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
-        <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
-        <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:20,color:"#fff"}}>
-          <div style={{fontSize:15,lineHeight:1.6}}>It's 12:05pm. Saturday. GYG is slammed. Everything below just happened in the last 10 minutes. Rank them 1-12 in order of what you deal with FIRST.</div>
-        </div>
-        <div style={{background:"#fff",border:"1px solid #e8e8e3",borderRadius:14,padding:16,marginBottom:20}}>
-          <div style={{display:"flex",justifyContent:"space-between",fontSize:14,color:"#555"}}><span>Challenge Points</span><span style={{fontWeight:700}}>{ch.points}</span></div>
-          {ch.bonusPoints>0&&<div style={{display:"flex",justifyContent:"space-between",fontSize:14,borderTop:"1px solid #eee",paddingTop:10,marginTop:10}}><span style={{color:"#007A33"}}>Bonus: {ch.bonusCondition}</span><span style={{fontWeight:700,color:"#007A33"}}>+{ch.bonusPoints}</span></div>}
-        </div>
-        <div style={{background:"#f0f8f0",border:"1px solid #d4e8d4",borderRadius:14,padding:16,marginBottom:24}}><div style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#007A33",letterSpacing:1,marginBottom:6}}>TIP</div><p style={{fontSize:14,color:"#666",lineHeight:1.5,margin:0}}>{ch.tip}</p></div>
-        <button style={{...BY,width:"100%"}} onClick={()=>setScreen(2)}>START RANKING</button>
-      </div>
-    )}
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
     {screen===2&&(
       <div style={{padding:"12px 12px 24px",overflowY:"auto",overflowX:"hidden",maxHeight:"calc(100vh - 60px)",WebkitOverflowScrolling:"touch",boxSizing:"border-box"}} onTouchMove={onDragMove} onTouchEnd={onDragEnd} onMouseMove={onDragMove} onMouseUp={onDragEnd}>
         <div style={{fontSize:12,fontWeight:800,fontFamily:FC,color:"#999",letterSpacing:1,marginBottom:6,textAlign:"center"}}>HOLD AND DRAG TO REORDER</div>
@@ -1152,7 +1168,7 @@ function SwipeCard({photo,caption,onSwipe,cardIdx,total}){
 }
 
 function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
-  const[phase,setPhase]=useState("upload");// upload | swipe | word | reveal | done
+  const[phase,setPhase]=useState("intro");// intro | upload | swipe | word | reveal | done
   const[photos,setPhotos]=useState([null,null,null,null,null]);
   const[swipeIdx,setSwipeIdx]=useState(0);
   const[swipes,setSwipes]=useState([]);
@@ -1198,7 +1214,9 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
   const shotList=actCfg?.spot_the_moment?.shotList||SHOT_LIST;
   const swipeWords=actCfg?.spot_the_moment?.words||SWIPE_WORDS;
 
-  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 1</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+
+  if(phase==="intro")return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("upload")} startLabel="START CHALLENGE"/>;
 
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
@@ -1321,7 +1339,7 @@ function ThirtySecondSell({ch,done,onS,onB,user,actCfg}){
   const sellItems=actCfg?.thirty_second_sell?.items||SELL_ITEMS;
   const recDuration=actCfg?.thirty_second_sell?.timer||30;
   const[currentItem,setCurrentItem]=useState(0);
-  const[phase,setPhase]=useState("ready");// ready | countdown | recording | uploading | done
+  const[phase,setPhase]=useState("intro");// intro | ready | countdown | recording | uploading | done
   const[timer,setTimer]=useState(recDuration);
   const[countdown,setCountdown]=useState(3);
   const[items,setItems]=useState([]);
@@ -1370,14 +1388,15 @@ function ThirtySecondSell({ch,done,onS,onB,user,actCfg}){
 
   const beginRecording=()=>{setCountdown(3);setTimer(recDuration);setPhase("countdown");};
 
-  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+
+  if(phase==="intro")return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("ready")} startLabel="START RECORDING"/>;
+
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
-    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 2</span><span style={{width:32}}/></div>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
     <div style={{padding:"24px 20px"}}>
       {phase==="ready"&&currentItem<sellItems.length&&(<div>
-        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
-        <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
         <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:20}}>{sellItems.map((_,i)=>(<div key={i} style={{width:12,height:12,borderRadius:6,background:i<currentItem?"#007A33":i===currentItem?"#FFD300":"#ddd"}}/>))}</div>
         <div style={{background:"#000",borderRadius:16,padding:24,textAlign:"center",marginBottom:20}}>
           <div style={{fontSize:14,fontFamily:FC,fontWeight:700,color:"#FFD300",letterSpacing:1,marginBottom:8}}>ITEM {currentItem+1} OF {sellItems.length}</div>
@@ -1502,20 +1521,13 @@ function RecoveryRace({ch,done,onS,onB,user,actCfg}){
   const choose=(opt)=>{clearInterval(timerRef.current);setDecTimer(0);setChoices(p=>[...p,opt.outcome]);setLastOutcome(opt);
     if(decIdx<(scen?.decisions.length||4)-1){setTimeout(()=>{setDecIdx(d=>d+1);const nextT=scen?.decisions[decIdx+1]?.timer||decisionTimerDefault;setDecTimer(nextT);setLastOutcome(null);},2000);}
     else{const goods=choices.filter(c=>c==="good").length+(opt.outcome==="good"?1:0);const total=choices.length+1;setAllResults(p=>[...p,{scenId:scen.id,title:scen.title,goods,total,score:Math.round(goods/total*100)}]);setTimeout(()=>setScreen("result"),2000);}};
-  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 3</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+
+  if(screen==="intro")return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>{setScreen("play");setDecTimer(scen?.decisions[0]?.timer||decisionTimerDefault);}} startLabel="START SCENARIO 1"/>;
+
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
-    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 3</span><span style={{width:32}}/></div>
-    {screen==="intro"&&(<div style={{padding:"24px 20px"}}>
-      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
-      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
-      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
-      <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:20,color:"#fff"}}>
-        <div style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#FFD300",letterSpacing:1,marginBottom:8}}>{scenarios.length} SCENARIOS</div>
-        {scenarios.map((s,i)=>(<div key={s.id} style={{fontSize:13,color:"#ccc",marginBottom:4}}>{i+1}. {s.title}</div>))}
-      </div>
-      <button style={{...BY,width:"100%"}} onClick={()=>{setScreen("play");setDecTimer(scen?.decisions[0]?.timer||decisionTimerDefault);}}>START SCENARIO 1</button>
-    </div>)}
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
     {screen==="play"&&scen&&dec&&(<div style={{padding:"24px 20px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
         <span style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:0.5}}>{scen.title.toUpperCase()}</span>
@@ -1572,12 +1584,15 @@ const WASTE_QUESTIONS=[
   {id:"q3",text:"What specific action will you take, and when?",placeholder:"e.g. Check Power BI at 10am before the 11am prep call - adjust chicken prep down 20% on Tuesdays"},
 ];
 function WasteAudit({ch,done,onS,onB,user}){
-  const[step,setStep]=useState(1);// 1=log, 2=photos, 3=questions, 4=review
+  const[step,setStep]=useState(0);// 0=intro, 1=log, 2=photos, 3=questions, 4=review
   const[items,setItems]=useState([]);const[newItem,setNewItem]=useState({name:"",category:"Protein",qty:"",unit:"kg"});
   const[photos,setPhotos]=useState({wastageSheet:null,pos:null});const[answers,setAnswers]=useState(["","",""]);
   const addItem=()=>{if(!newItem.name.trim()||!newItem.qty)return;setItems(p=>[...p,{...newItem,id:Date.now()}]);setNewItem({name:"",category:newItem.category,qty:"",unit:"kg"});};
   const compressImg=(file)=>new Promise(r=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,1600/Math.max(img.width,img.height));c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",0.8));};img.src=URL.createObjectURL(file);});
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+
+  if(step===0)return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setStep(1)} startLabel="START AUDIT"/>;
+
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
     <div style={{padding:"24px 20px"}}>
@@ -1586,8 +1601,6 @@ function WasteAudit({ch,done,onS,onB,user}){
 
       {/* Step 1: Wastage log */}
       {step===1&&(<div>
-        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:24,textAlign:"center",margin:"0 0 4px"}}>{ch.title}</h2>
-        <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>Log what got wasted on your closing shift</p>
         {/* Add item form */}
         <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:16}}>
           <input value={newItem.name} onChange={e=>setNewItem(p=>({...p,name:e.target.value}))} placeholder="Item name (e.g. Grilled chicken)" style={{width:"100%",padding:"12px 14px",background:"#1a1a1a",border:"1px solid #333",borderRadius:10,color:"#fff",fontSize:14,fontFamily:FB,outline:"none",marginBottom:8,boxSizing:"border-box"}}/>
@@ -1663,7 +1676,7 @@ function WasteAudit({ch,done,onS,onB,user}){
 // ─── TEACH IT TO OWN IT (LSE Week 4) ────────────────────────────────────────
 const TEACH_SKILLS=["Portion Control","Handwashing Procedure","Drive-thru Speed","Upselling Technique","Station Setup","Closing Checklist","Guest Greeting","Food Safety Temps"];
 function TeachIt({ch,done,onS,onB,user}){
-  const[step,setStep]=useState(1);// 1=select, 2=record, 3=reflect, 4=submit
+  const[step,setStep]=useState(0);// 0=intro, 1=select, 2=record, 3=reflect, 4=submit
   const[skill,setSkill]=useState(null);const[crewName,setCrewName]=useState("");const[gap,setGap]=useState("");
   const[videoRecorded,setVideoRecorded]=useState(false);const[duration,setDuration]=useState(0);
   const[reflect,setReflect]=useState(["",""]);
@@ -1675,6 +1688,9 @@ function TeachIt({ch,done,onS,onB,user}){
   const stopRec=()=>{clearInterval(timerRef.current);if(mediaRef.current&&mediaRef.current.state!=="inactive")mediaRef.current.stop();if(streamRef.current)streamRef.current.getTracks().forEach(t=>t.stop());streamRef.current=null;};
   useEffect(()=>()=>{clearInterval(timerRef.current);if(streamRef.current)streamRef.current.getTracks().forEach(t=>t.stop());},[]);
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+
+  if(step===0)return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setStep(1)} startLabel="START TRAINING"/>;
+
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
     <div style={{padding:"24px 20px"}}>
@@ -1682,8 +1698,6 @@ function TeachIt({ch,done,onS,onB,user}){
 
       {/* Step 1: Select skill + crew */}
       {step===1&&(<div>
-        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:24,textAlign:"center",margin:"0 0 4px"}}>{ch.title}</h2>
-        <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>Pick a skill. Pick a crew member. Train them for real.</p>
         <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:8}}>WHICH SKILL?</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:20}}>
           {TEACH_SKILLS.map(s=>(<button key={s} onClick={()=>setSkill(s)} style={{padding:"14px 12px",borderRadius:12,border:skill===s?"2px solid #FFD300":"1px solid #e8e8e3",background:skill===s?"#FFF8E0":"#fff",fontFamily:FC,fontWeight:700,fontSize:13,cursor:"pointer",textAlign:"left"}}>{s}</button>))}
@@ -1755,51 +1769,57 @@ const SLL_CLIPS=[
 ];
 function ShiftLeaderLens({ch,done,onS,onB,user,actCfg}){
   const clips=actCfg?.shift_leader_lens?.clips||SLL_CLIPS;
+  const[phase,setPhase]=useState("intro");// intro, play, results
   const[clipIdx,setClipIdx]=useState(0);
   const[answers,setAnswers]=useState([]);
   const[selected,setSelected]=useState(null);
   const[why,setWhy]=useState("");
   const clip=clips[clipIdx]||null;
-  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 4</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  if(phase==="intro")return <ChallengeIntro icon={<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFD300" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("play")} startLabel="START ASSESSMENT"/>;
+  if(phase==="results")return(
+  <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+    <div style={{padding:"24px 20px"}}>
+      <div style={{textAlign:"center",marginBottom:24}}><div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:1}}>YOUR LEADERSHIP PROFILE</div><div style={{fontSize:14,color:"#888",fontFamily:FC,marginTop:6}}>{answers.length} situations assessed</div></div>
+      {answers.map((a,i)=>(<div key={i} style={{background:"#fff",borderRadius:14,padding:16,marginBottom:10,border:"1px solid #e8e8e3"}}>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:0.5}}>{a.title.toUpperCase()}</div>
+        <div style={{fontSize:15,color:"#007A33",fontFamily:FB,marginTop:6,fontWeight:600}}>{a.choice}</div>
+        {a.why&&<div style={{fontSize:13,color:"#888",fontFamily:FB,marginTop:4,fontStyle:"italic"}}>{a.why}</div>}
+      </div>))}
+      <button style={{...BY,width:"100%",marginTop:20}} onClick={()=>{onS({text:"Shift Leader Lens completed",answers,claimedBonus:answers.length>=clips.length,autoBonus:true,points:ch.points});}}>SUBMIT CHALLENGE</button>
+    </div>
+  </div>);
+  // Play phase
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
-    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 4</span><span style={{width:32}}/></div>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
     <div style={{padding:"24px 20px"}}>
-      {clipIdx===0&&answers.length===0&&(<div style={{marginBottom:20}}>
-        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
-        <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:12}}>{ch.subtitle}</p>
-        <p style={{fontSize:15,lineHeight:1.6,color:"#555"}}>{ch.description}</p>
-      </div>)}
-      {clip&&clipIdx<clips.length?(
+      {clip?(
         <div>
-          <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:12}}>{clipIdx+1}/{clips.length}</div>
-          <div style={{background:"#000",borderRadius:14,padding:20,marginBottom:16,color:"#fff"}}>
-            <div style={{fontFamily:FC,fontWeight:800,fontSize:16,color:"#FFD300",marginBottom:8}}>{clip.title.toUpperCase()}</div>
-            <div style={{fontSize:15,lineHeight:1.6}}>{clip.desc}</div>
+          <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:4}}>{clipIdx+1} OF {clips.length}</div>
+          <div style={{height:4,background:"#e8e8e3",borderRadius:2,marginBottom:16}}><div style={{height:"100%",background:"#FFD300",borderRadius:2,width:`${((clipIdx+1)/clips.length)*100}%`,transition:"width 0.3s"}}/></div>
+          <div style={scenarioBox}>
+            <span style={scenarioBadge}>{clip.title.toUpperCase()}</span>
+            <div style={{fontSize:16,lineHeight:1.6,fontFamily:FB,marginTop:12}}>{clip.desc}</div>
           </div>
-          <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:10}}>{clip.q}</div>
-          <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
-            {clip.options.map((opt,i)=>(<button key={i} onClick={()=>setSelected(i)} style={{padding:"14px 16px",background:selected===i?"#FFF8E0":"#fff",border:selected===i?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,color:"#1a1a1a",cursor:"pointer"}}>{opt}</button>))}
+          <div style={{...qStyle,marginTop:20}}>{clip.q}</div>
+          <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:16}}>
+            {(clip.options||[]).map((opt,i)=>(<button key={i} onClick={()=>setSelected(i)} style={optCard(selected===i)}>{opt}</button>))}
           </div>
           {selected!==null&&(<div style={{marginBottom:16}}>
-            <div style={subLabel}>WHY? (OPTIONAL)</div>
-            <textarea value={why} onChange={e=>setWhy(e.target.value)} placeholder="Brief reason..." rows={2} style={{width:"100%",padding:"12px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:14,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+            <div style={{fontFamily:FC,fontWeight:700,fontSize:11,letterSpacing:1,color:"#999",marginBottom:6}}>WHY? (OPTIONAL)</div>
+            <textarea value={why} onChange={e=>setWhy(e.target.value)} placeholder="Brief reason..." rows={2} style={{width:"100%",padding:"12px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:15,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
           </div>)}
-          <button style={{...BY,width:"100%",opacity:selected!==null?1:0.4}} disabled={selected===null} onClick={()=>{setAnswers(a=>[...a,{clipId:clip.id,title:clip.title,choice:clip.options[selected],choiceIdx:selected,why}]);setSelected(null);setWhy("");setClipIdx(c=>c+1);}}>
-            {clipIdx<clips.length-1?"NEXT CLIP":"FINISH"}
+          <button style={{...BY,width:"100%",opacity:selected!==null?1:0.4}} disabled={selected===null} onClick={()=>{
+            const newAnswers=[...answers,{clipId:clip.id,title:clip.title,choice:clip.options[selected],choiceIdx:selected,why}];
+            setAnswers(newAnswers);setSelected(null);setWhy("");
+            if(clipIdx<clips.length-1){setClipIdx(c=>c+1);}else{setPhase("results");}
+          }}>
+            {clipIdx<clips.length-1?"NEXT":"FINISH"}
           </button>
         </div>
-      ):(
-        <div>
-          <div style={{textAlign:"center",marginBottom:20}}><div style={{fontSize:24,fontFamily:FC,fontWeight:900}}>YOUR LEADERSHIP PROFILE</div><div style={{fontSize:14,color:"#888",marginTop:4}}>{answers.length} situations assessed</div></div>
-          {answers.map((a,i)=>(<div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8}}>
-            <div style={{fontFamily:FC,fontWeight:700,fontSize:13}}>{a.title}</div>
-            <div style={{fontSize:13,color:"#007A33",marginTop:4}}>{a.choice}</div>
-            {a.why&&<div style={{fontSize:12,color:"#888",marginTop:2,fontStyle:"italic"}}>{a.why}</div>}
-          </div>))}
-          <button style={{...BY,width:"100%",marginTop:16}} onClick={()=>{onS({text:"Shift Leader Lens completed",answers,claimedBonus:answers.length>=clips.length,autoBonus:true,points:ch.points});}}>SUBMIT</button>
-        </div>
-      )}
+      ):(<div style={{textAlign:"center",padding:40,color:"#888"}}>No situations configured</div>)}
     </div>
   </div>);
 }
@@ -1871,18 +1891,11 @@ function ShiftCall({ch,done,onS,onB,user,actCfg}){
   const reactCorrect=results.filter(r=>scenarios.find(s=>s.id===r.scenarioId)?.correct==="react"&&r.correct).length;const reactTotal=scenarios.filter(s=>s.correct==="react").length;
   const holdCorrect=results.filter(r=>scenarios.find(s=>s.id===r.scenarioId)?.correct==="hold"&&r.correct).length;const holdTotal=scenarios.filter(s=>s.correct==="hold").length;
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+
+  if(phase==="intro")return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>{setPhase("play");setTimer(timeLimit);}} startLabel="START"/>;
+
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
-    {phase==="intro"&&(<div style={{padding:"24px 20px"}}>
-      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
-      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
-      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
-      <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:20,color:"#fff"}}>
-        <div style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#FFD300",letterSpacing:1,marginBottom:8}}>{scenarios.length} ROUNDS</div>
-        <div style={{fontSize:13,color:"#ccc",fontFamily:FB}}>Each round: {timeLimit} seconds to decide. Speed earns more points.</div>
-      </div>
-      <button style={{...BY,width:"100%"}} onClick={()=>{setPhase("play");setTimer(timeLimit);}}>START</button>
-    </div>)}
     {phase==="play"&&!reveal&&scenarios[idx]&&(<div style={{padding:"24px 20px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
         <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#999"}}>{idx+1}/{scenarios.length}</span>
@@ -2117,24 +2130,10 @@ function MakeTheCall({ch,done,onS,onB,user,actCfg}){
 
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
+  if(screen==="brief")return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setScreen("crew")} startLabel="SEE YOUR CREW"/>;
+
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
-
-    {/* Brief */}
-    {screen==="brief"&&(<div style={{padding:"24px 20px"}}>
-      <div style={{background:"#000",borderRadius:16,padding:24,color:"#fff",marginBottom:20}}>
-        <div style={{fontFamily:F107,fontWeight:900,fontSize:22,letterSpacing:0.5}}>GYG HARRINGTON PARK</div>
-        <div style={{fontSize:12,color:"#888",fontFamily:FC,marginBottom:16}}>(24-HOUR OPERATION)</div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-          <div style={{background:"#1a1a1a",borderRadius:12,padding:14,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24,color:"#E3000B"}}>${MTC_START_AHR.toFixed(2)}</div><div style={{fontSize:9,color:"#888",fontFamily:FC,marginTop:2}}>AHR (TARGET: ${MTC_TARGET.toFixed(2)})</div></div>
-          <div style={{background:"#1a1a1a",borderRadius:12,padding:14,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24,color:"#007A33"}}>${MTC_START_SPLH}</div><div style={{fontSize:9,color:"#888",fontFamily:FC,marginTop:2}}>SPLH (BAND: ${MTC_SPLH_BAND[0]}-${MTC_SPLH_BAND[1]})</div></div>
-        </div>
-      </div>
-      <div style={{borderLeft:"4px solid #FFD300",background:"#fff",borderRadius:"0 14px 14px 0",padding:16,marginBottom:20}}>
-        <div style={{fontSize:14,fontFamily:FB,lineHeight:1.6,color:"#555"}}>Your roster is over-costing. You have 6 decisions. Bring AHR down. Don't kill SPLH.</div>
-      </div>
-      <button style={{...BY,width:"100%"}} onClick={()=>setScreen("crew")}>SEE YOUR CREW</button>
-    </div>)}
 
     {/* Crew list */}
     {screen==="crew"&&(<div style={{padding:"0 20px"}}>
@@ -2454,14 +2453,11 @@ function PermOrPass({ch,done,onS,onB,user,actCfg}){
   const lockIn=()=>{if(selected===null)return;setLocked(true);const opt=prof.options.find(o=>o.id===selected);const r={profileId:prof.id,chosenOption:selected,correct:!!opt?.lands};setResults(p=>[...p,r]);};
   const nextProfile=()=>{setSelected(null);setLocked(false);if(profIdx<profiles.length-1){setProfIdx(p=>p+1);}else setPhase("results");};
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+
+  if(phase==="intro")return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("play")} startLabel="START"/>;
+
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
-    {phase==="intro"&&(<div style={{padding:"24px 20px"}}>
-      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
-      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
-      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
-      <button style={{...BY,width:"100%"}} onClick={()=>setPhase("play")}>START</button>
-    </div>)}
     {phase==="play"&&prof&&(<div style={{padding:"24px 20px"}}>
       <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:12}}>{profIdx+1}/{profiles.length}</div>
       {/* Profile card */}
@@ -2533,14 +2529,11 @@ function YourRestaurant({ch,done,onS,onB,user,comps,users,actCfg}){
   const rank=allAHRs.indexOf(ahrVal)+1;const total=allAHRs.length;
   const quartile=ahrVal<=36.50?"Top 25%":ahrVal<=37.10?"Second 25%":ahrVal<=38.00?"Third 25%":"Bottom 25%";
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+
+  if(phase==="intro")return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("input")} startLabel="START"/>;
+
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
-    {phase==="intro"&&(<div style={{padding:"24px 20px"}}>
-      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:26,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
-      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
-      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
-      <button style={{...BY,width:"100%"}} onClick={()=>setPhase("input")}>START</button>
-    </div>)}
     {phase==="input"&&(<div style={{padding:"24px 20px"}}>
       <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:20}}>{[1,2,3].map(s=>(<div key={s} style={{width:12,height:12,borderRadius:6,background:s<step?"#007A33":s===step?"#FFD300":"#ddd"}}/>))}</div>
       {step===1&&(<div>
@@ -2655,19 +2648,15 @@ function GuestDollarTrail({ch,done,onS,onB,user,actCfg}){
   const correctCount=choices.filter(c=>c.correct).length;
   const pathAVal=50.40;const pathBVal=513;const gap=463;const annualImpact=1685320;
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+
+  if(step===0)return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setStep(1)} startLabel="FOLLOW THE GUEST"/>;
+
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
     {/* Dollar counter - always visible */}
     {step>0&&step<=moments.length&&<div style={{position:"sticky",top:56,background:"#000",zIndex:10,padding:"10px 20px",display:"flex",justifyContent:"center",alignItems:"center"}}>
       <span style={{fontFamily:FC,fontWeight:900,fontSize:28,color:dispCounter>=0?"#007A33":"#E3000B"}}>${dispCounter>=0?"+":""}{ dispCounter.toFixed(2)}</span>
     </div>}
-    {/* Intro */}
-    {step===0&&(<div style={{padding:"24px 20px"}}>
-      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:26,textAlign:"center",margin:"0 0 4px"}}>{ch.title}</h2>
-      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
-      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
-      <button style={{...BY,width:"100%"}} onClick={()=>setStep(1)}>FOLLOW THE GUEST</button>
-    </div>)}
     {/* Moments */}
     {step>=1&&step<=moments.length&&!showReveal&&(()=>{const m=moments[step-1];return(<div style={{padding:"24px 20px"}}>
       <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:12}}>MOMENT {step}/{moments.length}</div>
@@ -2742,15 +2731,11 @@ function TriageCall({ch,done,onS,onB,user,actCfg}){
   const actCount=results.filter(r=>r.choice==="act").length;
   const profile=actCount>=5?{name:"OVER-REACTOR",text:"You want to fix things fast. Some calls needed space, not speed."}:actCount<=1?{name:"UNDER-REACTOR",text:"You held back. Two of those calls needed you in the conversation today."}:correctCount>=5?{name:"SHARP",text:"Strong read. You know the difference between coaching moments and compliance moments."}:{name:"CALIBRATED",text:"Good instinct on most calls. Review the misses."};
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+
+  if(idx===-1)return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>{setIdx(0);setTimer(timeLimit);}} startLabel="START CALLS"/>;
+
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
-    {/* Intro */}
-    {idx===-1&&(<div style={{padding:"24px 20px"}}>
-      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:26,textAlign:"center",margin:"0 0 4px"}}>{ch.title}</h2>
-      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
-      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
-      <button style={{...BY,width:"100%"}} onClick={()=>{setIdx(0);setTimer(timeLimit);}}>START CALLS</button>
-    </div>)}
     {/* Call */}
     {idx>=0&&idx<calls.length&&!flash2&&(()=>{const c=calls[idx];return(<div style={{padding:"24px 20px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
@@ -2804,16 +2789,12 @@ function RMBrief({ch,done,onS,onB,user,actCfg}){
   const rating=allCorrect?{label:"STRONG",text:"Tight. One problem, one number, one action. Your team leaves knowing exactly what matters today."}:focusCorrect&&(!dataCorrect||!ctaCorrect)?{label:"TOO BROAD",text:"Right problem but the message got loose. One irrelevant data point dilutes the brief."}:focusCorrect&&dataCorrect&&!ctaCorrect?{label:"MISSING THE CTA",text:"Good setup, no follow-through. Context without direction is just information."}:{label:"OFF-MESSAGE",text:"You built a tight brief - but not for the problems you have today."};
   const modelBrief="This week our AHR is $38.40. Network target is $37.10. That gap costs us every shift we don't act. Today after the rush, ARMs - I need 5 minutes each with you. We have crew ready for permanent and the conversation hasn't happened. Let's fix that today.";
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+
+  if(step===0)return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setStep(1)} startLabel="BUILD YOUR BRIEF"/>;
+
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
     <div style={{padding:"24px 20px"}}>
-      {step===0&&(<div>
-        <h2 style={{fontFamily:FC,fontWeight:900,fontSize:24,textAlign:"center",margin:"0 0 16px"}}>{ch.title}</h2>
-        <div style={{background:"#000",borderRadius:14,padding:16,color:"#fff",marginBottom:20}}>
-          <div style={{fontSize:14,fontFamily:FB,lineHeight:1.6}}>Saturday 10:45am. Lunch rush starts at 11:30. 5 minutes with your team. AHR this week: $38.40. Two ARMs haven't had permanency conversations yet.</div>
-        </div>
-        <button style={{...BY,width:"100%"}} onClick={()=>setStep(1)}>BUILD YOUR BRIEF</button>
-      </div>)}
       {step===1&&(<div>
         <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:12}}>1. CHOOSE YOUR FOCUS</div>
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -2888,15 +2869,11 @@ function NumbersDontLie({ch,done,onS,onB,user,actCfg}){
     else{const roundPts=newTaps.reduce((s,t)=>s+t.points,0);const allCorrect=newTaps.every(t=>t.correct);setRoundResults(p=>[...p,{roundId:round.id,restaurant:round.restaurant,taps:newTaps,points:roundPts,allCorrect}]);setShowExplain(true);}};
   const nextRound=()=>{setShowExplain(false);setTapIdx(0);setCurrentTaps([]);if(roundIdx<rounds.length-1)setRoundIdx(r=>r+1);else setRoundIdx(99);};
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+
+  if(roundIdx===-1)return <ChallengeIntro icon={ICONS[ch.icon]?<img src={ICONS[ch.icon]} alt="" style={{width:36,height:36,objectFit:"contain"}}/>:null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setRoundIdx(0)} startLabel="START ROUND 1"/>;
+
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
-    {/* Intro */}
-    {roundIdx===-1&&(<div style={{padding:"24px 20px"}}>
-      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:24,textAlign:"center",margin:"0 0 4px"}}>{ch.title}</h2>
-      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
-      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
-      <button style={{...BY,width:"100%"}} onClick={()=>setRoundIdx(0)}>START ROUND 1</button>
-    </div>)}
     {/* P&L + taps */}
     {round&&!showExplain&&tap&&(<div style={{padding:"16px 20px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
