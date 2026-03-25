@@ -1543,7 +1543,7 @@ function HuddleBuilder({act,u,onComplete,onB}){
       {typeof navigator!=="undefined"&&navigator.mediaDevices?(
         <div style={{textAlign:"center"}}>
           <button className="btn-hover" onClick={recording?stopRec:startRec} style={{width:88,height:88,borderRadius:44,border:"none",background:recording?"#E3000B":"#000",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",transition:"all 0.25s cubic-bezier(0.16,1,0.3,1)",boxShadow:recording?"0 0 0 8px rgba(227,0,11,0.15)":"none"}}>
-            {recording?<div style={{width:26,height:26,borderRadius:5,background:"#fff"}}/>:<div style={{width:0,height:0,borderLeft:"24px solid #FFD300",borderTop:"15px solid transparent",borderBottom:"15px solid transparent",marginLeft:5}}/>}
+            {recording?<div style={{width:26,height:26,borderRadius:5,background:"#fff"}}/>:<div style={{width:28,height:28,borderRadius:14,background:"#E3000B"}}/>}
           </button>
           <div style={{fontSize:56,fontWeight:900,fontFamily:F107,color:recTime>=30?"#E3000B":recTime>=25?"#FFD300":"#000",transition:"color 0.3s",letterSpacing:0}}>{recTime}s</div>
           <div style={{fontSize:14,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:0.5,marginTop:6}}>{recording?"RECORDING...":"TARGET: UNDER 30 SECONDS"}</div>
@@ -2599,13 +2599,17 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                       <div><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Prevention question</div><textarea value={acfg.shift_in_chaos?.preventionQ||"What's one thing that would have prevented this shift from getting to this point?"} onChange={e=>saveAcfg("shift_in_chaos",{preventionQ:e.target.value})} rows={2} style={{...inp,resize:"vertical"}}/></div>
                     </div>
 
-                    <div style={subLabel}>PROBLEMS (expert order)</div>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                      <div style={subLabel}>PROBLEMS (expert order) - {(acfg.shift_in_chaos?.problems||CHAOS_PROBLEMS).length} items</div>
+                      <button onClick={()=>{const probs=[...(acfg.shift_in_chaos?.problems||[...CHAOS_PROBLEMS])];probs.push({id:`cp${Date.now()}`,text:"New problem description",category:"operational"});saveAcfg("shift_in_chaos",{problems:probs});}} style={{padding:"6px 14px",borderRadius:8,border:"none",background:"#FFD300",color:"#000",fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>+ ADD</button>
+                    </div>
                     {(acfg.shift_in_chaos?.problems||CHAOS_PROBLEMS).map((p,pi)=>(
                       <div key={p.id||pi} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"8px 0",borderTop:pi>0?"1px solid #e8e8e3":"none"}}>
                         <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#1a1a1a",color:"#FFD300",width:22,height:22,borderRadius:11,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:8}}>{pi+1}</span>
                         <textarea value={p.text} onChange={e=>updateChaosProb(pi,"text",e.target.value)} rows={2} style={{...inp,flex:1,resize:"vertical",fontSize:13,padding:"8px 12px"}}/>
                         <div style={{display:"flex",flexDirection:"column",gap:2,flexShrink:0,marginTop:6}}>
                           {["safety","operational","cosmetic"].map(cat=>(<button key={cat} onClick={()=>updateChaosProb(pi,"category",cat)} style={{padding:"3px 8px",borderRadius:6,border:"none",background:p.category===cat?(cat==="safety"?"#E3000B":cat==="operational"?"#FFD300":"#999"):"transparent",color:p.category===cat?"#fff":"#ccc",fontSize:9,fontFamily:FC,fontWeight:700,cursor:"pointer"}}>{cat.slice(0,3).toUpperCase()}</button>))}
+                          <button onClick={()=>{const probs=[...(acfg.shift_in_chaos?.problems||[...CHAOS_PROBLEMS])];probs.splice(pi,1);saveAcfg("shift_in_chaos",{problems:probs});}} style={{padding:"3px 8px",borderRadius:6,border:"none",background:"transparent",color:"#E3000B",fontSize:9,fontFamily:FC,fontWeight:700,cursor:"pointer",marginTop:2}}>DEL</button>
                         </div>
                       </div>
                     ))}
