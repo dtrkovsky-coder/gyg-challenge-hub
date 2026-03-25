@@ -853,6 +853,218 @@ const CI={
   self_assessment:<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFD300" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>,
 };
 
+// ─── Comprehensive Icon Library (SVG functions returning JSX) ────────────────
+const ICON_LIBRARY_DEFS={
+  // --- GYG Brand Icons (reference ICONS base64) ---
+  fries:{cat:"gyg",label:"Fries"},
+  churros:{cat:"gyg",label:"Churros"},
+  taco:{cat:"gyg",label:"Taco"},
+  burrito:{cat:"gyg",label:"Burrito"},
+  bag:{cat:"gyg",label:"Bag"},
+  fire_burrito:{cat:"gyg",label:"Fire Burrito"},
+  socks:{cat:"gyg",label:"Socks"},
+  sticky_tape:{cat:"gyg",label:"Sticky Tape"},
+  churro:{cat:"gyg",label:"Churro"},
+  sundae:{cat:"gyg",label:"Sundae"},
+  lime:{cat:"gyg",label:"Lime"},
+  guac:{cat:"gyg",label:"Guac"},
+  avocado:{cat:"gyg",label:"Avocado"},
+  under_construction:{cat:"gyg",label:"Under Construction"},
+  // --- Activity Icons (from CI) ---
+  hazard_hunt:{cat:"activity",label:"Hazard Hunt"},
+  shift_in_chaos:{cat:"activity",label:"Shift in Chaos"},
+  waste_audit:{cat:"activity",label:"Waste Audit"},
+  teach_it:{cat:"activity",label:"Teach It"},
+  spot_the_moment:{cat:"activity",label:"Spot the Moment"},
+  thirty_second_sell:{cat:"activity",label:"30 Second Sell"},
+  recovery_race:{cat:"activity",label:"Recovery Race"},
+  shift_leader_lens:{cat:"activity",label:"Shift Leader Lens"},
+  shift_call:{cat:"activity",label:"Shift Call"},
+  make_the_call:{cat:"activity",label:"Make the Call"},
+  perm_or_pass:{cat:"activity",label:"Perm or Pass"},
+  your_restaurant:{cat:"activity",label:"Your Restaurant"},
+  guest_dollar_trail:{cat:"activity",label:"Guest Dollar Trail"},
+  triage_call:{cat:"activity",label:"Triage Call"},
+  rm_brief:{cat:"activity",label:"RM Brief"},
+  numbers_dont_lie:{cat:"activity",label:"Numbers Don't Lie"},
+  self_assessment:{cat:"activity",label:"Self Assessment"},
+  // --- General Icons (new SVGs) ---
+  star:{cat:"general",label:"Star"},
+  heart:{cat:"general",label:"Heart"},
+  lightning:{cat:"general",label:"Lightning"},
+  target:{cat:"general",label:"Target"},
+  trophy:{cat:"general",label:"Trophy"},
+  medal:{cat:"general",label:"Medal"},
+  flag:{cat:"general",label:"Flag"},
+  compass:{cat:"general",label:"Compass"},
+  rocket:{cat:"general",label:"Rocket"},
+  lightbulb:{cat:"general",label:"Lightbulb"},
+  shield:{cat:"general",label:"Shield"},
+  key:{cat:"general",label:"Key"},
+  lock:{cat:"general",label:"Lock"},
+  gear:{cat:"general",label:"Gear"},
+  wrench:{cat:"general",label:"Wrench"},
+  clipboard:{cat:"general",label:"Clipboard"},
+  checklist:{cat:"general",label:"Checklist"},
+  megaphone:{cat:"general",label:"Megaphone"},
+  eye:{cat:"general",label:"Eye"},
+  hand:{cat:"general",label:"Hand"},
+  thumbs_up:{cat:"general",label:"Thumbs Up"},
+  fire:{cat:"general",label:"Fire"},
+  sparkle:{cat:"general",label:"Sparkle"},
+  crown:{cat:"general",label:"Crown"},
+  diamond:{cat:"general",label:"Diamond"},
+  puzzle:{cat:"general",label:"Puzzle"},
+  brain:{cat:"general",label:"Brain"},
+  muscle:{cat:"general",label:"Muscle"},
+  handshake:{cat:"general",label:"Handshake"},
+  timer:{cat:"general",label:"Timer"},
+  calendar:{cat:"general",label:"Calendar"},
+  map_pin:{cat:"general",label:"Map Pin"},
+  users:{cat:"general",label:"Users"},
+  user_check:{cat:"general",label:"User Check"},
+  trending_up:{cat:"general",label:"Trending Up"},
+  award:{cat:"general",label:"Award"},
+  zap:{cat:"general",label:"Zap"},
+  book:{cat:"general",label:"Book"},
+  mic:{cat:"general",label:"Mic"},
+  video:{cat:"general",label:"Video"},
+  edit:{cat:"general",label:"Edit"},
+  layers:{cat:"general",label:"Layers"},
+};
+
+const ICON_SVG=(key,color="#333",size=24)=>{
+  const p={width:size,height:size,viewBox:"0 0 24 24",fill:"none",stroke:color,strokeWidth:"1.8",strokeLinecap:"round",strokeLinejoin:"round"};
+  const svgs={
+    // Activity icons (same paths as CI)
+    hazard_hunt:<svg {...p}><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+    shift_in_chaos:<svg {...p}><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><path d="M7 10v4M17 10v4M10 7h4M10 17h4"/></svg>,
+    waste_audit:<svg {...p}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>,
+    teach_it:<svg {...p}><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,
+    spot_the_moment:<svg {...p}><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>,
+    thirty_second_sell:<svg {...p}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+    recovery_race:<svg {...p}><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>,
+    shift_leader_lens:<svg {...p}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><circle cx="11" cy="11" r="3"/></svg>,
+    shift_call:<svg {...p}><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>,
+    make_the_call:<svg {...p}><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/><line x1="6" y1="11" x2="6" y2="11.01"/><line x1="18" y1="11" x2="18" y2="11.01"/></svg>,
+    perm_or_pass:<svg {...p}><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
+    your_restaurant:<svg {...p}><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>,
+    guest_dollar_trail:<svg {...p}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>,
+    triage_call:<svg {...p}><path d="M15.05 5A5 5 0 0119 8.95M15.05 1A9 9 0 0123 8.94"/><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.11 2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.35 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.58 2.81.7A2 2 0 0122 16.92z"/></svg>,
+    rm_brief:<svg {...p}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
+    numbers_dont_lie:<svg {...p}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+    self_assessment:<svg {...p}><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>,
+    // General icons (new)
+    star:<svg {...p}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+    heart:<svg {...p}><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>,
+    lightning:<svg {...p}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+    target:<svg {...p}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+    trophy:<svg {...p}><path d="M6 9H4.5a2.5 2.5 0 010-5H6"/><path d="M18 9h1.5a2.5 2.5 0 000-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0012 0V2z"/></svg>,
+    medal:<svg {...p}><path d="M12 15l-3.5 6.5 1-3.5-3-2h4L12 12"/><path d="M12 15l3.5 6.5-1-3.5 3-2h-4L12 12"/><circle cx="12" cy="8" r="6"/></svg>,
+    flag:<svg {...p}><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>,
+    compass:<svg {...p}><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>,
+    rocket:<svg {...p}><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 3 0 3 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-3 0-3"/></svg>,
+    lightbulb:<svg {...p}><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2v1"/><path d="M4.93 4.93l.71.71"/><path d="M2 12h1"/><path d="M19.07 4.93l-.71.71"/><path d="M22 12h-1"/><path d="M15.54 8.46a5 5 0 10-7.08 0C9.53 9.54 10 11 10 12h4c0-1 .47-2.46 1.54-3.54z"/></svg>,
+    shield:<svg {...p}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+    key:<svg {...p}><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>,
+    lock:<svg {...p}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>,
+    gear:<svg {...p}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>,
+    wrench:<svg {...p}><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>,
+    clipboard:<svg {...p}><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>,
+    checklist:<svg {...p}><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>,
+    megaphone:<svg {...p}><path d="M3 11l18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 11-5.8-1.6"/></svg>,
+    eye:<svg {...p}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
+    hand:<svg {...p}><path d="M18 11V6a2 2 0 00-4 0"/><path d="M14 10V4a2 2 0 00-4 0v7"/><path d="M10 10.5V6a2 2 0 00-4 0v8"/><path d="M18 11a2 2 0 014 0v3a8 8 0 01-8 8h-2c-2.76 0-3.89-1-5.69-2.84L3.65 16.4a2 2 0 012.76-2.91L8 15"/></svg>,
+    thumbs_up:<svg {...p}><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>,
+    fire:<svg {...p}><path d="M12 22c4-3 8-6.58 8-12a8 8 0 00-16 0c0 5.42 4 9 8 12z" fill="none"/><path d="M12 22c-2 0-4-3.58-4-8a4 4 0 018 0c0 4.42-2 8-4 8z" fill="none"/></svg>,
+    sparkle:<svg {...p}><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/><path d="M19 17l.75 2.25L22 20l-2.25.75L19 23l-.75-2.25L16 20l2.25-.75L19 17z"/><path d="M5 17l.5 1.5L7 19l-1.5.5L5 21l-.5-1.5L3 19l1.5-.5L5 17z"/></svg>,
+    crown:<svg {...p}><path d="M2 20h20"/><path d="M4 17l2-11 4 4 2-6 2 6 4-4 2 11H4z"/></svg>,
+    diamond:<svg {...p}><path d="M2.7 10.3a2.41 2.41 0 000 3.41l7.59 7.59a2.41 2.41 0 003.41 0l7.59-7.59a2.41 2.41 0 000-3.41L13.7 2.71a2.41 2.41 0 00-3.41 0L2.7 10.3z"/></svg>,
+    puzzle:<svg {...p}><path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 01-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 10-3.214 3.214c.446.166.855.497.925.968a.979.979 0 01-.276.837l-1.61 1.61a2.404 2.404 0 01-1.705.707 2.402 2.402 0 01-1.704-.706l-1.568-1.568a1.026 1.026 0 00-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 11-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 00-.289-.877l-1.568-1.568A2.402 2.402 0 011.998 12c0-.617.236-1.234.706-1.704L4.315 8.685a.98.98 0 01.837-.276c.47.07.802.48.968.925a2.501 2.501 0 103.214-3.214c-.446-.166-.855-.497-.925-.968a.979.979 0 01.276-.837l1.61-1.61a2.404 2.404 0 011.705-.707c.618 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 113.237 3.237c-.464.18-.894.527-.967 1.02z"/></svg>,
+    brain:<svg {...p}><path d="M9.5 2A5.5 5.5 0 005 7.5c0 .96.246 1.87.683 2.66"/><path d="M14.5 2A5.5 5.5 0 0120 7.5c0 .96-.246 1.87-.683 2.66"/><path d="M4.683 10.16A5.5 5.5 0 005 18.5V22h6v-3"/><path d="M19.317 10.16A5.5 5.5 0 0019 18.5V22h-6v-3"/><path d="M12 2v5M12 12v10"/></svg>,
+    muscle:<svg {...p}><path d="M6.5 6.5c1.5-1 3-1 4 0s1.5 3 1.5 5"/><path d="M17.5 6.5c-1.5-1-3-1-4 0s-1.5 3-1.5 5"/><path d="M2 11.5c0 4 3 7.5 7 8V22h6v-2.5c4-.5 7-4 7-8 0-2-1-3.5-2.5-4.5"/><path d="M5 11.5c0-1.5.5-3 2.5-4.5"/></svg>,
+    handshake:<svg {...p}><path d="M11 17l-1.5 1.5a2.12 2.12 0 01-3-3L9 13"/><path d="M13 7l1.5-1.5a2.12 2.12 0 013 3L15 11"/><path d="M2 7l4.5 4.5"/><path d="M17.5 12.5L22 17"/><path d="M2 17l5-5 2.12 2.12"/><path d="M22 7l-5 5-2.12-2.12"/></svg>,
+    timer:<svg {...p}><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3l2.5 2.5"/><path d="M19 3l-2.5 2.5"/><path d="M10 2h4"/></svg>,
+    calendar:<svg {...p}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+    map_pin:<svg {...p}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+    users:<svg {...p}><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,
+    user_check:<svg {...p}><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>,
+    trending_up:<svg {...p}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
+    award:<svg {...p}><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
+    zap:<svg {...p}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+    book:<svg {...p}><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>,
+    mic:<svg {...p}><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>,
+    video:<svg {...p}><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>,
+    edit:<svg {...p}><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+    layers:<svg {...p}><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>,
+  };
+  return svgs[key]||null;
+};
+
+// Helper: resolve icon for a challenge - checks ch.icon in ICON_LIBRARY, then CI[ch.type], then ICONS[ch.icon]
+const resolveChIcon=(ch)=>{
+  if(ch.icon&&ch.icon!=="none"){
+    // Check ICON_LIBRARY SVG first
+    const libSvg=ICON_SVG(ch.icon,"#FFD300",32);
+    if(libSvg)return libSvg;
+    // Check GYG brand images
+    if(ICONS[ch.icon])return ICONS[ch.icon];
+    // Check custom icon
+    if(ch.customIcon)return ch.customIcon;
+  }
+  // Fallback to CI type-based icon
+  return CI[ch.type]||null;
+};
+
+// ─── IconPicker Component ───────────────────────────────────────────────────
+function IconPicker({onSelect,onClose,current}){
+  const[search,setSearch]=useState("");
+  const[tab,setTab]=useState("all");
+  const cats={all:"ALL",gyg:"GYG",activity:"ACTIVITY",general:"GENERAL"};
+  const entries=Object.entries(ICON_LIBRARY_DEFS).filter(([k,v])=>{
+    if(tab!=="all"&&v.cat!==tab)return false;
+    if(search){const q=search.toLowerCase();return k.toLowerCase().includes(q)||v.label.toLowerCase().includes(q);}
+    return true;
+  });
+  return(<div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.5)",zIndex:9999,display:"flex",alignItems:"center",justifyContent:"center",padding:20}} onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+    <div style={{background:"#fff",borderRadius:16,width:"100%",maxWidth:480,maxHeight:"80vh",display:"flex",flexDirection:"column",overflow:"hidden"}} onClick={e=>e.stopPropagation()}>
+      {/* Header */}
+      <div style={{padding:"16px 20px",borderBottom:"1px solid #e8e8e3",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <span style={{fontFamily:FC,fontWeight:800,fontSize:16,letterSpacing:0.5}}>CHOOSE ICON</span>
+        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",padding:4}}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      {/* Search */}
+      <div style={{padding:"12px 20px 8px"}}>
+        <div style={{position:"relative"}}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)"}}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search icons..." style={{width:"100%",padding:"10px 14px 10px 36px",border:"1px solid #e8e8e3",borderRadius:10,fontFamily:FB,fontSize:14,outline:"none",boxSizing:"border-box",background:"#f8f8f5"}}/>
+        </div>
+      </div>
+      {/* Tabs */}
+      <div style={{padding:"4px 20px 8px",display:"flex",gap:6}}>
+        {Object.entries(cats).map(([k,label])=><button key={k} onClick={()=>setTab(k)} style={{padding:"6px 14px",borderRadius:20,border:"none",background:tab===k?"#1a1a1a":"#f5f5f0",color:tab===k?"#fff":"#666",fontFamily:FC,fontWeight:700,fontSize:11,letterSpacing:0.5,cursor:"pointer",transition:"all 0.15s"}}>{label}</button>)}
+      </div>
+      {/* Grid */}
+      <div style={{padding:"8px 20px 20px",overflowY:"auto",flex:1}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:8}}>
+          {/* No icon option */}
+          <button onClick={()=>{onSelect("none");onClose();}} style={{width:48,height:48,borderRadius:10,border:current==="none"||!current?"2px solid #FFD300":"1px solid #e8e8e3",background:current==="none"||!current?"#FFF8E0":"#fff",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all 0.15s",padding:0}} title="No icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          {entries.map(([k,v])=>{
+            const isSel=current===k;
+            const isGYG=v.cat==="gyg";
+            return(<button key={k} onClick={()=>{onSelect(k);onClose();}} title={v.label} style={{width:48,height:48,borderRadius:10,border:isSel?"2px solid #FFD300":"1px solid #e8e8e3",background:isSel?"#FFF8E0":"#fff",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all 0.15s",padding:0}}>
+              {isGYG?<img src={ICONS[k]} alt={v.label} style={{width:32,height:32,objectFit:"contain"}}/>:ICON_SVG(k,isSel?"#B8960A":"#333",22)}
+            </button>);
+          })}
+        </div>
+        {entries.length===0&&<div style={{textAlign:"center",padding:24,color:"#999",fontFamily:FB,fontSize:14}}>No icons match your search</div>}
+      </div>
+    </div>
+  </div>);
+}
+
 // ─── Shared interactive styles ──────────────────────────────────────────────
 const qStyle={fontFamily:FC,fontWeight:800,fontSize:16,color:"#000",marginBottom:12};
 const bodyStyle={fontSize:15,color:"#555",fontFamily:FB,lineHeight:1.6};
@@ -1193,7 +1405,7 @@ function HazardHunt({ch,done,onS,onB,user,actCfg}){
   useEffect(()=>{if(screen===3&&animScore<score){const t=setTimeout(()=>setAnimScore(s=>Math.min(s+Math.ceil(score/20),score)),40);return()=>clearTimeout(t);}},[screen,animScore,score]);
   const tapZone=(zone)=>{if(found.includes(zone.id))return;const fb=cfgFeedback[zone.id]||{};if(!fb.hazard)setDecoyTapped(true);setFound(p=>[...p,zone.id]);setFeedback({...fb,id:zone.id});setTimeout(()=>setFeedback(null),2000);};
   if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
-  if(screen===1)return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>{setCountdown(3);setScreen(2);}} startLabel="START HAZARD HUNT"/>;
+  if(screen===1)return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>{setCountdown(3);setScreen(2);}} startLabel="START HAZARD HUNT"/>;
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
@@ -1313,7 +1525,7 @@ function ShiftInChaos({ch,done,onS,onB,user,comps,users,actCfg}){
     if(newIdx!==dragIdx){const n=[...ranking];const[item]=n.splice(dragIdx,1);n.splice(newIdx,0,item);setRanking(n);}
     setDragIdx(null);setDragY(0);};
   if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
-  if(screen===1)return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setScreen(2)} startLabel="START RANKING"/>;
+  if(screen===1)return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setScreen(2)} startLabel="START RANKING"/>;
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
@@ -1530,7 +1742,7 @@ function SpotTheMoment({ch,done,onS,onB,user,comps,users,actCfg}){
 
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
-  if(phase==="intro")return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("upload")} startLabel="START CHALLENGE"/>;
+  if(phase==="intro")return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("upload")} startLabel="START CHALLENGE"/>;
 
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
@@ -1705,7 +1917,7 @@ function ThirtySecondSell({ch,done,onS,onB,user,actCfg}){
 
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
-  if(phase==="intro")return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("ready")} startLabel="START RECORDING"/>;
+  if(phase==="intro")return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("ready")} startLabel="START RECORDING"/>;
 
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
@@ -1839,7 +2051,7 @@ function RecoveryRace({ch,done,onS,onB,user,actCfg}){
     else{const goods=choices.filter(c=>c==="good").length+(opt.outcome==="good"?1:0);const total=choices.length+1;setAllResults(p=>[...p,{scenId:scen.id,title:scen.title,goods,total,score:Math.round(goods/total*100)}]);setTimeout(()=>setScreen("result"),2000);}};
   if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
-  if(screen==="intro")return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>{setScreen("play");setDecTimer(scen?.decisions[0]?.timer||decisionTimerDefault);}} startLabel="START SCENARIO 1"/>;
+  if(screen==="intro")return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>{setScreen("play");setDecTimer(scen?.decisions[0]?.timer||decisionTimerDefault);}} startLabel="START SCENARIO 1"/>;
 
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
@@ -1908,7 +2120,7 @@ function WasteAudit({ch,done,onS,onB,user}){
   const compressImg=(file)=>new Promise(r=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,1600/Math.max(img.width,img.height));c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",0.8));};img.src=URL.createObjectURL(file);});
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
-  if(step===0)return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setStep(1)} startLabel="START AUDIT"/>;
+  if(step===0)return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setStep(1)} startLabel="START AUDIT"/>;
 
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
@@ -2007,7 +2219,7 @@ function TeachIt({ch,done,onS,onB,user}){
   useEffect(()=>()=>{clearInterval(timerRef.current);if(streamRef.current)streamRef.current.getTracks().forEach(t=>t.stop());},[]);
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
-  if(step===0)return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setStep(1)} startLabel="START TRAINING"/>;
+  if(step===0)return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setStep(1)} startLabel="START TRAINING"/>;
 
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
@@ -2096,7 +2308,7 @@ function ShiftLeaderLens({ch,done,onS,onB,user,actCfg}){
   const[why,setWhy]=useState("");
   const clip=clips[clipIdx]||null;
   if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
-  if(phase==="intro")return <ChallengeIntro icon={CI[ch.type]||CI.shift_leader_lens} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("play")} startLabel="START ASSESSMENT"/>;
+  if(phase==="intro")return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("play")} startLabel="START ASSESSMENT"/>;
   if(phase==="results")return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
@@ -2153,7 +2365,7 @@ function ChV({ch,done,onS,onB}){
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK {ch.week}</span><span style={{width:32}}/></div>
     <div style={{padding:"24px 20px 40px"}}>
-      <div style={{display:"flex",justifyContent:"center",marginBottom:16}}>{(ICONS[ch.icon]||ch.customIcon)?<div style={{width:96,height:96,borderRadius:48,background:"#000",display:"flex",alignItems:"center",justifyContent:"center"}}><img src={ICONS[ch.icon]||ch.customIcon} alt="" style={{width:64,height:64,objectFit:"contain"}}/></div>:null}</div>
+      <div style={{display:"flex",justifyContent:"center",marginBottom:16}}>{(()=>{const libSvg=ch.icon&&ch.icon!=="none"&&ICON_SVG(ch.icon,"#FFD300",48);if(libSvg)return<div style={{width:96,height:96,borderRadius:48,background:"#000",display:"flex",alignItems:"center",justifyContent:"center"}}>{libSvg}</div>;const src=ICONS[ch.icon]||ch.customIcon;if(src)return<div style={{width:96,height:96,borderRadius:48,background:"#000",display:"flex",alignItems:"center",justifyContent:"center"}}><img src={src} alt="" style={{width:64,height:64,objectFit:"contain"}}/></div>;return null;})()}</div>
       <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
       <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:24}}>{ch.subtitle}</p>
       <div style={{marginBottom:20}}><div style={{fontFamily:FC,fontWeight:800,fontSize:12,color:"#FFD300",letterSpacing:1,marginBottom:8,background:"#000",display:"inline-block",padding:"4px 10px",borderRadius:4}}>THE CHALLENGE</div><p style={{fontSize:15,lineHeight:1.6,color:"#555",margin:0}}>{ch.description}</p></div>
@@ -2213,7 +2425,7 @@ function ShiftCall({ch,done,onS,onB,user,actCfg}){
   const holdCorrect=results.filter(r=>scenarios.find(s=>s.id===r.scenarioId)?.correct==="hold"&&r.correct).length;const holdTotal=scenarios.filter(s=>s.correct==="hold").length;
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
-  if(phase==="intro")return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>{setPhase("play");setTimer(timeLimit);}} startLabel="START"/>;
+  if(phase==="intro")return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>{setPhase("play");setTimer(timeLimit);}} startLabel="START"/>;
 
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
@@ -2453,7 +2665,7 @@ function MakeTheCall({ch,done,onS,onB,user,actCfg}){
 
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
-  if(screen==="brief")return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setScreen("crew")} startLabel="SEE YOUR CREW"/>;
+  if(screen==="brief")return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setScreen("crew")} startLabel="SEE YOUR CREW"/>;
 
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
@@ -2779,7 +2991,7 @@ function PermOrPass({ch,done,onS,onB,user,actCfg}){
   const nextProfile=()=>{setSelected(null);setLocked(false);if(profIdx<profiles.length-1){setProfIdx(p=>p+1);}else setPhase("results");};
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
-  if(phase==="intro")return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("play")} startLabel="START"/>;
+  if(phase==="intro")return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("play")} startLabel="START"/>;
 
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
@@ -2856,7 +3068,7 @@ function YourRestaurant({ch,done,onS,onB,user,comps,users,actCfg}){
   const quartile=ahrVal<=36.50?"Top 25%":ahrVal<=37.10?"Second 25%":ahrVal<=38.00?"Third 25%":"Bottom 25%";
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
-  if(phase==="intro")return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("input")} startLabel="START"/>;
+  if(phase==="intro")return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setPhase("input")} startLabel="START"/>;
 
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
@@ -2976,7 +3188,7 @@ function GuestDollarTrail({ch,done,onS,onB,user,actCfg}){
   const pathAVal=50.40;const pathBVal=513;const gap=463;const annualImpact=1685320;
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
-  if(step===0)return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setStep(1)} startLabel="FOLLOW THE GUEST"/>;
+  if(step===0)return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setStep(1)} startLabel="FOLLOW THE GUEST"/>;
 
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
@@ -3060,7 +3272,7 @@ function TriageCall({ch,done,onS,onB,user,actCfg}){
   const profile=actCount>=5?{name:"OVER-REACTOR",text:"You want to fix things fast. Some calls needed space, not speed."}:actCount<=1?{name:"UNDER-REACTOR",text:"You held back. Two of those calls needed you in the conversation today."}:correctCount>=5?{name:"SHARP",text:"Strong read. You know the difference between coaching moments and compliance moments."}:{name:"CALIBRATED",text:"Good instinct on most calls. Review the misses."};
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
-  if(idx===-1)return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>{setIdx(0);setTimer(timeLimit);}} startLabel="START CALLS"/>;
+  if(idx===-1)return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>{setIdx(0);setTimer(timeLimit);}} startLabel="START CALLS"/>;
 
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
@@ -3119,7 +3331,7 @@ function RMBrief({ch,done,onS,onB,user,actCfg}){
   const modelBrief="This week our AHR is $38.40. Network target is $37.10. That gap costs us every shift we don't act. Today after the rush, ARMs - I need 5 minutes each with you. We have crew ready for permanent and the conversation hasn't happened. Let's fix that today.";
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
-  if(step===0)return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setStep(1)} startLabel="BUILD YOUR BRIEF"/>;
+  if(step===0)return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setStep(1)} startLabel="BUILD YOUR BRIEF"/>;
 
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
@@ -3200,7 +3412,7 @@ function NumbersDontLie({ch,done,onS,onB,user,actCfg}){
   const nextRound=()=>{setShowExplain(false);setTapIdx(0);setCurrentTaps([]);if(roundIdx<rounds.length-1)setRoundIdx(r=>r+1);else setRoundIdx(99);};
   if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
 
-  if(roundIdx===-1)return <ChallengeIntro icon={CI[ch.type]||null} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setRoundIdx(0)} startLabel="START ROUND 1"/>;
+  if(roundIdx===-1)return <ChallengeIntro icon={resolveChIcon(ch)} title={ch.title} subtitle={ch.subtitle} description={ch.description} points={ch.points} bonusPoints={ch.bonusPoints} bonusCondition={ch.bonusCondition} tip={ch.tip} onB={onB} onStart={()=>setRoundIdx(0)} startLabel="START ROUND 1"/>;
 
   return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
@@ -4238,6 +4450,8 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
   const[peopleTab,setPeopleTab]=useState("participants");
   const[searchQ,setSearchQ]=useState("");
   const[editActType,setEditActType]=useState(null);
+  const[iconPickerCb,setIconPickerCb]=useState(null);
+  const[iconPickerCurrent,setIconPickerCurrent]=useState("");
   const[hotspotEditor,setHotspotEditor]=useState(false);
   const[editorYP,setEditorYP]=useState({yaw:0,pitch:0});
   const editorViewRef=useRef(null);
@@ -4502,12 +4716,16 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                     <div><div style={subLabel}>BONUS PTS</div><input type="number" value={item.bonusPoints} onChange={e=>saveCh(contentProg,chIdx,"bonusPoints",parseInt(e.target.value)||0)} style={{...inp,textAlign:"center"}}/></div>
                     <div><div style={subLabel}>ICON</div>
                       <div style={{display:"flex",alignItems:"center",gap:8}}>
-                        {item.icon&&item.icon!=="none"&&(item.icon.startsWith("data:")?<img src={item.icon} alt="" style={{width:32,height:32,objectFit:"contain",borderRadius:6,background:"#fff",border:"1px solid #e8e8e3",padding:2}}/>:ICONS[item.icon]?<img src={ICONS[item.icon]} alt="" style={{width:32,height:32,objectFit:"contain",borderRadius:6,background:"#fff",border:"1px solid #e8e8e3",padding:2}}/>:null)}
-                        <select value={item.icon?.startsWith("data:")?"custom":item.icon||""} onChange={e=>{if(e.target.value!=="custom")saveCh(contentProg,chIdx,"icon",e.target.value);}} style={{...inp,flex:1}}>
-                          <option value="none">No icon</option>
-                          {Object.keys(ICONS).map(k=><option key={k} value={k}>{k.replace(/_/g," ")}</option>)}
-                          {item.icon?.startsWith("data:")&&<option value="custom">Custom upload</option>}
-                        </select>
+                        {item.icon&&item.icon!=="none"&&(
+                          item.icon.startsWith("data:")?<img src={item.icon} alt="" style={{width:32,height:32,objectFit:"contain",borderRadius:6,background:"#fff",border:"1px solid #e8e8e3",padding:2}}/>
+                          :ICONS[item.icon]?<img src={ICONS[item.icon]} alt="" style={{width:32,height:32,objectFit:"contain",borderRadius:6,background:"#fff",border:"1px solid #e8e8e3",padding:2}}/>
+                          :ICON_SVG(item.icon)?<div style={{width:32,height:32,borderRadius:6,background:"#fff",border:"1px solid #e8e8e3",padding:2,display:"flex",alignItems:"center",justifyContent:"center"}}>{ICON_SVG(item.icon,"#333",24)}</div>
+                          :null
+                        )}
+                        <button onClick={()=>{setIconPickerCurrent(item.icon||"");setIconPickerCb(()=>v=>saveCh(contentProg,chIdx,"icon",v));}} style={{...btnG,flex:1,fontSize:12,padding:"8px 14px",display:"flex",alignItems:"center",gap:6}}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                          {item.icon&&item.icon!=="none"?(ICON_LIBRARY_DEFS[item.icon]?.label||item.icon.replace(/_/g," ").toUpperCase()):"CHOOSE ICON"}
+                        </button>
                         <label style={{padding:"6px 12px",borderRadius:8,background:"#f5f5f0",border:"1px solid #e0e0db",fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
                           UPLOAD<input type="file" accept="image/*" style={{display:"none"}} onChange={async e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const s=Math.min(1,64/Math.max(img.width,img.height));c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);saveCh(contentProg,chIdx,"icon",c.toDataURL("image/png"));};img.src=URL.createObjectURL(f);}}/>
                         </label>
@@ -5668,8 +5886,14 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
               ))}
               <div><label style={{fontSize:11,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:0.5}}>ICON</label>
                 <div style={{display:"flex",gap:8,alignItems:"center",marginTop:4,flexWrap:"wrap"}}>
-                  {(ICONS[c.icon]||c.customIcon)&&<img src={ICONS[c.icon]||c.customIcon} alt="" style={{width:36,height:36,objectFit:"contain",background:"#000",borderRadius:8,padding:4}}/>}
-                  <select value={c.icon||""} onChange={e=>saveCh(progId,idx,"icon",e.target.value)} style={{...inp,flex:1,minWidth:0,maxWidth:200}}>{Object.keys(ICONS).map(k=>(<option key={k} value={k}>{k.toUpperCase().replace(/_/g," ")}</option>))}</select>
+                  {c.customIcon?<img src={c.customIcon} alt="" style={{width:36,height:36,objectFit:"contain",background:"#000",borderRadius:8,padding:4}}/>
+                  :ICONS[c.icon]?<img src={ICONS[c.icon]} alt="" style={{width:36,height:36,objectFit:"contain",background:"#000",borderRadius:8,padding:4}}/>
+                  :ICON_SVG(c.icon)?<div style={{width:36,height:36,background:"#000",borderRadius:8,padding:4,display:"flex",alignItems:"center",justifyContent:"center"}}>{ICON_SVG(c.icon,"#FFD300",28)}</div>
+                  :null}
+                  <button onClick={()=>{setIconPickerCurrent(c.icon||"");setIconPickerCb(()=>v=>saveCh(progId,idx,"icon",v));}} style={{...btnG,flex:1,minWidth:0,maxWidth:200,padding:"10px 14px",fontSize:12,display:"flex",alignItems:"center",gap:6}}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                    {c.icon&&c.icon!=="none"?(ICON_LIBRARY_DEFS[c.icon]?.label||c.icon.replace(/_/g," ").toUpperCase()):"CHOOSE ICON"}
+                  </button>
                   <label style={{...btnG,padding:"10px 14px",fontSize:12,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:4}}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     UPLOAD<input type="file" accept="image/*" style={{display:"none"}} onChange={e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{const updated=JSON.parse(JSON.stringify(challenges));updated[progId][idx].icon="custom_"+Date.now();updated[progId][idx].customIcon=ev.target.result;onUpdateCh(updated);};reader.readAsDataURL(file);}}/></label>
@@ -5987,6 +6211,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
       </div>
 
       {/* Image Lightbox */}
+      {iconPickerCb&&<IconPicker current={iconPickerCurrent} onSelect={v=>{iconPickerCb(v);setIconPickerCb(null);}} onClose={()=>setIconPickerCb(null)}/>}
       {lightboxImg&&<div style={{position:"fixed",top:0,left:0,right:0,bottom:0,zIndex:9999,background:"rgba(0,0,0,0.92)",display:"flex",alignItems:"center",justifyContent:"center",padding:20,cursor:"pointer"}} onClick={()=>setLightboxImg(null)}>
         <button onClick={()=>setLightboxImg(null)} style={{position:"absolute",top:16,right:16,width:40,height:40,borderRadius:20,background:"rgba(255,255,255,0.15)",border:"none",color:"#fff",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:700}}>X</button>
         <img src={lightboxImg} alt="" style={{maxWidth:"100%",maxHeight:"90vh",objectFit:"contain",borderRadius:8}} onClick={e=>e.stopPropagation()}/>
