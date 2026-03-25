@@ -274,9 +274,11 @@ export default function App(){
   const getInitialView=(u,bc,ac)=>{const acts=DEFAULT_ACTIVITIES[u.program];if(!acts||!acts.length)return "dashboard";const bk=(bc||{})[u.batch];if(!bk)return "activities";if(bk.skipActivities)return "dashboard";const userDone=(ac||[]).filter(c=>c.userId===u.id).map(c=>c.activityId);const allDone=acts.every(a=>userDone.includes(a.id));if(!allDone)return "activities";if(!bk.challengesUnlocked)return "waiting";return "dashboard";};
 
   useEffect(()=>{(async()=>{let u=await getUsers(),c=await getCompletions(),s=getSession();if(u.length)setUsers(u);if(c.length)setComps(c);const ch2=await getChallenges();if(ch2){
-      // Force-update LSE challenges if they don't have the new type field
+      // Force-update challenges if they don't have the new type field
       if(ch2.lse&&ch2.lse[0]&&!ch2.lse[0].type){ch2.lse=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.lse));try{await dbSetChallenges(ch2);}catch(e){}}
       if(ch2.essentials&&ch2.essentials[0]&&!ch2.essentials[0].type){ch2.essentials=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.essentials));try{await dbSetChallenges(ch2);}catch(e){}}
+      // Force-update NGL challenges to new interactive types
+      if(ch2.nextgen&&ch2.nextgen[0]&&!ch2.nextgen[0].type){ch2.nextgen=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.nextgen));try{await dbSetChallenges(ch2);}catch(e){}}
       setChallenges(ch2);
     }else setChallenges(JSON.parse(JSON.stringify(DEFAULT_CHALLENGES)));const lc=await getLunchConfig();if(lc)setLunchConfigState(lc);let ac=await getActivityCompletions();if(ac.length)setActivityComps(ac);let bc=await getBatchControl();if(bc)setBatchControlState(bc);
     // Seed test users if not exist
