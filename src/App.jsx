@@ -349,7 +349,7 @@ export default function App(){
         sel.type==="spot_the_moment"?<SpotTheMoment ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users} actCfg={activityConfig}/>:
         sel.type==="thirty_second_sell"?<ThirtySecondSell ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         sel.type==="recovery_race"?<RecoveryRace ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
-        sel.type==="shift_leader_lens"?<ShiftLeaderLens ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user}/>:
+        sel.type==="shift_leader_lens"?<ShiftLeaderLens ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         <ChV ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}}/>
       )}
       {view==="leaderboard"&&user&&<LbV us={users} co={comps} cu={user} onB={()=>setView("dashboard")} onP={()=>setView("profile")} defaultProg={user.program} defaultBatch={user.batch}/>}
@@ -1172,7 +1172,9 @@ function ThirtySecondSell({ch,done,onS,onB,user,actCfg}){
 
   const startCamera=async()=>{
     try{
-      const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:360},height:{ideal:640}},audio:true});
+      const camDir=actCfg?.thirty_second_sell?.camera||"user";
+      const res=actCfg?.thirty_second_sell?.resolution||360;
+      const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:camDir,width:{ideal:res},height:{ideal:Math.round(res*16/9)}},audio:true});
       streamRef.current=stream;
       if(videoRef.current){videoRef.current.srcObject=stream;videoRef.current.play();}
       chunksRef.current=[];
@@ -1420,12 +1422,13 @@ const SLL_CLIPS=[
   {id:"c7",title:"The New Start",desc:"It's their first shift. They look terrified. The trainer called in sick.",q:"What do you do?",options:["Train them yourself","Buddy them with your best person","Give them easy tasks and check in often","Send them home and reschedule"]},
   {id:"c8",title:"The Request",desc:"A crew member asks to leave 2 hours early. You're already short. They say it's personal.",q:"What do you do?",options:["Let them go, figure it out","Ask what's going on","Say no, you need them","Offer a compromise - leave 1 hour early"]},
 ];
-function ShiftLeaderLens({ch,done,onS,onB,user}){
+function ShiftLeaderLens({ch,done,onS,onB,user,actCfg}){
+  const clips=actCfg?.shift_leader_lens?.clips||SLL_CLIPS;
   const[clipIdx,setClipIdx]=useState(0);
   const[answers,setAnswers]=useState([]);
   const[selected,setSelected]=useState(null);
   const[why,setWhy]=useState("");
-  const clip=SLL_CLIPS[clipIdx]||null;
+  const clip=clips[clipIdx]||null;
   if(done)return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>WEEK 4</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
@@ -1436,9 +1439,9 @@ function ShiftLeaderLens({ch,done,onS,onB,user}){
         <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:12}}>{ch.subtitle}</p>
         <p style={{fontSize:15,lineHeight:1.6,color:"#555"}}>{ch.description}</p>
       </div>)}
-      {clip&&clipIdx<SLL_CLIPS.length?(
+      {clip&&clipIdx<clips.length?(
         <div>
-          <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:12}}>{clipIdx+1}/{SLL_CLIPS.length}</div>
+          <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:12}}>{clipIdx+1}/{clips.length}</div>
           <div style={{background:"#000",borderRadius:14,padding:20,marginBottom:16,color:"#fff"}}>
             <div style={{fontFamily:FC,fontWeight:800,fontSize:16,color:"#FFD300",marginBottom:8}}>{clip.title.toUpperCase()}</div>
             <div style={{fontSize:15,lineHeight:1.6}}>{clip.desc}</div>
@@ -1452,7 +1455,7 @@ function ShiftLeaderLens({ch,done,onS,onB,user}){
             <textarea value={why} onChange={e=>setWhy(e.target.value)} placeholder="Brief reason..." rows={2} style={{width:"100%",padding:"12px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:14,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
           </div>)}
           <button style={{...BY,width:"100%",opacity:selected!==null?1:0.4}} disabled={selected===null} onClick={()=>{setAnswers(a=>[...a,{clipId:clip.id,title:clip.title,choice:clip.options[selected],choiceIdx:selected,why}]);setSelected(null);setWhy("");setClipIdx(c=>c+1);}}>
-            {clipIdx<SLL_CLIPS.length-1?"NEXT CLIP":"FINISH"}
+            {clipIdx<clips.length-1?"NEXT CLIP":"FINISH"}
           </button>
         </div>
       ):(
@@ -1463,7 +1466,7 @@ function ShiftLeaderLens({ch,done,onS,onB,user}){
             <div style={{fontSize:13,color:"#007A33",marginTop:4}}>{a.choice}</div>
             {a.why&&<div style={{fontSize:12,color:"#888",marginTop:2,fontStyle:"italic"}}>{a.why}</div>}
           </div>))}
-          <button style={{...BY,width:"100%",marginTop:16}} onClick={()=>{onS({text:"Shift Leader Lens completed",answers,claimedBonus:answers.length>=SLL_CLIPS.length,autoBonus:true,points:ch.points});}}>SUBMIT</button>
+          <button style={{...BY,width:"100%",marginTop:16}} onClick={()=>{onS({text:"Shift Leader Lens completed",answers,claimedBonus:answers.length>=clips.length,autoBonus:true,points:ch.points});}}>SUBMIT</button>
         </div>
       )}
     </div>
@@ -3525,11 +3528,12 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                 <div style={{marginTop:16,borderTop:"1px solid #e8e8e3",paddingTop:16}}>
                   <div style={{...subLabel,fontSize:12,fontWeight:900,color:"#000"}}>30-SECOND SELL CONFIG</div>
                   <div style={{marginBottom:16,background:"#f8f8f5",borderRadius:12,padding:14}}>
-                    <div style={{...subLabel,marginBottom:8}}>RECORDING DURATION</div>
-                    <div style={{display:"flex",alignItems:"center",gap:8}}>
-                      <input type="number" value={acfg.thirty_second_sell?.timer||30} onChange={e=>saveAcfg("thirty_second_sell",{timer:parseInt(e.target.value)||30})} style={{...inp,width:70,textAlign:"center",padding:"8px"}}/>
-                      <span style={{fontSize:12,color:"#888",fontFamily:FC}}>seconds</span>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+                      <div><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Recording duration</div><div style={{display:"flex",alignItems:"center",gap:4}}><input type="number" value={acfg.thirty_second_sell?.timer||30} onChange={e=>saveAcfg("thirty_second_sell",{timer:parseInt(e.target.value)||30})} style={{...inp,width:60,textAlign:"center",padding:"8px"}}/><span style={{fontSize:11,color:"#999"}}>sec</span></div></div>
+                      <div><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Camera</div><select value={acfg.thirty_second_sell?.camera||"user"} onChange={e=>saveAcfg("thirty_second_sell",{camera:e.target.value})} style={{...inp,fontSize:12,padding:"8px"}}><option value="user">Front (selfie)</option><option value="environment">Back</option></select></div>
                     </div>
+                    <div><div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:4}}>Video resolution</div><select value={acfg.thirty_second_sell?.resolution||360} onChange={e=>saveAcfg("thirty_second_sell",{resolution:parseInt(e.target.value)})} style={{...inp,fontSize:12,padding:"8px"}}><option value={240}>240p (smallest)</option><option value={360}>360p (default)</option><option value={480}>480p</option><option value={720}>720p (large)</option></select></div>
+                    <div style={{fontSize:11,color:"#888",fontFamily:FB,marginTop:8,lineHeight:1.4}}>Videos stored locally on device. Lower resolution = smaller files.</div>
                   </div>
                   <div style={{...subLabel,marginBottom:8}}>MENU ITEMS ({(acfg.thirty_second_sell?.items||SELL_ITEMS).length})</div>
                   <div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:8}}>Each item gets one 30-second recording.</div>
@@ -3581,6 +3585,34 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                       ))}
                     </div>
                   ))}
+                </div>
+              )}
+              {c.type==="shift_leader_lens"&&(
+                <div style={{marginTop:16,borderTop:"1px solid #e8e8e3",paddingTop:16}}>
+                  <div style={{...subLabel,fontSize:12,fontWeight:900,color:"#000"}}>SHIFT LEADER LENS CONFIG</div>
+                  <div style={{...subLabel,marginBottom:8}}>SITUATIONS ({(acfg.shift_leader_lens?.clips||SLL_CLIPS).length})</div>
+                  <div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:8}}>Each situation presents a scenario with multiple choice options.</div>
+                  {(acfg.shift_leader_lens?.clips||SLL_CLIPS).map((clip,ci)=>(
+                    <div key={clip.id||ci} style={{background:"#f8f8f5",borderRadius:10,padding:12,marginBottom:8}}>
+                      <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
+                        <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{ci+1}</span>
+                        <input value={clip.title} onChange={e=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips[ci]={...clips[ci],title:e.target.value};saveAcfg("shift_leader_lens",{clips});}} style={{...inp,flex:1,fontWeight:700,fontSize:13,padding:"6px 10px"}}/>
+                        <button onClick={()=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips.splice(ci,1);saveAcfg("shift_leader_lens",{clips});}} style={{width:24,height:24,borderRadius:12,background:"#E3000B",color:"#fff",border:"none",fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>x</button>
+                      </div>
+                      <div style={{marginBottom:6}}><div style={{fontSize:10,color:"#888",fontFamily:FC,marginBottom:2}}>SCENARIO</div><textarea value={clip.desc} onChange={e=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips[ci]={...clips[ci],desc:e.target.value};saveAcfg("shift_leader_lens",{clips});}} rows={2} style={{...inp,resize:"vertical",fontSize:12,padding:"6px 10px"}}/></div>
+                      <div style={{marginBottom:6}}><div style={{fontSize:10,color:"#888",fontFamily:FC,marginBottom:2}}>QUESTION</div><input value={clip.q} onChange={e=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips[ci]={...clips[ci],q:e.target.value};saveAcfg("shift_leader_lens",{clips});}} style={{...inp,fontSize:12,padding:"6px 10px"}}/></div>
+                      <div style={{fontSize:10,color:"#888",fontFamily:FC,marginBottom:4}}>OPTIONS</div>
+                      {clip.options.map((opt,oi)=>(
+                        <div key={oi} style={{display:"flex",alignItems:"center",gap:4,marginBottom:2}}>
+                          <span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#999",width:16}}>{String.fromCharCode(65+oi)}</span>
+                          <input value={opt} onChange={e=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips[ci]={...clips[ci],options:[...clips[ci].options]};clips[ci].options[oi]=e.target.value;saveAcfg("shift_leader_lens",{clips});}} style={{...inp,flex:1,fontSize:11,padding:"4px 8px"}}/>
+                          <button onClick={()=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips[ci]={...clips[ci],options:clips[ci].options.filter((_,i)=>i!==oi)};saveAcfg("shift_leader_lens",{clips});}} style={{width:18,height:18,borderRadius:9,background:"#ddd",color:"#999",border:"none",fontSize:10,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>x</button>
+                        </div>
+                      ))}
+                      <button onClick={()=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips[ci]={...clips[ci],options:[...clips[ci].options,"New option"]};saveAcfg("shift_leader_lens",{clips});}} style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#007A33",background:"none",border:"none",cursor:"pointer",padding:"4px 0"}}>+ ADD OPTION</button>
+                    </div>
+                  ))}
+                  <button onClick={()=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS]),{id:`c${Date.now()}`,title:"New Situation",desc:"Describe the scenario...",q:"What do you do?",options:["Option A","Option B","Option C","Option D"]}];saveAcfg("shift_leader_lens",{clips});}} style={{width:"100%",padding:"8px",background:"#fff",border:"1px dashed #ccc",borderRadius:8,fontFamily:FC,fontWeight:700,fontSize:12,cursor:"pointer",marginTop:4}}>+ ADD SITUATION</button>
                 </div>
               )}
               {c.type==="shift_in_chaos"&&(
