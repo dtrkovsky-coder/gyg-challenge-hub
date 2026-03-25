@@ -334,7 +334,7 @@ document.head.appendChild(animStyle);
 const BY={padding:"16px 32px",background:"#FFD300",color:"#000",border:"none",borderRadius:14,fontSize:17,fontWeight:800,fontFamily:FC,letterSpacing:1.5,cursor:"pointer",textAlign:"center",display:"flex",alignItems:"center",justifyContent:"center",minWidth:220};
 const BO={padding:"16px 32px",background:"transparent",color:"#000",border:"2px solid #000",borderRadius:14,fontSize:17,fontWeight:800,fontFamily:FC,letterSpacing:1.5,cursor:"pointer",textAlign:"center",display:"flex",alignItems:"center",justifyContent:"center",minWidth:220};
 const BA={background:"none",border:"none",fontSize:28,fontWeight:300,color:"#000",cursor:"pointer",padding:"0 8px",lineHeight:1};
-const TBar={display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 16px",borderBottom:"1px solid #e8e8e3",background:"#fff"};
+const TBar={display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 16px",paddingTop:"max(12px, env(safe-area-inset-top))",borderBottom:"1px solid #e8e8e3",background:"#fff"};
 const TT={fontFamily:FC,fontWeight:800,fontSize:17,letterSpacing:1.5,color:"#000"};
 
 // ─── APP ─────────────────────────────────────────────────────────────────────
@@ -785,7 +785,7 @@ function DashV({u,ch,co,wk,sc,onCh,onBd,onPr,actComps,acts,activeQuarter}){const
 const ChallengeIntro=({icon,title,subtitle,description,points,bonusPoints,bonusCondition,tip,onStart,onB,startLabel="START"})=>(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{title}</span><span style={{width:32}}/></div>
-    <div style={{padding:"28px 20px",display:"flex",flexDirection:"column",alignItems:"center",gap:18,flex:1,maxWidth:520,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
+    <div style={{padding:"28px 28px",display:"flex",flexDirection:"column",alignItems:"center",gap:18,flex:1,maxWidth:440,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
       {icon&&<div style={{width:72,height:72,borderRadius:36,background:"#000",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:4}}>{typeof icon==="string"?<img src={icon} alt="" style={{width:40,height:40,objectFit:"contain",filter:"brightness(0) invert(1)"}}/>:icon}</div>}
       <div style={{textAlign:"center"}}>
         <div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:1,lineHeight:1.2}}>{title}</div>
@@ -943,7 +943,7 @@ function SelfAssessment({act,u,onComplete,onB}){
     <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
       <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{act.title}</span><span style={{width:32}}/></div>
       <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:`${(1/12)*100}%`,transition:"width 0.3s"}}/></div>
-      <div style={{padding:"28px 20px",display:"flex",flexDirection:"column",alignItems:"center",gap:18,maxWidth:520,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
+      <div style={{padding:"28px 28px",display:"flex",flexDirection:"column",alignItems:"center",gap:18,maxWidth:440,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
         <div style={{width:72,height:72,borderRadius:36,background:"#000",display:"flex",alignItems:"center",justifyContent:"center"}}>{CI.self_assessment}</div>
         <div style={{textAlign:"center"}}>
           <div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:1}}>{act.title}</div>
@@ -976,7 +976,7 @@ function SelfAssessment({act,u,onComplete,onB}){
     <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
       <div style={TBar}><button style={BA} onClick={()=>setScreen(screen-1)}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{catIdx+1} OF 9</span><span style={{width:32}}/></div>
       <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:`${((screen)/12)*100}%`,transition:"width 0.3s"}}/></div>
-      <div style={{padding:"20px",maxWidth:520,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
+      <div style={{padding:"20px",maxWidth:440,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
         <div style={{fontFamily:F107,fontWeight:900,fontSize:20,letterSpacing:0.5,marginBottom:4}}>{cat.title.toUpperCase()}</div>
         <div style={{fontSize:13,color:"#888",fontFamily:FC,fontWeight:600,marginBottom:16}}>{cat.items.length} statements</div>
 
@@ -1018,7 +1018,7 @@ function SelfAssessment({act,u,onComplete,onB}){
     <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
       <div style={TBar}><button style={BA} onClick={()=>setScreen(10)}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>YOUR RESULTS</span><span style={{width:32}}/></div>
       <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:`${(11/12)*100}%`,transition:"width 0.3s"}}/></div>
-      <div style={{padding:"24px 20px",maxWidth:520,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
+      <div style={{padding:"24px 20px",maxWidth:440,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
         {/* Score display */}
         <div style={{background:"#000",borderRadius:14,padding:"24px 20px",textAlign:"center",marginBottom:20}}>
           <div style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#888",letterSpacing:1,marginBottom:8}}>YOUR SCORE</div>
@@ -1070,7 +1070,7 @@ function SelfAssessment({act,u,onComplete,onB}){
     <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column",paddingBottom:40}}>
       <div style={TBar}><button style={BA} onClick={()=>setScreen(11)}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>REFLECTION</span><span style={{width:32}}/></div>
       <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:"100%"}}/></div>
-      <div style={{padding:"24px 20px",maxWidth:520,margin:"0 auto",width:"100%",boxSizing:"border-box",display:"flex",flexDirection:"column",gap:18}}>
+      <div style={{padding:"24px 20px",maxWidth:440,margin:"0 auto",width:"100%",boxSizing:"border-box",display:"flex",flexDirection:"column",gap:18}}>
         <div style={{background:"#000",borderRadius:14,padding:"14px 16px",display:"flex",alignItems:"center",gap:10}}>
           <span style={{fontFamily:FC,fontWeight:900,fontSize:24,color:band.color}}>{totalScore}/81</span>
           <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888"}}>YOUR SCORE</span>
