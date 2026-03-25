@@ -2049,7 +2049,9 @@ function RecoveryRace({ch,done,onS,onB,user,actCfg}){
   const timerRef=useRef(null);
   const scen=scenarios[scenIdx]||null;
   const dec=scen?.decisions[decIdx]||null;
-  useEffect(()=>{if(screen==="play"&&dec&&decTimer>0){timerRef.current=setInterval(()=>setDecTimer(t=>{if(t<=1){clearInterval(timerRef.current);return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}return()=>clearInterval(timerRef.current);},[screen,decIdx,decTimer]);
+  useEffect(()=>{if(screen==="play"&&dec&&decTimer>0&&!lastOutcome){timerRef.current=setInterval(()=>setDecTimer(t=>{if(t<=1){clearInterval(timerRef.current);return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}return()=>clearInterval(timerRef.current);},[screen,decIdx,decTimer,lastOutcome]);
+  // Auto-fail when timer runs out
+  useEffect(()=>{if(screen==="play"&&dec&&decTimer===0&&!lastOutcome){const worstOpt=dec.options.find(o=>o.outcome==="bad")||dec.options[dec.options.length-1];choose(worstOpt);}},[decTimer]);
   const choose=(opt)=>{clearInterval(timerRef.current);setDecTimer(0);setChoices(p=>[...p,opt.outcome]);setLastOutcome(opt);
     if(decIdx<(scen?.decisions.length||4)-1){setTimeout(()=>{setDecIdx(d=>d+1);const nextT=scen?.decisions[decIdx+1]?.timer||decisionTimerDefault;setDecTimer(nextT);setLastOutcome(null);},2000);}
     else{const goods=choices.filter(c=>c==="good").length+(opt.outcome==="good"?1:0);const total=choices.length+1;setAllResults(p=>[...p,{scenId:scen.id,title:scen.title,goods,total,score:Math.round(goods/total*100)}]);setTimeout(()=>setScreen("result"),2000);}};
@@ -2060,23 +2062,33 @@ function RecoveryRace({ch,done,onS,onB,user,actCfg}){
   return(
   <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
     <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
-    {screen==="play"&&scen&&dec&&(<div style={{padding:"24px 20px"}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-        <span style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:0.5}}>{scen.title.toUpperCase()}</span>
-        {!lastOutcome&&<span style={{fontFamily:FC,fontWeight:900,fontSize:20,color:decTimer<=3?"#E3000B":decTimer<=5?"#FFD300":"#000"}}>{decTimer}s</span>}
-        {lastOutcome&&<span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:lastOutcome.outcome==="good"?"#007A33":lastOutcome.outcome==="bad"?"#E3000B":"#FFB800",background:lastOutcome.outcome==="good"?"#f0f8f0":lastOutcome.outcome==="bad"?"#fef0f0":"#fff8e0",padding:"4px 10px",borderRadius:6}}>{lastOutcome.outcome==="good"?"GREAT CALL":lastOutcome.outcome==="neutral"?"OKAY":"POOR CHOICE"}</span>}
+    {screen==="play"&&scen&&dec&&(<div style={{padding:"20px"}}>
+      {/* Timer bar */}
+      <div style={{background:"rgba(0,0,0,0.9)",borderRadius:12,padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#ccc",letterSpacing:0.5}}>{decIdx+1}/{scen.decisions.length}</span>
+          <div style={{width:80,height:6,background:"#333",borderRadius:3}}><div style={{height:"100%",background:decTimer<=3?"#E3000B":decTimer<=5?"#FFD300":"#007A33",borderRadius:3,width:`${(decTimer/(dec.timer||decisionTimerDefault))*100}%`,transition:"width 1s linear"}}/></div>
+        </div>
+        {!lastOutcome&&<span style={{fontFamily:FG,fontWeight:900,fontSize:28,color:decTimer<=3?"#E3000B":decTimer<=5?"#FFD300":"#fff"}}>{decTimer}</span>}
+        {lastOutcome&&<span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:lastOutcome.outcome==="good"?"#007A33":lastOutcome.outcome==="bad"?"#E3000B":"#FFB800",background:lastOutcome.outcome==="good"?"rgba(0,122,51,0.2)":lastOutcome.outcome==="bad"?"rgba(227,0,11,0.2)":"rgba(255,184,0,0.2)",padding:"5px 10px 4px",borderRadius:6,lineHeight:1}}>{lastOutcome.outcome==="good"?"GREAT CALL":lastOutcome.outcome==="neutral"?"OKAY":"POOR CHOICE"}</span>}
       </div>
-      <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:16,color:"#fff"}}>
-        <div style={{fontSize:15,lineHeight:1.6}}>{lastOutcome?lastOutcome.next:(dec.situation||scen.setup)}</div>
+      {/* Scenario title */}
+      <div style={{fontFamily:F107,fontWeight:900,fontSize:20,letterSpacing:0.5,marginBottom:12}}>{scen.title.toUpperCase()}</div>
+      {/* Situation card */}
+      <div style={{...scenarioBox,marginBottom:16}}>
+        <div style={{fontSize:16,lineHeight:1.6,fontFamily:FB}}>{lastOutcome?lastOutcome.next:(dec.situation||scen.setup)}</div>
       </div>
-      {!lastOutcome&&(<div style={{display:"flex",flexDirection:"column",gap:8}}>
-        {dec.options.map(opt=>(<button key={opt.id} onClick={()=>choose(opt)} style={{padding:"14px 16px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,color:"#1a1a1a",cursor:"pointer"}}>{opt.text}</button>))}
+      {/* Options */}
+      {!lastOutcome&&(<div style={{display:"flex",flexDirection:"column",gap:10}}>
+        {dec.options.map(opt=>(<button key={opt.id} onClick={()=>choose(opt)} style={optCard(false)}>{opt.text}</button>))}
       </div>)}
-      {lastOutcome&&(<div style={{textAlign:"center",padding:16}}>
-        {lastOutcome.outcome==="good"?<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>:lastOutcome.outcome==="neutral"?<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFB800" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>:<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#E3000B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>}
-        <div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:lastOutcome.outcome==="good"?"#007A33":lastOutcome.outcome==="bad"?"#E3000B":"#FFB800",marginTop:8}}>{lastOutcome.outcome.toUpperCase()}</div>
+      {/* Outcome feedback */}
+      {lastOutcome&&(<div style={{textAlign:"center",padding:20}}>
+        {lastOutcome.outcome==="good"?<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>:lastOutcome.outcome==="neutral"?<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FFB800" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>:<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#E3000B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>}
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,color:lastOutcome.outcome==="good"?"#007A33":lastOutcome.outcome==="bad"?"#E3000B":"#FFB800",marginTop:10}}>{lastOutcome.outcome==="good"?"GREAT CALL":lastOutcome.outcome==="bad"?"POOR CHOICE":"OKAY"}</div>
       </div>)}
-      <div style={{display:"flex",gap:4,marginTop:16,justifyContent:"center"}}>{scen.decisions.map((_,i)=>(<div key={i} style={{width:8,height:8,borderRadius:4,background:i<decIdx?"#007A33":i===decIdx?"#FFD300":"#ddd"}}/>))}</div>
+      {/* Progress dots */}
+      <div style={{display:"flex",gap:6,marginTop:16,justifyContent:"center"}}>{scen.decisions.map((_,i)=>(<div key={i} style={{width:10,height:10,borderRadius:5,background:i<decIdx?"#007A33":i===decIdx?"#FFD300":"#ddd",transition:"background 0.3s"}}/>))}</div>
     </div>)}
     {screen==="result"&&(<div style={{padding:"24px 20px"}}>
       <div style={{background:"#000",borderRadius:14,padding:"24px 20px",textAlign:"center",marginBottom:20}}>
@@ -2339,9 +2351,9 @@ function ShiftLeaderLens({ch,done,onS,onB,user,actCfg}){
         <div>
           <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:4}}>{clipIdx+1} OF {clips.length}</div>
           <div style={{height:4,background:"#e8e8e3",borderRadius:2,marginBottom:16}}><div style={{height:"100%",background:"#FFD300",borderRadius:2,width:`${((clipIdx+1)/clips.length)*100}%`,transition:"width 0.3s"}}/></div>
+          <div style={{fontFamily:F107,fontWeight:900,fontSize:20,letterSpacing:0.5,marginBottom:12}}>{clip.title.toUpperCase()}</div>
           <div style={scenarioBox}>
-            <span style={scenarioBadge}>{clip.title.toUpperCase()}</span>
-            <div style={{fontSize:16,lineHeight:1.6,fontFamily:FB,marginTop:12}}>{clip.desc}</div>
+            <div style={{fontSize:16,lineHeight:1.7,fontFamily:FB}}>{clip.desc}</div>
           </div>
           <div style={{...qStyle,marginTop:20}}>{clip.q}</div>
           <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:16}}>
