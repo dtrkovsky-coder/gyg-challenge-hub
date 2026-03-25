@@ -603,9 +603,9 @@ function LunchReorder({user,lunchConfig,onDone}){
       <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1}}>MEAL TYPE</label>
       <div style={{display:"grid",gridTemplateColumns:visTypes.length>1?"1fr 1fr":"1fr",gap:10}}>
         {visTypes.map(t=>(
-          <button key={t.id} onClick={()=>setLt(t.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,padding:"18px 12px",background:lt===t.id?"#FFF8E0":"#fff",border:`2px solid ${lt===t.id?"#FFD300":"#e0e0db"}`,borderRadius:14,cursor:"pointer",textAlign:"center"}}>
+          <button key={t.id} onClick={()=>setLt(t.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,padding:"18px 12px",background:lt===t.id?"#FFF8E0":"#fff",border:`2px solid ${lt===t.id?"#FFD300":"#e0e0db"}`,borderRadius:14,cursor:"pointer",textAlign:"center",color:"#000"}}>
             {LUNCH_IMAGES[t.id]&&<img src={LUNCH_IMAGES[t.id]} alt={t.name} style={{width:80,height:80,objectFit:"contain"}}/>}
-            <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:1}}>{t.name}</div>
+            <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:1,color:"#000"}}>{t.name}</div>
           </button>
         ))}
       </div>
@@ -614,10 +614,10 @@ function LunchReorder({user,lunchConfig,onDone}){
       <label style={{fontSize:14,fontWeight:800,fontFamily:FC,color:"#333",letterSpacing:1}}>CHOOSE MAIN FILLING</label>
       <div style={{display:"flex",flexDirection:"column",gap:0,borderRadius:14,overflow:"hidden",border:"1px solid #e0e0db"}}>
         {visFillings.map((fl,i)=>(
-          <button key={fl.id} onClick={()=>setLf(fl.id)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px",background:lf===fl.id?"#FFF8E0":"#fff",border:"none",borderBottom:i<visFillings.length-1?"1px solid #f0f0eb":"none",cursor:"pointer",width:"100%",textAlign:"left"}}>
+          <button key={fl.id} onClick={()=>setLf(fl.id)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px",background:lf===fl.id?"#FFF8E0":"#fff",border:"none",borderBottom:i<visFillings.length-1?"1px solid #f0f0eb":"none",cursor:"pointer",width:"100%",textAlign:"left",color:"#1a1a1a"}}>
             <div style={{display:"flex",alignItems:"center",gap:12}}>
               {LUNCH_IMAGES[fl.id]&&<img src={LUNCH_IMAGES[fl.id]} alt="" style={{width:52,height:52,borderRadius:"50%",objectFit:"cover",border:lf===fl.id?"2px solid #FFD300":"2px solid transparent"}}/>}
-              <span style={{fontFamily:FB,fontSize:15,color:"#1a1a1a"}}>{fl.name}</span>
+              <span style={{fontFamily:FC,fontSize:15,fontWeight:700,color:"#1a1a1a"}}>{fl.name}</span>
             </div>
             <div style={{width:24,height:24,borderRadius:"50%",border:`2px solid ${lf===fl.id?"#FFD300":"#ddd"}`,background:lf===fl.id?"#FFD300":"transparent",display:"flex",alignItems:"center",justifyContent:"center"}}>{lf===fl.id&&<svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}</div>
           </button>
@@ -707,9 +707,9 @@ function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);c
           <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1}}>MEAL TYPE</label>
           <div style={{display:"grid",gridTemplateColumns:visTypes.length>1?"1fr 1fr":"1fr",gap:10}}>
             {visTypes.map(t=>(
-              <button key={t.id} onClick={()=>u("lunchType",t.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,padding:"18px 12px",background:f.lunchType===t.id?"#FFF8E0":"#fff",border:`2px solid ${f.lunchType===t.id?"#FFD300":"#e0e0db"}`,borderRadius:14,cursor:"pointer",textAlign:"center"}}>
+              <button key={t.id} onClick={()=>u("lunchType",t.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,padding:"18px 12px",background:f.lunchType===t.id?"#FFF8E0":"#fff",border:`2px solid ${f.lunchType===t.id?"#FFD300":"#e0e0db"}`,borderRadius:14,cursor:"pointer",textAlign:"center",color:"#000"}}>
                 <img src={LUNCH_IMAGES[t.id]} alt={t.name} style={{width:80,height:80,objectFit:"contain"}}/>
-                <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:1}}>{t.name}</div>
+                <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:1,color:"#000"}}>{t.name}</div>
               </button>
             ))}
           </div>
@@ -718,10 +718,10 @@ function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);c
           <label style={{fontSize:14,fontWeight:800,fontFamily:FC,color:"#333",letterSpacing:1}}>CHOOSE MAIN FILLING</label>
           <div style={{display:"flex",flexDirection:"column",gap:0,borderRadius:14,overflow:"hidden",border:"1px solid #e0e0db"}}>
             {visFillings.map((fl,i)=>(
-              <button key={fl.id} onClick={()=>u("lunchFilling",fl.id)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px",background:f.lunchFilling===fl.id?"#FFF8E0":"#fff",border:"none",borderBottom:i<visFillings.length-1?"1px solid #f0f0eb":"none",cursor:"pointer",width:"100%",textAlign:"left"}}>
+              <button key={fl.id} onClick={()=>u("lunchFilling",fl.id)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px",background:f.lunchFilling===fl.id?"#FFF8E0":"#fff",border:"none",borderBottom:i<visFillings.length-1?"1px solid #f0f0eb":"none",cursor:"pointer",width:"100%",textAlign:"left",color:"#1a1a1a"}}>
                 <div style={{display:"flex",alignItems:"center",gap:12}}>
                   <img src={LUNCH_IMAGES[fl.id]||LUNCH_IMAGES.burrito} alt="" style={{width:52,height:52,borderRadius:"50%",objectFit:"cover",border:f.lunchFilling===fl.id?"2px solid #FFD300":"2px solid transparent"}}/>
-                  <span style={{fontFamily:FB,fontSize:15,color:"#1a1a1a"}}>{fl.name}</span>
+                  <span style={{fontFamily:FC,fontSize:15,fontWeight:700,color:"#1a1a1a"}}>{fl.name}</span>
                 </div>
                 <div style={{width:24,height:24,borderRadius:"50%",border:`2px solid ${f.lunchFilling===fl.id?"#FFD300":"#ddd"}`,background:f.lunchFilling===fl.id?"#FFD300":"transparent",display:"flex",alignItems:"center",justifyContent:"center"}}>{f.lunchFilling===fl.id&&<svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}</div>
               </button>
