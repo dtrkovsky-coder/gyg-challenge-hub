@@ -521,7 +521,7 @@ export default function App(){
           {(getCh(user.program)||[]).map(ch=>(<button key={ch.id} onClick={()=>{setSel(ch);setPrevView("testbed");setView("challenge");}} style={{display:"flex",alignItems:"center",width:"100%",padding:16,background:"#fff",borderRadius:14,marginBottom:8,border:"none",cursor:"pointer",textAlign:"left",fontFamily:FB,boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
             <div style={{width:36,height:36,borderRadius:10,background:"#1a1a1a",display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,flexShrink:0}}><span style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#FFD300"}}>{ch.week}</span></div>
             <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:800,fontSize:15}}>{ch.title}</div><div style={{fontSize:13,color:"#888",marginTop:2}}>{ch.subtitle}</div></div>
-            <div style={{textAlign:"right",flexShrink:0}}><span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"5px 10px 4px",borderRadius:8,lineHeight:1,background:"#f5f5f0",color:"#999"}}>CHALLENGE</span><div style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#000",marginTop:4}}>{ch.points} PTS</div></div>
+            <div style={{textAlign:"right",flexShrink:0}}><span style={{fontSize:11,fontFamily:FC,fontWeight:700,padding:"5px 10px 4px",borderRadius:8,lineHeight:1,background:"#f5f5f0",color:"#999"}}>CHALLENGE</span><div style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#000",marginTop:4}}>UP TO {ch.points} PTS</div></div>
           </button>))}
         </div>
       </div>)}
@@ -743,7 +743,7 @@ function DashV({u,ch,co,wk,sc,onCh,onBd,onPr,actComps,acts,activeQuarter}){const
         <button key={c.id} style={{display:"flex",alignItems:"center",width:"100%",padding:16,background:d?"#f8f8f5":"#fff",border:d?"1px solid #d4e8d4":"1px solid #e8e8e3",borderRadius:14,marginBottom:6,cursor:(ul&&!d)?"pointer":"default",textAlign:"left",fontFamily:FB,color:"#1a1a1a",opacity:(ul||d)?1:0.4}} onClick={()=>ul&&!d&&onCh(c)} disabled={!ul||d}>
           <div style={{marginRight:14}}><div style={{width:36,height:36,borderRadius:18,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:800,fontSize:15,color:"#000",background:d?"#007A33":ul?"#FFD300":"#ccc"}}>{d?"\u2713":c.week}</div></div>
           <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:800,fontSize:16,letterSpacing:0.5}}>{c.title}</div><div style={{fontSize:13,color:"#888",marginTop:2}}>{c.subtitle}</div>{!ul&&!d&&unlockDateStr&&<div style={{fontSize:11,fontFamily:FC,fontWeight:600,color:"#FFB800",marginTop:4}}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FFB800" strokeWidth="2.5" style={{verticalAlign:"middle",marginRight:4}}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>{unlockDateStr}</div>}</div>
-          <div style={{textAlign:"right",marginLeft:12}}>{d?<div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#007A33",letterSpacing:0.5}}>DONE</div>:<><div style={{fontFamily:FC,fontWeight:900,fontSize:18}}>{c.points}<span style={{fontSize:13,fontWeight:600,color:"#999"}}> PTS</span></div>{c.bonusPoints>0&&<div style={{fontSize:12,fontFamily:FC,fontWeight:700,letterSpacing:1,marginTop:2,color:"#007A33"}}>+{c.bonusPoints} BONUS</div>}</>}</div>
+          <div style={{textAlign:"right",marginLeft:12}}>{d?<div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#007A33",letterSpacing:0.5}}>DONE</div>:<><div style={{fontFamily:FC,fontWeight:600,fontSize:11,color:"#999",letterSpacing:0.5}}>UP TO</div><div style={{fontFamily:FC,fontWeight:900,fontSize:18}}>{c.points+c.bonusPoints}<span style={{fontSize:13,fontWeight:600,color:"#999"}}> PTS</span></div></>}</div>
           {!d&&ul&&<div style={{fontSize:22,color:"#ccc",marginLeft:8,fontWeight:300}}>{"\u203A"}</div>}
         </button>
       );})}
@@ -801,11 +801,11 @@ const ChallengeIntro=({icon,title,subtitle,description,points,bonusPoints,bonusC
         <div style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#FFD300",letterSpacing:1,marginBottom:10}}>HOW POINTS WORK</div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
           <span style={{fontFamily:FC,fontSize:13,color:"#ccc"}}>Complete challenge</span>
-          <span style={{fontFamily:FC,fontWeight:900,fontSize:18,color:"#fff"}}>{points} pts</span>
+          <span style={{fontFamily:FC,fontWeight:900,fontSize:18,color:"#fff"}}>Up to {points} pts</span>
         </div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingTop:8,borderTop:"1px solid #333"}}>
           <span style={{fontFamily:FC,fontSize:13,color:"#FFD300",fontWeight:700}}>Bonus</span>
-          <span style={{fontFamily:FC,fontWeight:900,fontSize:18,color:"#FFD300"}}>+{bonusPoints} pts</span>
+          <span style={{fontFamily:FC,fontWeight:900,fontSize:18,color:"#FFD300"}}>Up to +{bonusPoints} pts</span>
         </div>
         {bonusCondition&&<div style={{fontFamily:FC,fontSize:12,color:"#999",marginTop:6,fontStyle:"italic"}}>{bonusCondition}</div>}
       </div>
@@ -2435,8 +2435,8 @@ function ChV({ch,done,onS,onB}){
       <div style={{marginBottom:20}}><div style={{fontFamily:FC,fontWeight:800,fontSize:12,color:"#FFD300",letterSpacing:1,marginBottom:8,background:"#000",display:"inline-block",padding:"4px 10px",borderRadius:4}}>WHAT TO SUBMIT</div><p style={{fontSize:15,lineHeight:1.6,color:"#555",margin:0}}>{ch.deliverable}</p></div>
       <div style={{background:"#f0f8f0",border:"1px solid #d4e8d4",borderRadius:14,padding:16,marginBottom:20}}><div style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#007A33",letterSpacing:1,marginBottom:6}}>TIP</div><p style={{fontSize:14,color:"#666",lineHeight:1.5,margin:0}}>{ch.tip}</p></div>
       <div style={{background:"#fff",border:"1px solid #e8e8e3",borderRadius:14,padding:16,marginBottom:24}}>
-        <div style={{display:"flex",justifyContent:"space-between",fontSize:14,color:"#555"}}><span>Challenge Points</span><span style={{fontWeight:700}}>{ch.points}</span></div>
-        {ch.bonusPoints>0&&<div style={{display:"flex",justifyContent:"space-between",fontSize:14,borderTop:"1px solid #eee",paddingTop:10,marginTop:10}}><span style={{color:"#007A33"}}>Bonus: {ch.bonusCondition}</span><span style={{fontWeight:700,color:"#007A33"}}>+{ch.bonusPoints}</span></div>}
+        <div style={{display:"flex",justifyContent:"space-between",fontSize:14,color:"#555"}}><span>Challenge Points</span><span style={{fontWeight:700}}>Up to {ch.points}</span></div>
+        {ch.bonusPoints>0&&<div style={{display:"flex",justifyContent:"space-between",fontSize:14,borderTop:"1px solid #eee",paddingTop:10,marginTop:10}}><span style={{color:"#007A33"}}>Bonus: {ch.bonusCondition}</span><span style={{fontWeight:700,color:"#007A33"}}>Up to +{ch.bonusPoints}</span></div>}
       </div>
       {done?(<div style={{textAlign:"center",padding:20,background:"#f0f8f0",borderRadius:14,fontFamily:FC,fontWeight:800,fontSize:16,color:"#007A33",letterSpacing:1}}>CHALLENGE SUBMITTED<div style={{fontSize:12,fontWeight:600,color:"#888",marginTop:8,letterSpacing:1}}>+100 PTS AWARDED</div><div style={{fontSize:13,fontWeight:600,color:"#FFB800",marginTop:4,letterSpacing:1}}>BONUS POINTS PENDING REVIEW</div></div>):(
         <>
