@@ -358,13 +358,15 @@ export default function App(){
   const getInitialView=(u,bc,ac)=>{const acts=getActs(u.program);if(!acts||!acts.length)return "dashboard";const bk=(bc||{})[u.batch];if(!bk)return "activities";if(bk.skipActivities)return "dashboard";const userDone=(ac||[]).filter(c=>c.userId===u.id).map(c=>c.activityId);const allDone=acts.every(a=>userDone.includes(a.id));if(!allDone)return "activities";if(!bk.challengesUnlocked)return "waiting";return "dashboard";};
 
   useEffect(()=>{(async()=>{let u=await getUsers(),c=await getCompletions(),s=getSession();if(u.length)setUsers(u);if(c.length)setComps(c);const ch2=await getChallenges();if(ch2){
-      // Force-update challenges if they don't have the new type field
-      if(ch2.lse&&((!ch2.lse[0]?.type)||(ch2.lse[2]?.type==="standard"))){ch2.lse=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.lse));try{await dbSetChallenges(ch2);}catch(e){}}
-      if(ch2.essentials&&ch2.essentials[0]&&!ch2.essentials[0].type){ch2.essentials=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.essentials));try{await dbSetChallenges(ch2);}catch(e){}}
-      // Force-update NGL challenges to new interactive types
-      if(ch2.nextgen&&ch2.nextgen[0]&&(!ch2.nextgen[0].type||ch2.nextgen.some(c=>c.type==="bench_builder"||c.type==="swap_the_shift"))){ch2.nextgen=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.nextgen));try{await dbSetChallenges(ch2);}catch(e){}}
-      // Force-update EL challenges to new interactive types
-      if(ch2.elite&&ch2.elite[0]&&!ch2.elite[0].type){ch2.elite=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.elite));try{await dbSetChallenges(ch2);}catch(e){}}
+      // One-time migration: add type fields and update to latest challenge definitions (version 6)
+      if(!ch2._v||ch2._v<6){
+        ch2.lse=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.lse));
+        ch2.essentials=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.essentials));
+        ch2.nextgen=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.nextgen));
+        ch2.elite=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES.elite));
+        ch2._v=6;
+        try{await dbSetChallenges(ch2);}catch(e){}
+      }
       // Seed Q2/Q3/Q4 challenges if not present
       let needsSave=false;["essentials","nextgen","elite"].forEach(prog=>{["Q2","Q3"].forEach(q=>{const key=`${prog}_${q}`;if(!ch2[key]&&DEFAULT_CHALLENGES[key]){ch2[key]=JSON.parse(JSON.stringify(DEFAULT_CHALLENGES[key]));needsSave=true;}});});
       if(needsSave){try{await dbSetChallenges(ch2);}catch(e){}}
@@ -414,10 +416,9 @@ export default function App(){
     if(!f){flash("Invalid credentials",false);return;}
     // Check if quarter changed since last login - re-trigger lunch order
     const currentQ=activityConfig.activeQuarter?.[f.program]||"Q1";
-    if(f.lastQuarter&&f.lastQuarter!==currentQ&&lunchConfig?.[f.program]?.enabled!==false){
+    if(f.lastQuarter!==currentQ&&lunchConfig?.[f.program]?.enabled!==false){
       setUser(f);setSession({id:f.id});setView("reorder_lunch");flash(`Welcome back, ${f.name.split(" ")[0]}! New quarter - please update your lunch order.`);return;
     }
-    if(!f.lastQuarter||f.lastQuarter!==currentQ){updateUser({...f,lastQuarter:currentQ});}
     setUser(f);setSession({id:f.id});setView(getInitialView(f,batchControl,activityComps));flash(`Hola, ${f.name.split(" ")[0]}!`);
   };
   const logout=async()=>{setUser(null);setSession(null);setView("splash");};
