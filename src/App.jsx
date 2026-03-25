@@ -43,10 +43,10 @@ const ICONS = {
 
 const DEFAULT_CHALLENGES = {
   nextgen: [
-    { id: "ng-w1", week: 1, title: "THE PRICE CHECK", subtitle: "See the dollar", points: 100, bonusPoints: 50, bonusCondition: "Within 10% on all 5 items", description: "Head to your walk-in or dry store. Pick 5 ingredients your team uses daily. Write down what you think each costs per kilo. Then check the actual invoice price. Submit your list with both columns.", deliverable: "Photo of your 5-item list with estimated vs actual cost per kg", tip: "Unknown cost = zero control. This is where it starts.", icon: "sticky_tape" },
-    { id: "ng-w2", week: 2, title: "CLOSE THE TAP", subtitle: "Portion audit", points: 100, bonusPoints: 50, bonusCondition: "All 5 portions within spec", description: "Pick one protein station during peak service. Without telling the crew member, weigh their next 5 portions. Calculate the weekly cost of any variance: (grams over x 3,500 serves x cost per kg). Have the conversation.", deliverable: "Your 5 portion weights, the variance calc, and what you said to the crew member", tip: "20g over x 3,500 serves x $8.50/kg = $595/week. Can't feel 20g. Train the tool.", icon: "fries" },
-    { id: "ng-w3", week: 3, title: "PULL BOTH LEVERS", subtitle: "AHR + permanency", points: 100, bonusPoints: 50, bonusCondition: "Had the permanency conversation this week", description: "Pull your AHR from the workforce dashboard. Compare to the $37.10 network benchmark. Identify one team member who is above their pay band. Have the permanency or performance conversation this week.", deliverable: "Your AHR number, the gap to benchmark, and a 3-sentence summary of the conversation you had", tip: "15 cents less per hour across the network = $500,000/year. Capalaba saved $12-15k from 3 conversations.", icon: "socks" },
-    { id: "ng-w4", week: 4, title: "THE ARM DASHBOARD", subtitle: "See. Name. Fix.", points: 100, bonusPoints: 50, bonusCondition: "Shared your plan with your RM before check-in", description: "Check all three numbers this week: NV%, AHR, and MIAM%. For each number that's off target, write one specific action with a name and deadline. Share the plan with your RM before they ask for it.", deliverable: "Screenshot of your 3 numbers + your action plan (what, who, by when) for each", tip: "Three numbers tell you everything. NV: leaking? AHR: overpaying? MIAM: underselling?", icon: "churros" },
+    { id: "ng-w1", week: 1, type: "shift_call", title: "SHIFT CALL", subtitle: "React or hold?", points: 100, bonusPoints: 50, bonusCondition: "Perfect round (8/8 correct)", description: "Mid-shift scenarios. Sales data, headcount, model. You have 10 seconds to decide: react or do nothing. Eight rounds. Speed matters.", deliverable: "8 scenario decisions with speed scores", tip: "The skill isn't always cutting. It's reading the data and knowing when to hold.", icon: "sticky_tape" },
+    { id: "ng-w2", week: 2, type: "bench_builder", title: "BENCH BUILDER", subtitle: "Build the roster, hit the target", points: 100, bonusPoints: 50, bonusCondition: "All 3 levels completed under target AHR", description: "Drag crew tiles into shift slots. A live AHR meter updates as you build. Hit the target without blowing the hours budget. Three levels.", deliverable: "3 completed rosters with AHR calculations", tip: "Every $1.93/hr gap costs $55K a year. The roster is where you close it.", icon: "fries" },
+    { id: "ng-w3", week: 3, type: "perm_or_pass", title: "PERM OR PASS", subtitle: "Have the conversation", points: 100, bonusPoints: 50, bonusCondition: "All 5 profiles answered correctly", description: "One crew profile per day for 5 days. Read their objection to going permanent. Tap your response. The app tells you if it lands - and why.", deliverable: "5 completed coaching scenarios", tip: "The honest answer is: base rate reduces, but they gain everything else. Show the full picture.", icon: "socks" },
+    { id: "ng-w4", week: 4, type: "your_restaurant", title: "YOUR RESTAURANT, YOUR NUMBER", subtitle: "See your own data", points: 100, bonusPoints: 50, bonusCondition: "Completed initial assessment + 30-day check-in", description: "Enter your restaurant's data with sliders - no keyboard. The app calculates your best lever, ranks you against the cohort, and generates a shareable summary.", deliverable: "Restaurant assessment + recommended lever + cohort rank", tip: "By the time you read it on the P&L, the decision was made three weeks ago.", icon: "churros" },
   ],
   essentials: [
     { id: "le-w1", week: 1, type: "spot_the_moment", title: "SPOT THE MOMENT", subtitle: "See your restaurant like a guest", points: 100, bonusPoints: 50, bonusCondition: "All 5 photos uploaded + swipe game completed", description: "5 photos across 5 days from a guest's perspective. Then swipe through your cohort's photos and see how they swiped on yours.", deliverable: "5 restaurant photos + swipe reactions", tip: "You walk past it every shift. Your guests see it for the first time, every time.", icon: "taco" },
@@ -350,6 +350,10 @@ export default function App(){
         sel.type==="thirty_second_sell"?<ThirtySecondSell ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         sel.type==="recovery_race"?<RecoveryRace ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
         sel.type==="shift_leader_lens"?<ShiftLeaderLens ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
+        sel.type==="shift_call"?<ShiftCall ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
+        sel.type==="bench_builder"?<BenchBuilder ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
+        sel.type==="perm_or_pass"?<PermOrPass ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} actCfg={activityConfig}/>:
+        sel.type==="your_restaurant"?<YourRestaurant ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}} user={user} comps={comps} users={users} actCfg={activityConfig}/>:
         <ChV ch={sel} done={isDone(sel.id)} onS={s=>submit(sel.id,s)} onB={()=>{setView(prevView||"dashboard");setPrevView(null);}}/>
       )}
       {view==="leaderboard"&&user&&<LbV us={users} co={comps} cu={user} onB={()=>setView("dashboard")} onP={()=>setView("profile")} defaultProg={user.program} defaultBatch={user.batch}/>}
@@ -1500,6 +1504,373 @@ function ChV({ch,done,onS,onB}){
     </div>
   </div>
 );}
+
+// ─── SHIFT CALL (NGL Week 1) ─────────────────────────────────────────────────
+const CREW_RATES={crew_casual_21:{label:"Crew - Casual 21+",rate:33.19},crew_casual_19:{label:"Crew - Casual 19",rate:26.52},crew_casual_16:{label:"Crew - Casual 16",rate:16.57},crew_pt_21:{label:"Crew - PT/FT 21+",rate:26.56},crew_pt_19:{label:"Crew - PT/FT 19",rate:21.24},crew_pt_16:{label:"Crew - PT/FT 16",rate:13.26},sl_casual_21:{label:"Shift Leader - Casual 21+",rate:36.12},sl_ft_21:{label:"Shift Leader - FT 21+",rate:28.90},cook_casual_21:{label:"Cook - Casual 21+",rate:35.15},cook_ft_21:{label:"Cook - FT 21+",rate:28.11}};
+const SHIFT_SCENARIOS=[
+  {id:1,day:"Tuesday",time:"2pm",situation:"3 people over model. 4 hrs left on shift. Sales $1,500 under forecast.",correct:"react",costDaily:445,costAnnual:46301},
+  {id:2,day:"Wednesday",time:"12pm",situation:"2 people over model. 3 hrs left. Sales tracking on forecast.",correct:"hold",costDaily:0,costAnnual:0},
+  {id:3,day:"Thursday",time:"5pm",situation:"4 people over model. 2 hrs left. Dinner push starting.",correct:"hold",costDaily:0,costAnnual:0},
+  {id:4,day:"Monday",time:"10am",situation:"2 people over model. 5 hrs until peak. Sales 20% under forecast.",correct:"react",costDaily:371,costAnnual:38584},
+  {id:5,day:"Friday",time:"3pm",situation:"3 people over model. 3 hrs left. Sales on forecast but slowing.",correct:"react",costDaily:334,costAnnual:34726},
+  {id:6,day:"Saturday",time:"6pm",situation:"2 people over model. Peak just started. Sales tracking above forecast.",correct:"hold",costDaily:0,costAnnual:0},
+  {id:7,day:"Wednesday",time:"4pm",situation:"3 people over model. 4 hrs left. Power BI showing labour % at 35%.",correct:"react",costDaily:445,costAnnual:46301},
+  {id:8,day:"Tuesday",time:"7pm",situation:"4 people over model. 2 hrs left. Sales 10% under forecast.",correct:"react",costDaily:297,costAnnual:30867},
+];
+function ShiftCall({ch,done,onS,onB,user,actCfg}){
+  const scenarios=actCfg?.shift_call?.scenarios||SHIFT_SCENARIOS;
+  const timeLimit=actCfg?.shift_call?.timeLimit||10;
+  const[idx,setIdx]=useState(0);const[timer,setTimer]=useState(timeLimit);const[results,setResults]=useState([]);const[reveal,setReveal]=useState(null);const[phase,setPhase]=useState("intro");
+  const timerRef=useRef(null);
+  useEffect(()=>{if(phase==="play"&&timer>0){timerRef.current=setInterval(()=>setTimer(t=>{if(t<=1){clearInterval(timerRef.current);handleChoice("timeout");return 0;}return t-1;}),1000);return()=>clearInterval(timerRef.current);}return()=>clearInterval(timerRef.current);},[phase,idx]);
+  const handleChoice=(choice)=>{clearInterval(timerRef.current);const s=scenarios[idx];const speed=timeLimit-timer;const correct=choice===s.correct;const pts=correct?(speed<5?3:speed<10?2:1):0;
+    const r={scenarioId:s.id,choice,correct,speed,points:pts,costDaily:s.costDaily,costAnnual:s.costAnnual};setResults(p=>[...p,r]);
+    setReveal({...r,scenario:s});setTimeout(()=>{setReveal(null);if(idx<scenarios.length-1){setIdx(i=>i+1);setTimer(timeLimit);setPhase("play");}else setPhase("results");},1500);};
+  const correctCount=results.filter(r=>r.correct).length;const totalPts=results.reduce((s,r)=>s+r.points,0);const maxPts=scenarios.length*3;const avgSpeed=results.length>0?(results.reduce((s,r)=>s+r.speed,0)/results.length).toFixed(1):0;
+  let streak=0,maxStreak=0;results.forEach(r=>{if(r.correct){streak++;maxStreak=Math.max(maxStreak,streak);}else streak=0;});
+  const reactCorrect=results.filter(r=>scenarios.find(s=>s.id===r.scenarioId)?.correct==="react"&&r.correct).length;const reactTotal=scenarios.filter(s=>s.correct==="react").length;
+  const holdCorrect=results.filter(r=>scenarios.find(s=>s.id===r.scenarioId)?.correct==="hold"&&r.correct).length;const holdTotal=scenarios.filter(s=>s.correct==="hold").length;
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+    {phase==="intro"&&(<div style={{padding:"24px 20px"}}>
+      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
+      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
+      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
+      <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:20,color:"#fff"}}>
+        <div style={{fontSize:12,fontFamily:FC,fontWeight:800,color:"#FFD300",letterSpacing:1,marginBottom:8}}>{scenarios.length} ROUNDS</div>
+        <div style={{fontSize:13,color:"#ccc",fontFamily:FB}}>Each round: {timeLimit} seconds to decide. Speed earns more points.</div>
+      </div>
+      <button style={{...BY,width:"100%"}} onClick={()=>{setPhase("play");setTimer(timeLimit);}}>START</button>
+    </div>)}
+    {phase==="play"&&!reveal&&scenarios[idx]&&(<div style={{padding:"24px 20px"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#999"}}>{idx+1}/{scenarios.length}</span>
+        <div style={{flex:1,marginLeft:12,height:6,background:"#e8e8e3",borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",background:timer<=2?"#E3000B":timer<=5?"#FFD300":"#007A33",width:`${(timer/timeLimit)*100}%`,transition:"width 1s linear,background 0.3s"}}/></div>
+        <span style={{fontFamily:FG,fontWeight:900,fontSize:22,color:timer<=2?"#E3000B":timer<=5?"#FFD300":"#000",marginLeft:12,minWidth:30,textAlign:"right"}}>{timer}</span>
+      </div>
+      <div style={{background:"#000",borderRadius:16,padding:20,marginBottom:20,color:"#fff"}}>
+        <div style={{display:"inline-block",padding:"4px 12px",background:"#FFD300",color:"#000",borderRadius:8,fontFamily:FC,fontWeight:800,fontSize:12,letterSpacing:0.5,marginBottom:12}}>{scenarios[idx].day.toUpperCase()} {scenarios[idx].time.toUpperCase()}</div>
+        <div style={{fontSize:16,lineHeight:1.6,fontFamily:FB}}>{scenarios[idx].situation}</div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+        <button onClick={()=>handleChoice("hold")} style={{padding:"20px 16px",background:"#1a1a1a",color:"#fff",border:"none",borderRadius:14,fontFamily:FC,fontWeight:900,fontSize:16,letterSpacing:1,cursor:"pointer",transition:"transform 0.1s",minHeight:70}}>DO NOTHING</button>
+        <button onClick={()=>handleChoice("react")} style={{padding:"20px 16px",background:"#FFD300",color:"#000",border:"none",borderRadius:14,fontFamily:FC,fontWeight:900,fontSize:16,letterSpacing:1,cursor:"pointer",transition:"transform 0.1s",minHeight:70}}>MAKE THE CALL</button>
+      </div>
+    </div>)}
+    {reveal&&(<div style={{padding:"24px 20px",textAlign:"center"}}>
+      <div style={{background:reveal.correct?"rgba(0,122,51,0.1)":"rgba(227,0,11,0.1)",borderRadius:16,padding:24,border:`2px solid ${reveal.correct?"#007A33":"#E3000B"}`}}>
+        {reveal.correct?<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        :<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#E3000B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>}
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:18,marginTop:8,color:reveal.correct?"#007A33":"#E3000B"}}>{reveal.correct?"CORRECT":"WRONG"}</div>
+        <div style={{fontSize:14,color:"#555",fontFamily:FB,marginTop:8}}>{reveal.correct&&reveal.scenario.correct==="react"?`Saved $${reveal.scenario.costDaily}/day`:reveal.correct?"Smart hold - sales are tracking, don't cut into guest experience.":reveal.scenario.correct==="react"?`Cost of inaction: $${reveal.scenario.costDaily}/day = $${reveal.scenario.costAnnual.toLocaleString()}/year`:"Hold - sales are on forecast. Cutting now hurts the guest experience."}</div>
+      </div>
+    </div>)}
+    {phase==="results"&&(<div style={{padding:"24px 20px"}}>
+      <div style={{textAlign:"center",marginBottom:24}}>
+        <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{correctCount}/{scenarios.length}</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888"}}>CORRECT DECISIONS</div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
+        <div style={{background:"#fff",borderRadius:12,padding:14,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24}}>{totalPts}</div><div style={{fontSize:11,color:"#888",fontFamily:FC}}>POINTS (/{maxPts})</div></div>
+        <div style={{background:"#fff",borderRadius:12,padding:14,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24}}>{avgSpeed}s</div><div style={{fontSize:11,color:"#888",fontFamily:FC}}>AVG SPEED</div></div>
+        <div style={{background:"#fff",borderRadius:12,padding:14,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24}}>{maxStreak}</div><div style={{fontSize:11,color:"#888",fontFamily:FC}}>BEST STREAK</div></div>
+        <div style={{background:"#fff",borderRadius:12,padding:14,textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24,color:reactCorrect===reactTotal&&holdCorrect===holdTotal?"#007A33":"#E3000B"}}>{reactCorrect}/{reactTotal}</div><div style={{fontSize:11,color:"#888",fontFamily:FC}}>REACT | {holdCorrect}/{holdTotal} HOLD</div></div>
+      </div>
+      {results.map((r,i)=>{const s=scenarios.find(x=>x.id===r.scenarioId);return(<div key={i} style={{background:"#fff",borderRadius:10,padding:12,marginBottom:6,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:700,fontSize:12}}>{s.day} {s.time}</div><div style={{fontSize:11,color:r.correct?"#007A33":"#E3000B",fontFamily:FC,fontWeight:700}}>{r.correct?"CORRECT":"WRONG"} - {r.choice==="react"?"Reacted":"Held"} ({r.speed}s)</div></div>
+        {s.costAnnual>0&&!r.correct&&<div style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#E3000B"}}>${s.costAnnual.toLocaleString()}/yr</div>}
+        {r.correct&&<div style={{fontFamily:FC,fontWeight:800,fontSize:14,color:"#007A33"}}>+{r.points}</div>}
+      </div>);})}
+      <div style={{background:"#000",borderRadius:14,padding:16,marginTop:16,marginBottom:16}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div><div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300"}}>POINTS EARNED</div><div style={{fontFamily:FC,fontWeight:900,fontSize:28,color:"#fff",marginTop:4}}>{Math.round(ch.points*(correctCount/scenarios.length))}<span style={{fontSize:14,color:"#888"}}>/{ch.points}</span></div></div>
+          {correctCount===scenarios.length&&<div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#FFD300",background:"rgba(255,211,0,0.15)",padding:"6px 12px",borderRadius:8}}>PERFECT +{ch.bonusPoints}</div>}
+        </div>
+      </div>
+      <button style={{...BY,width:"100%"}} onClick={()=>{const earnedPts=Math.round(ch.points*(correctCount/scenarios.length));onS({text:"Shift Call completed",score:totalPts,correct:correctCount,avgSpeed:parseFloat(avgSpeed),streak:maxStreak,decisions:results,perfectRound:correctCount===scenarios.length,claimedBonus:correctCount===scenarios.length,autoBonus:correctCount===scenarios.length,points:earnedPts});}}>SUBMIT</button>
+    </div>)}
+  </div>);
+}
+
+// ─── BENCH BUILDER (NGL Week 2) ─────────────────────────────────────────────
+const BENCH_LEVELS=[
+  {id:1,name:"LEVEL 1 - THE BASICS",totalHours:450,currentAHR:38.50,targetAHR:37.10,crewPool:[{type:"crew_casual_21",available:12,hoursEach:25},{type:"crew_casual_19",available:6,hoursEach:20},{type:"crew_pt_21",available:6,hoursEach:30}],hints:true,penalties:false},
+  {id:2,name:"LEVEL 2 - HARRINGTON PARK",totalHours:546,currentAHR:37.85,targetAHR:36.90,crewPool:[{type:"crew_casual_21",available:10,hoursEach:25},{type:"crew_casual_19",available:5,hoursEach:20},{type:"crew_casual_16",available:4,hoursEach:15},{type:"crew_pt_21",available:6,hoursEach:30},{type:"crew_pt_19",available:3,hoursEach:25},{type:"sl_casual_21",available:2,hoursEach:35},{type:"sl_ft_21",available:2,hoursEach:38}],hints:false,penalties:true},
+  {id:3,name:"LEVEL 3 - WEEKEND WARRIOR",totalHours:620,currentAHR:38.20,targetAHR:36.50,crewPool:[{type:"crew_casual_21",available:10,hoursEach:30},{type:"crew_casual_19",available:6,hoursEach:22},{type:"crew_casual_16",available:5,hoursEach:15},{type:"crew_pt_21",available:5,hoursEach:32},{type:"crew_pt_19",available:3,hoursEach:25},{type:"crew_pt_16",available:3,hoursEach:18},{type:"sl_ft_21",available:3,hoursEach:38},{type:"cook_casual_21",available:2,hoursEach:30},{type:"cook_ft_21",available:2,hoursEach:38}],hints:false,penalties:true},
+];
+function BenchBuilder({ch,done,onS,onB,user,actCfg}){
+  const levels=actCfg?.bench_builder?.levels||BENCH_LEVELS;
+  const[levelIdx,setLevelIdx]=useState(0);const[placements,setPlacements]=useState([]);const[levelResults,setLevelResults]=useState([]);const[phase,setPhase]=useState("intro");const[selected,setSelected]=useState(null);const[showHint,setShowHint]=useState(false);
+  const level=levels[levelIdx];
+  const calcAHR=(pl)=>{let tc=0,th=0;pl.forEach(p=>{const r=CREW_RATES[p.type];if(r){tc+=r.rate*p.hours;th+=p.hours;}});return th>0?tc/th:0;};
+  const usedHours=placements.reduce((s,p)=>s+p.hours,0);const ahr=calcAHR(placements);const usedByType=(t)=>placements.filter(p=>p.type===t).length;
+  const addCrew=(type)=>{const pool=level.crewPool.find(p=>p.type===type);if(!pool||usedByType(type)>=pool.available)return;if(usedHours+pool.hoursEach>level.totalHours)return;setPlacements(p=>[...p,{type,hours:pool.hoursEach}]);setShowHint(false);};
+  const removeCrew=(idx)=>{setPlacements(p=>p.filter((_,i)=>i!==idx));};
+  const submitLevel=()=>{const weeklySaving=(level.currentAHR-ahr)*usedHours;const annualSaving=weeklySaving*52;setLevelResults(p=>[...p,{level:level.id,name:level.name,achievedAHR:ahr.toFixed(2),targetAHR:level.targetAHR,hoursUsed:usedHours,hoursBudget:level.totalHours,weeklySaving:Math.round(weeklySaving),annualSaving:Math.round(annualSaving),beatTarget:ahr<=level.targetAHR}]);
+    if(levelIdx<levels.length-1){setLevelIdx(l=>l+1);setPlacements([]);setPhase("play");}else setPhase("results");};
+  // Hint timer for level 1
+  useEffect(()=>{if(phase==="play"&&level.hints&&ahr>level.targetAHR&&placements.length>0){const t=setTimeout(()=>setShowHint(true),10000);return()=>clearTimeout(t);}setShowHint(false);},[placements,phase]);
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+    {phase==="intro"&&(<div style={{padding:"24px 20px"}}>
+      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
+      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
+      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
+      <button style={{...BY,width:"100%"}} onClick={()=>setPhase("play")}>START LEVEL 1</button>
+    </div>)}
+    {phase==="play"&&level&&(<div style={{padding:"16px 20px"}}>
+      <div style={{fontFamily:FC,fontWeight:900,fontSize:16,letterSpacing:0.5,marginBottom:12}}>{level.name}</div>
+      {/* AHR Meter */}
+      <div style={{background:"#000",borderRadius:14,padding:14,marginBottom:12}}>
+        <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+          <span style={{fontFamily:FC,fontWeight:700,fontSize:11,color:"#FFD300"}}>AHR METER</span>
+          <span style={{fontFamily:FC,fontWeight:900,fontSize:18,color:ahr<=level.targetAHR?"#007A33":ahr<=level.targetAHR+0.5?"#FFB800":"#E3000B"}}>${usedHours>0?ahr.toFixed(2):"--"}</span>
+        </div>
+        <div style={{height:10,background:"#333",borderRadius:5,position:"relative",overflow:"visible"}}>
+          <div style={{position:"absolute",left:`${Math.max(0,Math.min(100,((level.targetAHR-34)/6)*100))}%`,top:-2,width:2,height:14,background:"#007A33"}}/>
+          {usedHours>0&&<div style={{position:"absolute",left:`${Math.max(0,Math.min(100,((ahr-34)/6)*100))}%`,top:-4,width:16,height:16,borderRadius:8,background:ahr<=level.targetAHR?"#007A33":ahr<=level.targetAHR+0.5?"#FFB800":"#E3000B",transform:"translateX(-8px)",transition:"left 0.3s"}}/>}
+        </div>
+        <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}><span style={{fontSize:10,color:"#666"}}>$34</span><span style={{fontSize:10,color:"#007A33"}}>Target: ${level.targetAHR}</span><span style={{fontSize:10,color:"#666"}}>$40</span></div>
+      </div>
+      {/* Hours counter */}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12,padding:"8px 14px",background:"#fff",borderRadius:10,border:"1px solid #e8e8e3"}}>
+        <span style={{fontFamily:FC,fontWeight:700,fontSize:13}}>HOURS USED</span>
+        <span style={{fontFamily:FC,fontWeight:900,fontSize:18,color:usedHours>level.totalHours?"#E3000B":"#000"}}>{usedHours}<span style={{fontSize:13,color:"#888"}}>/{level.totalHours}</span></span>
+      </div>
+      {/* Placed crew */}
+      {placements.length>0&&(<div style={{marginBottom:12}}>
+        <div style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#999",marginBottom:6}}>ROSTER ({placements.length})</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+          {placements.map((p,i)=>(<div key={i} onClick={()=>removeCrew(i)} style={{padding:"6px 10px",borderRadius:8,background:"#f0f8f0",border:"1px solid #d4e8d4",fontSize:11,fontFamily:FC,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:4}}>
+            <span>{CREW_RATES[p.type]?.label?.split(" - ")[1]||p.type}</span><span style={{color:"#888"}}>${CREW_RATES[p.type]?.rate}</span><span style={{color:"#E3000B",fontWeight:900}}>x</span>
+          </div>))}
+        </div>
+      </div>)}
+      {/* Hint */}
+      {showHint&&<div style={{background:"#FFF8E0",border:"1px solid #FFD300",borderRadius:10,padding:12,marginBottom:12,fontSize:13,color:"#555",fontFamily:FB}}>Try swapping a Casual 21+ for a PT 21+ - saves $6.63/hr</div>}
+      {/* Crew pool */}
+      <div style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#999",marginBottom:6}}>CREW POOL - TAP TO ADD</div>
+      <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:16}}>
+        {level.crewPool.map((pool,pi)=>{const used=usedByType(pool.type);const avail=pool.available-used;const rate=CREW_RATES[pool.type];return(
+          <button key={pi} onClick={()=>addCrew(pool.type)} disabled={avail<=0||usedHours+pool.hoursEach>level.totalHours} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",background:avail>0?"#fff":"#f5f5f0",border:"1px solid #e8e8e3",borderRadius:12,cursor:avail>0?"pointer":"default",opacity:avail>0?1:0.5}}>
+            <div style={{textAlign:"left"}}><div style={{fontFamily:FC,fontWeight:700,fontSize:13}}>{rate?.label||pool.type}</div><div style={{fontSize:11,color:"#888"}}>{pool.hoursEach} hrs each</div></div>
+            <div style={{textAlign:"right"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:16,color:"#E3000B"}}>${rate?.rate}</div><div style={{fontSize:11,color:"#888"}}>{avail} left</div></div>
+          </button>
+        );})}
+      </div>
+      <button style={{...BY,width:"100%",opacity:usedHours>0&&usedHours<=level.totalHours?1:0.4}} disabled={usedHours<=0||usedHours>level.totalHours} onClick={submitLevel}>
+        SUBMIT ROSTER{ahr<=level.targetAHR?" - TARGET HIT":""}
+      </button>
+    </div>)}
+    {phase==="results"&&(<div style={{padding:"24px 20px"}}>
+      <div style={{textAlign:"center",marginBottom:24}}><div style={{fontSize:24,fontFamily:FC,fontWeight:900}}>BENCH BUILDER COMPLETE</div></div>
+      {levelResults.map((r,i)=>(<div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+          <span style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{r.name}</span>
+          <span style={{fontFamily:FC,fontWeight:900,fontSize:16,color:r.beatTarget?"#007A33":"#E3000B"}}>${r.achievedAHR}</span>
+        </div>
+        <div style={{fontSize:12,color:"#888",fontFamily:FB}}>{r.hoursUsed}/{r.hoursBudget} hrs | Target: ${r.targetAHR}</div>
+        <div style={{display:"flex",justifyContent:"space-between",marginTop:8}}>
+          <span style={{fontSize:13,fontFamily:FC,fontWeight:700}}>Weekly saving</span>
+          <span style={{fontSize:13,fontFamily:FC,fontWeight:900,color:"#E3000B"}}>${r.weeklySaving.toLocaleString()}</span>
+        </div>
+        <div style={{display:"flex",justifyContent:"space-between"}}>
+          <span style={{fontSize:13,fontFamily:FC,fontWeight:700}}>Annual saving</span>
+          <span style={{fontSize:16,fontFamily:FC,fontWeight:900,color:"#E3000B"}}>${r.annualSaving.toLocaleString()}</span>
+        </div>
+      </div>))}
+      <div style={{background:"#000",borderRadius:14,padding:16,marginTop:8,marginBottom:16}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:4}}>KEY SAVINGS</div>
+        <div style={{fontSize:13,color:"#fff",fontFamily:FB,lineHeight:1.6}}>Casual 21+ to PT: saves <span style={{color:"#E3000B",fontWeight:900}}>$6.63/hr</span><br/>Casual 21+ to Casual 19: saves <span style={{color:"#E3000B",fontWeight:900}}>$6.67/hr</span><br/>Casual 21+ to Casual 16: saves <span style={{color:"#E3000B",fontWeight:900}}>$16.62/hr</span></div>
+      </div>
+      <button style={{...BY,width:"100%"}} onClick={()=>{const allBeat=levelResults.every(r=>r.beatTarget);const earnedPts=Math.round(ch.points*(levelResults.filter(r=>r.beatTarget).length/levels.length));onS({text:"Bench Builder completed",levels:levelResults,allUnderTarget:allBeat,claimedBonus:allBeat,autoBonus:allBeat,points:earnedPts});}}>SUBMIT</button>
+    </div>)}
+  </div>);
+}
+
+// ─── PERM OR PASS (NGL Week 3) ──────────────────────────────────────────────
+const PERM_PROFILES=[
+  {id:"p1",name:"Sarah",months:8,avgHours:38,classification:"Casual 21+",rate:33.19,objection:"I like my 25%. I'd rather stay casual.",options:[{id:"a",text:"Explain that the 25% loading is designed to replace entitlements she's missing out on - sick leave, annual leave, super, and bonus.",lands:true},{id:"b",text:"Tell her she's already working full-time hours so she should just go permanent.",lands:false,reason:"Telling doesn't land. Show her what the 25% actually replaces - and what she's giving up by keeping it."},{id:"c",text:"Say the business needs her to convert for compliance reasons.",lands:false,reason:"Making it about the business kills the conversation. Make it about her - what she gains, not what you need."}],coachingTip:"Sarah is already working 38 hrs/wk. She's not getting flexibility - she's getting a loading instead of real entitlements. Show the trade: $33.19/hr casual vs $26.56/hr PT, but PT gives sick leave, annual leave, super on every hour, and bonus eligibility.",businessSaving:"Sarah at 38 hrs/wk casual costs $1,261/week. As PT: $1,009/week. Business saves $252/week = $13,100/year."},
+  {id:"p2",name:"Marcus",months:11,avgHours:35,classification:"Casual 21+",rate:33.19,objection:"I want flexibility. Permanent feels too full on.",options:[{id:"a",text:"Offer a part-time contract at his current hours - same flexibility, with entitlements.",lands:true},{id:"b",text:"Tell him permanent doesn't mean more hours.",lands:false,reason:"True but not enough. Show him that PT at 35 hrs is the same schedule he already works - just with benefits added."},{id:"c",text:"Explain that the business really needs more permanent staff.",lands:false,reason:"He doesn't care about the business need. He cares about his flexibility. Address his concern, not yours."}],coachingTip:"Marcus can get a PT contract at 35 hrs/wk. Same hours, same flexibility, plus entitlements.",businessSaving:"Marcus at 35 hrs/wk casual: $1,162/week. As PT: $930/week. Saves $232/week = $12,064/year."},
+  {id:"p3",name:"Priya",months:6,avgHours:32,classification:"Casual 21+",rate:33.19,objection:"I'm not sure I'll be here long enough to bother.",options:[{id:"a",text:"Explain that entitlements accrue from day one - even 3 months of sick leave, annual leave, and super is better than zero.",lands:true},{id:"b",text:"Tell her she should commit to the job if she wants to get ahead.",lands:false,reason:"Pressuring commitment doesn't work. Show her that even short-term, she's leaving money on the table as casual."},{id:"c",text:"Say you'll revisit the conversation in a few months when she's settled in.",lands:false,reason:"Delaying means she misses out on months of entitlements she could be accruing right now."}],coachingTip:"Entitlements accrue from day one. Even if Priya leaves in 3 months, she'll have earned sick leave, annual leave, and super.",businessSaving:"Priya at 32 hrs/wk casual: $1,062/week. As PT: $850/week. Saves $212/week = $11,024/year."},
+  {id:"p4",name:"Jake",months:14,avgHours:40,classification:"Casual 21+",rate:33.19,objection:"Will my pay go down? I don't want to lose money.",options:[{id:"a",text:"Be honest: base rate reduces from $33.19 to $26.56, but he gains annual leave, sick leave, super on every hour, and bonus eligibility. Show the full picture.",lands:true},{id:"b",text:"Tell him his take-home will be roughly the same once you factor in benefits.",lands:false,reason:"His take-home WILL be lower week to week. Sugarcoating it breaks trust. Be honest about the rate drop and show what he gains instead."},{id:"c",text:"Avoid the pay question and focus on job security.",lands:false,reason:"Jake asked a direct question. Dodging it tells him you're hiding something. Answer it straight."}],coachingTip:"The honest answer: base rate goes from $33.19/hr to $26.56/hr. That's $6.63/hr less in cash. But he gains annual leave, sick leave, super on every hour, and bonus eligibility.",businessSaving:"Jake at 40 hrs/wk casual: $1,328/week. As PT: $1,062/week. Saves $266/week = $13,832/year."},
+  {id:"p5",name:"Lena",months:9,avgHours:30,classification:"Casual 21+",rate:33.19,objection:"My manager before you said it was fine to stay casual.",options:[{id:"a",text:"Reframe from what was said before to what's best for her now - not what the business wants, but what she's personally missing out on.",lands:true},{id:"b",text:"Say that policy has changed and everyone needs to convert.",lands:false,reason:"Making it about policy makes her feel forced. Make it about her benefit."},{id:"c",text:"Agree that casual is fine if that's what she prefers.",lands:false,reason:"Avoiding the conversation means she keeps missing out on entitlements."}],coachingTip:"This isn't about what was said before. It's about what's best for Lena now. Reframe from policy to personal benefit.",businessSaving:"Lena at 30 hrs/wk casual: $996/week. As PT: $797/week. Saves $199/week = $10,348/year."},
+];
+function PermOrPass({ch,done,onS,onB,user,actCfg}){
+  const profiles=actCfg?.perm_or_pass?.profiles||PERM_PROFILES;
+  const[profIdx,setProfIdx]=useState(0);const[selected,setSelected]=useState(null);const[locked,setLocked]=useState(false);const[results,setResults]=useState([]);const[phase,setPhase]=useState("intro");
+  const prof=profiles[profIdx];const correctCount=results.filter(r=>r.correct).length;
+  const lockIn=()=>{if(selected===null)return;setLocked(true);const opt=prof.options.find(o=>o.id===selected);const r={profileId:prof.id,chosenOption:selected,correct:!!opt?.lands};setResults(p=>[...p,r]);};
+  const nextProfile=()=>{setSelected(null);setLocked(false);if(profIdx<profiles.length-1){setProfIdx(p=>p+1);}else setPhase("results");};
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+    {phase==="intro"&&(<div style={{padding:"24px 20px"}}>
+      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:28,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
+      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
+      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
+      <button style={{...BY,width:"100%"}} onClick={()=>setPhase("play")}>START</button>
+    </div>)}
+    {phase==="play"&&prof&&(<div style={{padding:"24px 20px"}}>
+      <div style={{fontSize:12,fontFamily:FC,fontWeight:700,color:"#999",textAlign:"center",marginBottom:12}}>{profIdx+1}/{profiles.length}</div>
+      {/* Profile card */}
+      <div style={{background:"#000",borderRadius:16,padding:20,marginBottom:16,color:"#fff"}}>
+        <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:12}}>
+          <div style={{width:48,height:48,borderRadius:24,background:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:22,color:"#000"}}>{prof.name[0]}</div>
+          <div><div style={{fontFamily:FC,fontWeight:900,fontSize:20}}>{prof.name.toUpperCase()}</div><div style={{fontSize:12,color:"#888",fontFamily:FB}}>{prof.months} months casual | {prof.avgHours} hrs/wk | ${prof.rate}/hr</div></div>
+        </div>
+        <span style={{padding:"4px 10px",background:"rgba(255,211,0,0.2)",color:"#FFD300",borderRadius:6,fontFamily:FC,fontWeight:700,fontSize:11}}>{prof.classification}</span>
+      </div>
+      {/* Objection */}
+      <div style={{borderLeft:"4px solid #FFD300",background:"#fff",borderRadius:"0 14px 14px 0",padding:16,marginBottom:16}}>
+        <div style={{fontSize:11,fontFamily:FC,fontWeight:700,color:"#FFB800",marginBottom:4}}>THEIR OBJECTION</div>
+        <div style={{fontSize:15,fontFamily:FB,lineHeight:1.6,fontStyle:"italic"}}>"{prof.objection}"</div>
+      </div>
+      {/* Options */}
+      {!locked&&(<div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
+        {prof.options.map(opt=>(<button key={opt.id} onClick={()=>setSelected(opt.id)} style={{padding:"14px 16px",background:selected===opt.id?"#FFF8E0":"#fff",border:selected===opt.id?"2px solid #FFD300":"1px solid #e8e8e3",borderRadius:12,textAlign:"left",fontSize:14,fontFamily:FB,color:"#1a1a1a",cursor:"pointer"}}>{opt.text}</button>))}
+        <button style={{...BY,width:"100%",opacity:selected?1:0.4}} disabled={!selected} onClick={lockIn}>LOCK IN</button>
+      </div>)}
+      {/* Reveal */}
+      {locked&&(()=>{const opt=prof.options.find(o=>o.id===selected);const correct=opt?.lands;return(<div>
+        <div style={{background:correct?"rgba(0,122,51,0.1)":"rgba(227,0,11,0.1)",border:`2px solid ${correct?"#007A33":"#E3000B"}`,borderRadius:14,padding:16,marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            {correct?<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            :<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E3000B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>}
+            <span style={{fontFamily:FC,fontWeight:900,fontSize:16,color:correct?"#007A33":"#E3000B"}}>{correct?"THAT LANDS":"DOESN'T LAND"}</span>
+          </div>
+          <div style={{fontSize:14,color:"#555",fontFamily:FB,lineHeight:1.6}}>{correct?prof.coachingTip:opt?.reason}</div>
+        </div>
+        <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:16}}>
+          <div style={{fontFamily:FC,fontWeight:700,fontSize:11,color:"#FFD300",marginBottom:6}}>BUSINESS IMPACT</div>
+          <div style={{fontSize:14,color:"#fff",fontFamily:FB,lineHeight:1.6}}>{prof.businessSaving}</div>
+        </div>
+        <button style={{...BY,width:"100%"}} onClick={nextProfile}>{profIdx<profiles.length-1?"NEXT PROFILE":"VIEW RESULTS"}</button>
+      </div>);})()}
+    </div>)}
+    {phase==="results"&&(<div style={{padding:"24px 20px"}}>
+      <div style={{textAlign:"center",marginBottom:24}}>
+        <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:"#FFD300"}}>{correctCount}/{profiles.length}</div>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:14,color:"#888"}}>CONVERSATIONS LANDED</div>
+      </div>
+      {results.map((r,i)=>{const p=profiles.find(x=>x.id===r.profileId);return(<div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div><div style={{fontFamily:FC,fontWeight:700,fontSize:14}}>{p?.name}</div><div style={{fontSize:12,color:"#888"}}>"{p?.objection?.substring(0,40)}..."</div></div>
+        <span style={{fontFamily:FC,fontWeight:900,color:r.correct?"#007A33":"#E3000B"}}>{r.correct?"LANDED":"MISSED"}</span>
+      </div>);})}
+      <div style={{background:"#000",borderRadius:14,padding:16,marginTop:16,marginBottom:16}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:4}}>KEY NUMBER</div>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:22,color:"#E3000B"}}>~$12,000/year</div>
+        <div style={{fontSize:13,color:"#888",fontFamily:FB}}>Average saving per casual-to-permanent conversion</div>
+      </div>
+      <button style={{...BY,width:"100%"}} onClick={()=>{const earnedPts=Math.round(ch.points*(correctCount/profiles.length));onS({text:"Perm or Pass completed",profiles:results,correctCount,weakestArea:results.filter(r=>!r.correct).map(r=>profiles.find(p=>p.id===r.profileId)?.name).join(", "),claimedBonus:correctCount===profiles.length,autoBonus:correctCount===profiles.length,points:earnedPts});}}>SUBMIT</button>
+    </div>)}
+  </div>);
+}
+
+// ─── YOUR RESTAURANT, YOUR NUMBER (NGL Week 4) ─────────────────────────────
+function YourRestaurant({ch,done,onS,onB,user,comps,users,actCfg}){
+  const[phase,setPhase]=useState("intro");const[step,setStep]=useState(1);
+  const[ahrVal,setAhrVal]=useState(37.10);const[juniorPct,setJuniorPct]=useState(10);const[permPct,setPermPct]=useState(30);const[showLever,setShowLever]=useState(false);const[showShare,setShowShare]=useState(false);
+  const calcProjection=()=>{const levers=[];
+    if(permPct<40){const hrs=546*((40-permPct)/100);const ws=hrs*6.63;levers.push({name:"Increase permanent mix to 40%",weeklySaving:Math.round(ws),annualSaving:Math.round(ws*52),newAHR:ahrVal-(hrs*6.63)/546});}
+    if(juniorPct<15){const hrs=546*((15-juniorPct)/100);const ws=hrs*6.67;levers.push({name:"Increase junior mix to 15%",weeklySaving:Math.round(ws),annualSaving:Math.round(ws*52),newAHR:ahrVal-(hrs*6.67)/546});}
+    return levers.sort((a,b)=>b.annualSaving-a.annualSaving)[0]||{name:"Already optimised",weeklySaving:0,annualSaving:0,newAHR:ahrVal};};
+  const lever=calcProjection();
+  // Cohort ranking
+  const batchComps=(comps||[]).filter(c=>c.challengeId==="ng-w4"&&c.batch===user.batch);
+  const allAHRs=[...batchComps.map(c=>c.submission?.currentAHR).filter(Boolean),ahrVal].sort((a,b)=>Math.abs(a-37.10)-Math.abs(b-37.10));
+  const rank=allAHRs.indexOf(ahrVal)+1;const total=allAHRs.length;
+  const quartile=ahrVal<=36.50?"Top 25%":ahrVal<=37.10?"Second 25%":ahrVal<=38.00?"Third 25%":"Bottom 25%";
+  if(done&&user.username!=="test-all")return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0"}}><div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div><div style={{textAlign:"center",padding:40}}><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#007A33" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginBottom:12}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div style={{fontFamily:FC,fontWeight:800,fontSize:18,letterSpacing:1,color:"#007A33"}}>CHALLENGE SUBMITTED</div></div></div>);
+  return(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",paddingBottom:40}}>
+    <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{ch.title}</span><span style={{width:32}}/></div>
+    {phase==="intro"&&(<div style={{padding:"24px 20px"}}>
+      <h2 style={{fontFamily:FC,fontWeight:900,fontSize:26,textAlign:"center",margin:"0 0 4px",letterSpacing:1}}>{ch.title}</h2>
+      <p style={{textAlign:"center",color:"#888",fontSize:14,marginBottom:20}}>{ch.subtitle}</p>
+      <p style={{fontSize:15,lineHeight:1.6,color:"#555",marginBottom:20}}>{ch.description}</p>
+      <button style={{...BY,width:"100%"}} onClick={()=>setPhase("input")}>START</button>
+    </div>)}
+    {phase==="input"&&(<div style={{padding:"24px 20px"}}>
+      <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:20}}>{[1,2,3].map(s=>(<div key={s} style={{width:12,height:12,borderRadius:6,background:s<step?"#007A33":s===step?"#FFD300":"#ddd"}}/>))}</div>
+      {step===1&&(<div>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:4}}>YOUR CURRENT AHR</div>
+        <div style={{fontSize:13,color:"#888",fontFamily:FB,marginBottom:16}}>Slide to your restaurant's current Average Hourly Rate</div>
+        <div style={{textAlign:"center",marginBottom:16}}>
+          <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:ahrVal<=37.10?"#007A33":ahrVal<=38.00?"#FFB800":"#E3000B"}}>${ahrVal.toFixed(2)}</div>
+          <div style={{fontSize:12,color:"#888",fontFamily:FC}}>Network target: $37.10</div>
+        </div>
+        <input type="range" min="3000" max="4500" value={Math.round(ahrVal*100)} onChange={e=>setAhrVal(parseInt(e.target.value)/100)} style={{width:"100%",accentColor:"#FFD300",height:8}}/>
+        <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}><span style={{fontSize:10,color:"#888"}}>$30.00</span><span style={{fontSize:10,color:"#007A33",fontWeight:700}}>$37.10</span><span style={{fontSize:10,color:"#888"}}>$45.00</span></div>
+        <button style={{...BY,width:"100%",marginTop:24}} onClick={()=>setStep(2)}>NEXT</button>
+      </div>)}
+      {step===2&&(<div>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:4}}>CREW AGE MIX</div>
+        <div style={{fontSize:13,color:"#888",fontFamily:FB,marginBottom:16}}>What percentage of your crew are juniors (16-19)?</div>
+        <div style={{textAlign:"center",marginBottom:16}}>
+          <div style={{fontSize:48,fontWeight:900,fontFamily:FC}}>{juniorPct}%</div>
+          <div style={{fontSize:12,color:"#888",fontFamily:FC}}>Junior (16-19)</div>
+        </div>
+        <input type="range" min="0" max="50" value={juniorPct} onChange={e=>setJuniorPct(parseInt(e.target.value))} style={{width:"100%",accentColor:"#FFD300",height:8}}/>
+        <div style={{display:"flex",justifyContent:"space-between",marginTop:8}}>
+          <div style={{flex:juniorPct,background:"#FFD300",height:24,borderRadius:"8px 0 0 8px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontFamily:FC,fontWeight:700,minWidth:juniorPct>5?40:0,transition:"flex 0.3s"}}>{juniorPct>5?`${juniorPct}% Junior`:""}</div>
+          <div style={{flex:100-juniorPct,background:"#1a1a1a",height:24,borderRadius:"0 8px 8px 0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontFamily:FC,fontWeight:700,color:"#fff",transition:"flex 0.3s"}}>{100-juniorPct}% Adult</div>
+        </div>
+        <button style={{...BY,width:"100%",marginTop:24}} onClick={()=>setStep(3)}>NEXT</button>
+      </div>)}
+      {step===3&&(<div>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:16,marginBottom:4}}>CLASSIFICATION MIX</div>
+        <div style={{fontSize:13,color:"#888",fontFamily:FB,marginBottom:16}}>What percentage of your team is permanent (PT/FT)?</div>
+        <div style={{textAlign:"center",marginBottom:16}}>
+          <div style={{fontSize:48,fontWeight:900,fontFamily:FC,color:permPct>=40?"#007A33":permPct>=25?"#FFB800":"#E3000B"}}>{permPct}%</div>
+          <div style={{fontSize:12,color:"#888",fontFamily:FC}}>Target: 40% permanent</div>
+        </div>
+        <input type="range" min="0" max="80" value={permPct} onChange={e=>setPermPct(parseInt(e.target.value))} style={{width:"100%",accentColor:"#FFD300",height:8}}/>
+        <div style={{display:"flex",justifyContent:"space-between",marginTop:8}}>
+          <div style={{flex:permPct,background:"#007A33",height:24,borderRadius:"8px 0 0 8px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontFamily:FC,fontWeight:700,color:"#fff",minWidth:permPct>10?40:0,transition:"flex 0.3s"}}>{permPct>10?`${permPct}% Perm`:""}</div>
+          <div style={{flex:100-permPct,background:"#E3000B",height:24,borderRadius:"0 8px 8px 0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontFamily:FC,fontWeight:700,color:"#fff",transition:"flex 0.3s"}}>{100-permPct}% Casual</div>
+        </div>
+        <button style={{...BY,width:"100%",marginTop:24}} onClick={()=>setPhase("results")}>SEE MY RESULTS</button>
+      </div>)}
+    </div>)}
+    {phase==="results"&&(<div style={{padding:"24px 20px"}}>
+      <div style={{textAlign:"center",marginBottom:20}}><div style={{fontSize:22,fontFamily:FC,fontWeight:900,letterSpacing:1}}>YOUR NUMBERS</div></div>
+      {/* AHR vs target */}
+      <div style={{background:"#fff",borderRadius:14,padding:16,marginBottom:10,border:"1px solid #e8e8e3"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}><span style={{fontFamily:FC,fontWeight:700,fontSize:13}}>YOUR AHR</span><span style={{fontFamily:FC,fontWeight:900,fontSize:28,color:ahrVal<=37.10?"#007A33":"#E3000B"}}>${ahrVal.toFixed(2)}</span></div>
+        <div style={{fontSize:12,color:"#888",fontFamily:FB}}>Network target: $37.10 | Gap: <span style={{color:ahrVal>37.10?"#E3000B":"#007A33",fontWeight:700}}>{ahrVal>37.10?"+":""}${(ahrVal-37.10).toFixed(2)}</span></div>
+      </div>
+      {/* Bench mix */}
+      <div style={{background:"#fff",borderRadius:14,padding:16,marginBottom:10,border:"1px solid #e8e8e3"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}><span style={{fontFamily:FC,fontWeight:700,fontSize:13}}>PERM MIX</span><span style={{fontFamily:FC,fontWeight:900,fontSize:28,color:permPct>=40?"#007A33":"#E3000B"}}>{permPct}%</span></div>
+        <div style={{fontSize:12,color:"#888",fontFamily:FB}}>Target: 40% | {permPct>=40?"On target":"Gap: "+(40-permPct)+"% to target"}</div>
+      </div>
+      {/* Cohort rank */}
+      <div style={{background:"#fff",borderRadius:14,padding:16,marginBottom:10,border:"1px solid #e8e8e3"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}><span style={{fontFamily:FC,fontWeight:700,fontSize:13}}>COHORT RANK</span><span style={{fontFamily:FC,fontWeight:900,fontSize:28}}>{rank}<span style={{fontSize:14,color:"#888"}}>/{total}</span></span></div>
+        <div style={{fontSize:12,color:"#888",fontFamily:FB}}>Ranked by proximity to $37.10 target</div>
+      </div>
+      {/* Network quartile */}
+      <div style={{background:"#000",borderRadius:14,padding:16,marginBottom:16}}>
+        <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#FFD300",marginBottom:4}}>NETWORK POSITION</div>
+        <div style={{fontFamily:FC,fontWeight:900,fontSize:20,color:"#fff"}}>{quartile}</div>
+      </div>
+      {/* Lever reveal */}
+      {!showLever?(<button onClick={()=>setShowLever(true)} style={{...BO,width:"100%",marginBottom:16}}>REVEAL YOUR BEST LEVER</button>)
+      :(<div style={{background:"#fff",borderRadius:14,padding:16,marginBottom:16,border:"2px solid #FFD300"}}>
+        <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:8}}>BEST LEVER FOR YOUR RESTAURANT</div>
+        <div style={{fontSize:15,fontFamily:FB,lineHeight:1.6,marginBottom:12}}>{lever.name}</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+          <div style={{textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24,color:"#E3000B"}}>${lever.weeklySaving.toLocaleString()}</div><div style={{fontSize:11,color:"#888",fontFamily:FC}}>WEEKLY SAVING</div></div>
+          <div style={{textAlign:"center"}}><div style={{fontFamily:FC,fontWeight:900,fontSize:24,color:"#E3000B"}}>${lever.annualSaving.toLocaleString()}</div><div style={{fontSize:11,color:"#888",fontFamily:FC}}>ANNUAL SAVING</div></div>
+        </div>
+        <div style={{marginTop:10,fontSize:13,color:"#555",fontFamily:FB}}>Projected AHR: ${lever.newAHR.toFixed(2)}</div>
+      </div>)}
+      <button style={{...BY,width:"100%"}} onClick={()=>{onS({text:"Your Restaurant, Your Number completed",checkInType:"initial",restaurant:user.restaurant,currentAHR:ahrVal,juniorPercent:juniorPct,permPercent:permPct,recommendedLever:lever.name,projectedAHR:lever.newAHR,weeklySaving:lever.weeklySaving,annualSaving:lever.annualSaving,cohortRank:rank,networkQuartile:quartile,claimedBonus:false,autoBonus:false,points:ch.points});}}>SUBMIT</button>
+    </div>)}
+  </div>);
+}
 
 // ─── LEADERBOARD ─────────────────────────────────────────────────────────────
 function LbV({us,co,cu,onB,onP,defaultProg,defaultBatch}){const[fi,sF]=useState(defaultProg||"all");const[fb,sFb]=useState(defaultBatch||"all");
@@ -2898,6 +3269,79 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                           <button onClick={()=>{const sl=[...(acfg.spot_the_moment?.shotList||[...SHOT_LIST])];sl.splice(si,1);saveAcfg("spot_the_moment",{shotList:sl});}} style={{background:"none",border:"none",color:"#E3000B",cursor:"pointer",fontSize:11,padding:"4px",flexShrink:0}}>x</button>
                         </div>
                       ))}
+                    </div>
+                  </div>)}
+
+                  {/* Shift Call */}
+                  {item.type==="shift_call"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Shift Call Settings</div>
+                    <div style={{marginBottom:14}}><div style={subLabel}>TIME LIMIT PER SCENARIO</div><div style={{display:"flex",alignItems:"center",gap:4}}><input type="number" value={acfg.shift_call?.timeLimit||10} onChange={e=>saveAcfg("shift_call",{timeLimit:parseInt(e.target.value)||10})} style={{...inp,width:60,textAlign:"center"}}/><span style={{fontSize:11,color:"#999"}}>seconds</span></div></div>
+                    <div style={subLabel}>SCENARIOS ({(acfg.shift_call?.scenarios||SHIFT_SCENARIOS).length})</div>
+                    {(acfg.shift_call?.scenarios||SHIFT_SCENARIOS).map((sc,si)=>(
+                      <div key={si} style={{background:"#fff",borderRadius:10,padding:12,marginBottom:6}}>
+                        <div style={{display:"flex",gap:6,marginBottom:6}}>
+                          <input value={sc.day} onChange={e=>{const s=[...(acfg.shift_call?.scenarios||[...SHIFT_SCENARIOS])];s[si]={...s[si],day:e.target.value};saveAcfg("shift_call",{scenarios:s});}} style={{...inp,width:80,fontSize:12,padding:"4px 8px"}} placeholder="Day"/>
+                          <input value={sc.time} onChange={e=>{const s=[...(acfg.shift_call?.scenarios||[...SHIFT_SCENARIOS])];s[si]={...s[si],time:e.target.value};saveAcfg("shift_call",{scenarios:s});}} style={{...inp,width:60,fontSize:12,padding:"4px 8px"}} placeholder="Time"/>
+                          <select value={sc.correct} onChange={e=>{const s=[...(acfg.shift_call?.scenarios||[...SHIFT_SCENARIOS])];s[si]={...s[si],correct:e.target.value};saveAcfg("shift_call",{scenarios:s});}} style={{...inp,width:70,fontSize:11,padding:"4px"}}><option value="react">React</option><option value="hold">Hold</option></select>
+                        </div>
+                        <textarea value={sc.situation} onChange={e=>{const s=[...(acfg.shift_call?.scenarios||[...SHIFT_SCENARIOS])];s[si]={...s[si],situation:e.target.value};saveAcfg("shift_call",{scenarios:s});}} rows={2} style={{...inp,resize:"vertical",fontSize:12,padding:"6px 10px"}}/>
+                        <div style={{display:"flex",gap:8,marginTop:4}}>
+                          <div style={{display:"flex",alignItems:"center",gap:4}}><span style={{fontSize:10,color:"#888",fontFamily:FC}}>Cost/day:</span><input type="number" value={sc.costDaily} onChange={e=>{const s=[...(acfg.shift_call?.scenarios||[...SHIFT_SCENARIOS])];s[si]={...s[si],costDaily:parseInt(e.target.value)||0};saveAcfg("shift_call",{scenarios:s});}} style={{...inp,width:60,fontSize:11,padding:"4px 6px",textAlign:"center"}}/></div>
+                          <div style={{display:"flex",alignItems:"center",gap:4}}><span style={{fontSize:10,color:"#888",fontFamily:FC}}>Cost/yr:</span><input type="number" value={sc.costAnnual} onChange={e=>{const s=[...(acfg.shift_call?.scenarios||[...SHIFT_SCENARIOS])];s[si]={...s[si],costAnnual:parseInt(e.target.value)||0};saveAcfg("shift_call",{scenarios:s});}} style={{...inp,width:80,fontSize:11,padding:"4px 6px",textAlign:"center"}}/></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>)}
+
+                  {/* Bench Builder */}
+                  {item.type==="bench_builder"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Bench Builder Settings</div>
+                    <div style={{fontSize:12,color:"#888",fontFamily:FB,marginBottom:12}}>3 levels with crew pools, target AHR, and hours budgets. Crew rates are fixed from GYG commercial files.</div>
+                    {(acfg.bench_builder?.levels||BENCH_LEVELS).map((lv,li)=>(
+                      <div key={li} style={{background:"#fff",borderRadius:10,padding:12,marginBottom:8}}>
+                        <div style={{fontFamily:FC,fontWeight:800,fontSize:13,marginBottom:8}}>{lv.name}</div>
+                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:8}}>
+                          <div><div style={{fontSize:10,color:"#888",fontFamily:FC}}>Hours</div><input type="number" value={lv.totalHours} onChange={e=>{const l=[...(acfg.bench_builder?.levels||[...BENCH_LEVELS])];l[li]={...l[li],totalHours:parseInt(e.target.value)||0};saveAcfg("bench_builder",{levels:l});}} style={{...inp,textAlign:"center",fontSize:12}}/></div>
+                          <div><div style={{fontSize:10,color:"#888",fontFamily:FC}}>Current AHR</div><input type="number" step="0.01" value={lv.currentAHR} onChange={e=>{const l=[...(acfg.bench_builder?.levels||[...BENCH_LEVELS])];l[li]={...l[li],currentAHR:parseFloat(e.target.value)||0};saveAcfg("bench_builder",{levels:l});}} style={{...inp,textAlign:"center",fontSize:12}}/></div>
+                          <div><div style={{fontSize:10,color:"#888",fontFamily:FC}}>Target AHR</div><input type="number" step="0.01" value={lv.targetAHR} onChange={e=>{const l=[...(acfg.bench_builder?.levels||[...BENCH_LEVELS])];l[li]={...l[li],targetAHR:parseFloat(e.target.value)||0};saveAcfg("bench_builder",{levels:l});}} style={{...inp,textAlign:"center",fontSize:12}}/></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>)}
+
+                  {/* Perm or Pass */}
+                  {item.type==="perm_or_pass"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Perm or Pass Settings</div>
+                    <div style={subLabel}>PROFILES ({(acfg.perm_or_pass?.profiles||PERM_PROFILES).length})</div>
+                    {(acfg.perm_or_pass?.profiles||PERM_PROFILES).map((pr,pi)=>(
+                      <div key={pi} style={{background:"#fff",borderRadius:10,padding:12,marginBottom:8}}>
+                        <div style={{display:"flex",gap:6,marginBottom:6}}>
+                          <input value={pr.name} onChange={e=>{const p=[...(acfg.perm_or_pass?.profiles||[...PERM_PROFILES])];p[pi]={...p[pi],name:e.target.value};saveAcfg("perm_or_pass",{profiles:p});}} style={{...inp,width:80,fontWeight:700,fontSize:13,padding:"6px 10px"}} placeholder="Name"/>
+                          <input type="number" value={pr.months} onChange={e=>{const p=[...(acfg.perm_or_pass?.profiles||[...PERM_PROFILES])];p[pi]={...p[pi],months:parseInt(e.target.value)||0};saveAcfg("perm_or_pass",{profiles:p});}} style={{...inp,width:50,fontSize:12,padding:"6px",textAlign:"center"}}/>
+                          <span style={{fontSize:10,color:"#888",alignSelf:"center"}}>mths</span>
+                          <input type="number" value={pr.avgHours} onChange={e=>{const p=[...(acfg.perm_or_pass?.profiles||[...PERM_PROFILES])];p[pi]={...p[pi],avgHours:parseInt(e.target.value)||0};saveAcfg("perm_or_pass",{profiles:p});}} style={{...inp,width:50,fontSize:12,padding:"6px",textAlign:"center"}}/>
+                          <span style={{fontSize:10,color:"#888",alignSelf:"center"}}>hrs</span>
+                        </div>
+                        <div style={{marginBottom:6}}><div style={{fontSize:10,color:"#888",fontFamily:FC}}>OBJECTION</div><textarea value={pr.objection} onChange={e=>{const p=[...(acfg.perm_or_pass?.profiles||[...PERM_PROFILES])];p[pi]={...p[pi],objection:e.target.value};saveAcfg("perm_or_pass",{profiles:p});}} rows={1} style={{...inp,resize:"vertical",fontSize:12,padding:"6px 10px"}}/></div>
+                        {pr.options.map((opt,oi)=>(
+                          <div key={oi} style={{display:"flex",alignItems:"center",gap:4,marginBottom:2}}>
+                            <span style={{width:8,height:8,borderRadius:4,background:opt.lands?"#007A33":"#E3000B",flexShrink:0}}/>
+                            <input value={opt.text} onChange={e=>{const p=[...(acfg.perm_or_pass?.profiles||[...PERM_PROFILES])];p[pi]={...p[pi],options:[...p[pi].options]};p[pi].options[oi]={...opt,text:e.target.value};saveAcfg("perm_or_pass",{profiles:p});}} style={{...inp,flex:1,fontSize:11,padding:"4px 8px"}}/>
+                          </div>
+                        ))}
+                        <div style={{marginTop:6}}><div style={{fontSize:10,color:"#888",fontFamily:FC}}>COACHING TIP</div><textarea value={pr.coachingTip} onChange={e=>{const p=[...(acfg.perm_or_pass?.profiles||[...PERM_PROFILES])];p[pi]={...p[pi],coachingTip:e.target.value};saveAcfg("perm_or_pass",{profiles:p});}} rows={2} style={{...inp,resize:"vertical",fontSize:11,padding:"4px 8px"}}/></div>
+                        <div style={{marginTop:4}}><div style={{fontSize:10,color:"#888",fontFamily:FC}}>BUSINESS SAVING</div><input value={pr.businessSaving} onChange={e=>{const p=[...(acfg.perm_or_pass?.profiles||[...PERM_PROFILES])];p[pi]={...p[pi],businessSaving:e.target.value};saveAcfg("perm_or_pass",{profiles:p});}} style={{...inp,fontSize:11,padding:"4px 8px"}}/></div>
+                      </div>
+                    ))}
+                  </div>)}
+
+                  {/* Your Restaurant */}
+                  {item.type==="your_restaurant"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Your Restaurant Settings</div>
+                    <div style={{fontSize:12,color:"#888",fontFamily:FB}}>Slider-based data entry. All benchmarks are from GYG commercial files.</div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:10}}>
+                      <div><div style={subLabel}>NETWORK AHR TARGET</div><input type="number" step="0.01" value={acfg.your_restaurant?.networkTarget||37.10} onChange={e=>saveAcfg("your_restaurant",{networkTarget:parseFloat(e.target.value)||37.10})} style={{...inp,textAlign:"center"}}/></div>
+                      <div><div style={subLabel}>PERM TARGET %</div><input type="number" value={acfg.your_restaurant?.permTarget||40} onChange={e=>saveAcfg("your_restaurant",{permTarget:parseInt(e.target.value)||40})} style={{...inp,textAlign:"center"}}/></div>
                     </div>
                   </div>)}
 
