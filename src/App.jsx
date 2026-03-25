@@ -130,6 +130,9 @@ const DEFAULT_CHALLENGES = {
 
 
 const DEFAULT_ACTIVITIES = {
+  lse: [
+    { id: "lse-act-1", type: "self_assessment", title: "REALLY KNOW YOURSELF", subtitle: "Leadership Self Assessment" }
+  ],
   essentials: [
     { id: "le-act-1", type: "huddle_builder", title: "SAY IT LIKE A LEADER", subtitle: "Interactive Huddle Builder" }
   ],
@@ -383,6 +386,11 @@ export default function App(){
     // Seed NGL batch control if not set
     if(bc&&!bc["GYG-NGL-WK13-26"]){bc={...bc,"GYG-NGL-WK13-26":{activeActivity:"ng-act-1",completedActivities:[],challengesUnlocked:false}};try{await dbSetBatchControl(bc);}catch(e){}setBatchControlState(bc);}
     if(!bc){bc=bc||{};bc["GYG-NGL-WK13-26"]={activeActivity:"ng-act-1",completedActivities:[],challengesUnlocked:false};}
+    // Seed LSE test user
+    if(!u.find(x=>x.username==="test4")){const t4={id:"test-user-4",name:"Test LSE",email:"test4@gyg.com",username:"test4",password:"test4",position:"Crew Member",program:"lse",restaurant:"Sydney CBD",batch:"GYG-LSE-WK13-26",lunchType:"burrito",lunchFilling:"grilled_chicken",createdAt:new Date().toISOString()};await addUser(t4);u=[...u,t4];setUsers(u);}
+    // Seed LSE batch control if not set
+    if(bc&&!bc["GYG-LSE-WK13-26"]){bc={...bc,"GYG-LSE-WK13-26":{activeActivity:"lse-act-1",completedActivities:[],challengesUnlocked:false}};try{await dbSetBatchControl(bc);}catch(e){}setBatchControlState(bc);}
+    if(!bc["GYG-LSE-WK13-26"]){bc["GYG-LSE-WK13-26"]={activeActivity:"lse-act-1",completedActivities:[],challengesUnlocked:false};}
     // If activityComps empty but test user exists, use local seed data
     if(ac.length===0&&u.find(x=>x.id==="test-user-1")){const tac={id:"ac-test-1",userId:"test-user-1",activityId:"le-act-1",program:"essentials",batch:"GYG-LE-WK13-26",data:{type:"huddle_builder",focus:"sales",subFocus:"combos",script:["Team, combo sales dropped 12% last week - that is money we are leaving on the table.","When I watched our best performer yesterday, she asked every single guest one question.","Instead of waiting for the guest to order, try this -","Right after they pick their main, say: Want to make it a combo? You get chips and a drink for just $4 more.","The difference is timing - ask BEFORE they finish, not after.","Make it a combo - it is the easiest yes in the restaurant.","Let us smash it today. First person to land 10 combos, let me know - I want to hear about it."],assembledScript:"",crewLine:"Make it a combo - it is the easiest yes in the restaurant.",partnerName:"Sarah",partnerFeedback:{buyIn:"yes",repeatable:"yes",voiceMatch:"yes"},allYes:true},completedAt:new Date().toISOString()};ac=[tac];setActivityComps(ac);}
     if(!bc&&u.find(x=>x.id==="test-user-1")){bc={"GYG-LE-WK13-26":{activities:{"le-act-1":"completed"},completedActivities:["le-act-1"],challengesUnlocked:true}};setBatchControlState(bc);}
@@ -478,6 +486,7 @@ export default function App(){
       {view==="leaderboard"&&user&&<LbV us={users} co={comps} cu={user} onB={()=>setView("dashboard")} onP={()=>setView("profile")} defaultProg={user.program} defaultBatch={user.batch}/>}
       {view==="profile"&&user&&<PrV u={user} co={comps.filter(c=>c.userId===user.id)} sc={pts(user.id,user.program)} onO={logout} onB={()=>setView("dashboard")} onBd={()=>setView("leaderboard")}/>}
       {view==="activities"&&user&&<ActivitiesV u={user} acts={getActs(user.program)||[]} batchControl={batchControl} actComps={activityComps.filter(c=>c.userId===user.id)} onAct={a=>{setSel(a);setView("activity");}} onB={logout}/>}
+      {view==="activity"&&sel&&user&&sel.type==="self_assessment"&&<SelfAssessment act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}}/>}
       {view==="activity"&&sel&&user&&sel.type==="huddle_builder"&&<HuddleBuilder act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}}/>}
       {view==="activity"&&sel&&user&&sel.type==="coolroom_countdown"&&<CoolRoomCountdown act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}} coolroomImgs={coolroomImgs[user.batch]}/>}
       {view==="activity"&&sel&&user&&sel.type==="roster_reality"&&<RosterReality act={sel} u={user} onComplete={d=>completeActivity(sel.id,d)} onB={()=>{setView(prevView||"activities");setPrevView(null);}}/>}
@@ -826,6 +835,7 @@ const CI={
   // Document/brief
   numbers_dont_lie:<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFD300" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
   // Chart line (P&L)
+  self_assessment:<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFD300" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>,
 };
 
 // ─── Shared interactive styles ──────────────────────────────────────────────
@@ -838,6 +848,257 @@ const scenarioBadge={display:"inline-block",padding:"4px 12px",background:"#FFD3
 const resultCorrect={background:"#f0f8f0",border:"2px solid #007A33",borderRadius:14,padding:16};
 const resultWrong={background:"#fef0f0",border:"2px solid #E3000B",borderRadius:14,padding:16};
 const selectStyle={padding:"14px 16px",background:"#fff",border:"1px solid #e8e8e3",borderRadius:12,fontFamily:FB,fontSize:14,color:"#1a1a1a",width:"100%",boxSizing:"border-box",appearance:"auto"};
+
+// ─── SELF ASSESSMENT (LSE Activity) ─────────────────────────────────────────
+const ASSESSMENT_CATEGORIES = [
+  {id:"communication",title:"Communication Skills",items:[
+    {id:"comm_1",text:"I effectively break down key information to my team"},
+    {id:"comm_2",text:"I actively listen to my team members"},
+    {id:"comm_3",text:"I am open to giving and receiving feedback"},
+    {id:"comm_4",text:"I facilitate transparent and constructive communication within the team"},
+    {id:"comm_5",text:"I encourage collaboration and idea-sharing among team members"},
+    {id:"comm_6",text:"I foster an environment where everyone feels heard and valued"},
+  ]},
+  {id:"decision",title:"Decision-Making",items:[
+    {id:"dec_1",text:"I make informed decisions considering various perspectives"},
+    {id:"dec_2",text:"I am decisive and able to take calculated risks"},
+    {id:"dec_3",text:"I analyse situations before making conclusions"},
+  ]},
+  {id:"operations",title:"Operations Management",items:[
+    {id:"ops_1",text:"I motivate and inspire my team to follow food and guest procedures"},
+    {id:"ops_2",text:"I communicate tasks efficiently and trust my team's abilities"},
+    {id:"ops_3",text:"I lead by example and uphold standards, policies and procedures"},
+  ]},
+  {id:"accountability",title:"Accountability",items:[
+    {id:"acc_1",text:"I am flexible and adapt when handling change"},
+    {id:"acc_2",text:"I embrace challenges as learning opportunities"},
+    {id:"acc_3",text:"I adjust strategies based on evolving situations"},
+  ]},
+  {id:"conflict",title:"Conflict Resolution",items:[
+    {id:"con_1",text:"I handle conflicts diplomatically and seek win-win solutions"},
+    {id:"con_2",text:"I am skilled at resolving disputes within the team"},
+    {id:"con_3",text:"I promote a positive and inclusive work environment"},
+  ]},
+  {id:"empowerment",title:"Empowerment and Support",items:[
+    {id:"emp_1",text:"I encourage individual growth and provide necessary resources"},
+    {id:"emp_2",text:"I recognise and appreciate team members' contributions"},
+    {id:"emp_3",text:"I offer guidance and mentorship when needed"},
+  ]},
+  {id:"goals",title:"Goal Alignment / Shift Goals",items:[
+    {id:"goal_1",text:"I ensure team goals are clear and align with organisational objectives"},
+    {id:"goal_2",text:"I assist team members in setting SMART goals"},
+    {id:"goal_3",text:"I regularly review and adjust team goals based on evolving priorities and feedback"},
+  ]},
+  {id:"performance",title:"Performance Management",items:[
+    {id:"perf_1",text:"I ensure all individuals in my team have a clear understanding of their role and responsibilities"},
+    {id:"perf_2",text:"I address performance issues promptly and constructively"},
+    {id:"perf_3",text:"I support team members in their aspirations and development"},
+  ]},
+  {id:"innovation",title:"Innovation and Continuous Improvement",items:[
+    {id:"inn_1",text:"I encourage creative thinking and welcome new ideas"},
+    {id:"inn_2",text:"I actively seek ways to improve processes and workflows"},
+    {id:"inn_3",text:"I stay informed about industry trends and best practices"},
+  ]},
+];
+
+const SCORE_BANDS = [
+  {min:0,max:27,color:"#E3000B",title:"Minimal evidence of displaying the assessed leadership behaviours - substantial room for improvement.",feedback:["Foster transparent communication to create an environment where everyone feels heard and valued.","Actively listen to team members and be more open to giving and receiving feedback.","Make more informed decisions considering various perspectives and analyse situations thoroughly.","Motivate and inspire your team, delegate tasks efficiently, and lead by example with integrity.","Handle conflicts diplomatically and promote a positive and inclusive work environment."]},
+  {min:28,max:54,color:"#FFD300",title:"Opportunities for growth and refinement - further practice could help a more consistent application.",feedback:["Foster transparent communication within the team and encourage collaboration and idea-sharing.","Consistent provision of feedback, recognising achievements, and address performance issues promptly.","More consistent decision-making considering various perspectives and thorough analysis of situations.","Ensure team goals align with GYG Aspirations and regularly review and adjust these goals.","Consistent flexibility in embracing challenges as learning opportunities and adjusting based on the situation."]},
+  {min:55,max:81,color:"#007A33",title:"High level of proficiency, reliability, and consistency - competent and reliable leaders with some opportunity.",feedback:["Ensure consistent support and encouragement to individuals on the team for their growth and development.","Maintain a high standard in handling conflicts diplomatically and actively promote a positive, inclusive work environment.","Embrace a continuous improvement mindset, consistently seek ways to further enhance leadership.","Actively set strategic goals that contribute to the growth of GYG.","Consistently demonstrate the ability to drive initiatives that align with GYG Aspirations, including follow up."]},
+];
+
+function SelfAssessment({act,u,onComplete,onB}){
+  const[screen,setScreen]=useState(1);
+  const[scores,setScores]=useState({});
+  const[q1,setQ1]=useState("");
+  const[q2,setQ2]=useState("");
+  const[q3,setQ3]=useState("");
+  const[q4,setQ4]=useState("");
+
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});document.documentElement.scrollTop=0;},[screen]);
+
+  const totalScore=Object.values(scores).reduce((s,v)=>s+v,0);
+  const band=SCORE_BANDS.find(b=>totalScore>=b.min&&totalScore<=b.max)||SCORE_BANDS[0];
+  const catScores=ASSESSMENT_CATEGORIES.map(cat=>({id:cat.id,title:cat.title,score:cat.items.reduce((s,it)=>s+(scores[it.id]||0),0),max:cat.items.length*3}));
+  const allItems=ASSESSMENT_CATEGORIES.flatMap(c=>c.items);
+  const allDone=allItems.every(it=>scores[it.id]);
+
+  // Screen 1: Instructions
+  if(screen===1)return(
+    <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
+      <div style={TBar}><button style={BA} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{act.title}</span><span style={{width:32}}/></div>
+      <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:`${(1/12)*100}%`,transition:"width 0.3s"}}/></div>
+      <div style={{padding:"28px 20px",display:"flex",flexDirection:"column",alignItems:"center",gap:18,maxWidth:520,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
+        <div style={{width:72,height:72,borderRadius:36,background:"#000",display:"flex",alignItems:"center",justifyContent:"center"}}>{CI.self_assessment}</div>
+        <div style={{textAlign:"center"}}>
+          <div style={{fontFamily:F107,fontWeight:900,fontSize:24,letterSpacing:1}}>{act.title}</div>
+          <div style={{fontFamily:FC,fontWeight:600,fontSize:14,color:"#888",marginTop:6}}>{act.subtitle}</div>
+        </div>
+        <div style={{width:"100%",background:"#fff",border:"1px solid #e8e8e3",borderRadius:14,padding:"20px"}}>
+          {[
+            ["Read each statement carefully.","Take your time to understand the specific statement."],
+            ["Evaluate yourself.","Select the number that most reflects your behaviour (1: never, 2: sometimes, 3: always)."],
+            ["Be Honest.","Evaluate yourself based on your experiences as a leader. Consider how you demonstrate each behaviour."],
+            ["Be Open to Feedback.","Consider seeking input from peers, mentors, or supervisors to gain additional perspectives on your leadership style."],
+          ].map(([bold,desc],i)=>(
+            <div key={i} style={{marginBottom:i<3?16:0,display:"flex",gap:12,alignItems:"flex-start"}}>
+              <div style={{width:28,height:28,borderRadius:14,background:"#000",color:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:13,flexShrink:0,marginTop:2}}>{i+1}</div>
+              <div><span style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{bold}</span><span style={{fontFamily:FB,fontSize:14,color:"#555"}}> {desc}</span></div>
+            </div>
+          ))}
+        </div>
+        <button style={{...BY,width:"100%"}} onClick={()=>setScreen(2)}>BEGIN ASSESSMENT</button>
+      </div>
+    </div>
+  );
+
+  // Screens 2-10: Categories
+  if(screen>=2&&screen<=10){
+    const catIdx=screen-2;
+    const cat=ASSESSMENT_CATEGORIES[catIdx];
+    const catComplete=cat.items.every(it=>scores[it.id]);
+    return(
+    <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
+      <div style={TBar}><button style={BA} onClick={()=>setScreen(screen-1)}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>{catIdx+1} OF 9</span><span style={{width:32}}/></div>
+      <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:`${((screen)/12)*100}%`,transition:"width 0.3s"}}/></div>
+      <div style={{padding:"20px",maxWidth:520,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
+        <div style={{fontFamily:F107,fontWeight:900,fontSize:20,letterSpacing:0.5,marginBottom:4}}>{cat.title.toUpperCase()}</div>
+        <div style={{fontSize:13,color:"#888",fontFamily:FC,fontWeight:600,marginBottom:16}}>{cat.items.length} statements</div>
+
+        {/* Rating scale header */}
+        <div style={{display:"flex",justifyContent:"flex-end",gap:0,marginBottom:8,paddingRight:4}}>
+          {["1","2","3"].map(n=>(
+            <div key={n} style={{width:40,textAlign:"center",fontFamily:FC,fontWeight:800,fontSize:12,color:"#999"}}>{n}</div>
+          ))}
+        </div>
+        <div style={{display:"flex",justifyContent:"flex-end",gap:0,marginBottom:12,paddingRight:4}}>
+          {["Never","Some-\ntimes","Always"].map((l,i)=>(
+            <div key={i} style={{width:40,textAlign:"center",fontFamily:FC,fontWeight:600,fontSize:9,color:"#bbb",lineHeight:1.2,whiteSpace:"pre-line"}}>{l}</div>
+          ))}
+        </div>
+
+        {cat.items.map((item,i)=>(
+          <div key={item.id} style={{background:i%2===0?"#fff":"#f5f5f0",border:"1px solid #e8e8e3",borderRadius:12,padding:"14px 12px",marginBottom:6,display:"flex",alignItems:"center",gap:10}}>
+            <div style={{flex:1,fontSize:14,fontFamily:FB,lineHeight:1.5,color:"#333"}}>{item.text}</div>
+            <div style={{display:"flex",gap:8,flexShrink:0}}>
+              {[1,2,3].map(v=>(
+                <button key={v} onClick={()=>setScores(p=>({...p,[item.id]:v}))} style={{width:36,height:36,borderRadius:18,border:`2px solid ${scores[item.id]===v?"#FFD300":"#ddd"}`,background:scores[item.id]===v?"#FFD300":"transparent",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all 0.15s",padding:0}}>
+                  <span style={{fontFamily:FC,fontWeight:800,fontSize:14,color:scores[item.id]===v?"#000":"#999"}}>{v}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <button style={{...BY,width:"100%",marginTop:16,opacity:catComplete?1:0.4}} disabled={!catComplete} onClick={()=>setScreen(screen+1)}>
+          {screen<10?"NEXT":"SEE RESULTS"}
+        </button>
+        <button onClick={()=>{const newScores={...scores};cat.items.forEach(it=>delete newScores[it.id]);setScores(newScores);}} style={{background:"none",border:"none",color:"#999",fontFamily:FC,fontWeight:600,fontSize:12,letterSpacing:0.5,cursor:"pointer",display:"block",margin:"12px auto 0",padding:"8px 16px"}}>CLEAR RESPONSES</button>
+      </div>
+    </div>);
+  }
+
+  // Screen 11: Results
+  if(screen===11)return(
+    <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
+      <div style={TBar}><button style={BA} onClick={()=>setScreen(10)}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>YOUR RESULTS</span><span style={{width:32}}/></div>
+      <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:`${(11/12)*100}%`,transition:"width 0.3s"}}/></div>
+      <div style={{padding:"24px 20px",maxWidth:520,margin:"0 auto",width:"100%",boxSizing:"border-box"}}>
+        {/* Score display */}
+        <div style={{background:"#000",borderRadius:14,padding:"24px 20px",textAlign:"center",marginBottom:20}}>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:14,color:"#888",letterSpacing:1,marginBottom:8}}>YOUR SCORE</div>
+          <div><span style={{fontFamily:FC,fontWeight:900,fontSize:56,color:band.color}}>{totalScore}</span><span style={{fontFamily:FC,fontWeight:600,fontSize:24,color:"#666"}}>/81</span></div>
+        </div>
+
+        {/* Score bands */}
+        {SCORE_BANDS.map((b,i)=>{
+          const isActive=b===band;
+          return(
+            <div key={i} style={{background:isActive?"#fff":"#f9f9f6",border:`${isActive?"2":"1"}px solid ${isActive?b.color:"#e8e8e3"}`,borderLeft:`4px solid ${b.color}`,borderRadius:14,padding:isActive?"18px 16px":"14px 16px",marginBottom:10,opacity:isActive?1:0.6,transition:"all 0.2s"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                <span style={{fontFamily:FC,fontWeight:900,fontSize:14,color:b.color}}>{b.min} - {b.max}</span>
+                {isActive&&<span style={{fontFamily:FC,fontWeight:800,fontSize:10,background:b.color,color:b.color==="#FFD300"?"#000":"#fff",padding:"3px 10px",borderRadius:10,letterSpacing:0.5}}>YOU</span>}
+              </div>
+              <div style={{fontFamily:FC,fontWeight:700,fontSize:isActive?14:12,color:"#333",marginBottom:isActive?10:0,lineHeight:1.4}}>{b.title}</div>
+              {isActive&&<div style={{display:"flex",flexDirection:"column",gap:6,marginTop:8}}>
+                {b.feedback.map((f,fi)=>(
+                  <div key={fi} style={{fontSize:13,fontFamily:FB,color:"#555",lineHeight:1.5,paddingLeft:12,borderLeft:"2px solid "+b.color}}>{f}</div>
+                ))}
+              </div>}
+            </div>
+          );
+        })}
+
+        {/* Category breakdown */}
+        <div style={{marginTop:20}}>
+          <div style={{fontFamily:FC,fontWeight:900,fontSize:14,letterSpacing:1,marginBottom:12}}>CATEGORY BREAKDOWN</div>
+          {catScores.map(cs=>(
+            <div key={cs.id} style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{cs.title}</div>
+                <div style={{height:6,background:"#e8e8e3",borderRadius:3,marginTop:4}}>
+                  <div style={{height:"100%",background:cs.score/cs.max>=0.8?"#007A33":cs.score/cs.max>=0.5?"#FFD300":"#E3000B",borderRadius:3,width:`${(cs.score/cs.max)*100}%`,transition:"width 0.5s"}}/>
+                </div>
+              </div>
+              <div style={{fontFamily:FC,fontWeight:800,fontSize:13,color:"#333",flexShrink:0,width:42,textAlign:"right"}}>{cs.score}/{cs.max}</div>
+            </div>
+          ))}
+        </div>
+
+        <button style={{...BY,width:"100%",marginTop:20}} onClick={()=>setScreen(12)}>CONTINUE TO REFLECTION</button>
+      </div>
+    </div>
+  );
+
+  // Screen 12: Reflection
+  return(
+    <div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column",paddingBottom:40}}>
+      <div style={TBar}><button style={BA} onClick={()=>setScreen(11)}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button><span style={TT}>REFLECTION</span><span style={{width:32}}/></div>
+      <div style={{height:3,background:"#e8e8e3"}}><div style={{height:"100%",background:"#FFD300",width:"100%"}}/></div>
+      <div style={{padding:"24px 20px",maxWidth:520,margin:"0 auto",width:"100%",boxSizing:"border-box",display:"flex",flexDirection:"column",gap:18}}>
+        <div style={{background:"#000",borderRadius:14,padding:"14px 16px",display:"flex",alignItems:"center",gap:10}}>
+          <span style={{fontFamily:FC,fontWeight:900,fontSize:24,color:band.color}}>{totalScore}/81</span>
+          <span style={{fontFamily:FC,fontWeight:700,fontSize:12,color:"#888"}}>YOUR SCORE</span>
+        </div>
+
+        <div>
+          <label style={{fontFamily:FC,fontWeight:700,fontSize:13,color:"#333",display:"block",marginBottom:6,lineHeight:1.5}}>I believe <span style={{fontFamily:FC,fontWeight:900,color:"#000"}}>my two strengths</span> are (based on the self-assessment or your own conclusion) and why:</label>
+          <textarea value={q1} onChange={e=>setQ1(e.target.value)} rows={4} placeholder="Your two strengths and why..." style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:15,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+        </div>
+
+        <div>
+          <label style={{fontFamily:FC,fontWeight:700,fontSize:13,color:"#333",display:"block",marginBottom:6,lineHeight:1.5}}>How does this make me feel? Are your results a surprise to you?</label>
+          <textarea value={q2} onChange={e=>setQ2(e.target.value)} rows={3} placeholder="Your honest reflection..." style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:15,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+        </div>
+
+        <div>
+          <label style={{fontFamily:FC,fontWeight:700,fontSize:13,color:"#333",display:"block",marginBottom:6,lineHeight:1.5}}>I believe <span style={{fontFamily:FC,fontWeight:900,color:"#000"}}>my two opportunities</span> are (based on the self-assessment or your own conclusion) and why:</label>
+          <textarea value={q3} onChange={e=>setQ3(e.target.value)} rows={4} placeholder="Your two opportunities and why..." style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:15,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+        </div>
+
+        <div>
+          <label style={{fontFamily:FC,fontWeight:700,fontSize:13,color:"#333",display:"block",marginBottom:6,lineHeight:1.5}}>How does this make me feel? Are your results a surprise to you?</label>
+          <textarea value={q4} onChange={e=>setQ4(e.target.value)} rows={3} placeholder="Your honest reflection..." style={{width:"100%",padding:"14px 16px",background:"#fff",border:"1px solid #e0e0db",borderRadius:12,fontSize:15,fontFamily:FB,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+        </div>
+
+        <button style={{...BY,width:"100%",opacity:(q1.trim()&&q2.trim()&&q3.trim()&&q4.trim())?1:0.4}} disabled={!(q1.trim()&&q2.trim()&&q3.trim()&&q4.trim())} onClick={()=>{
+          const categoryBreakdown={};
+          ASSESSMENT_CATEGORIES.forEach(cat=>{categoryBreakdown[cat.id]=cat.items.reduce((s,it)=>s+(scores[it.id]||0),0);});
+          onComplete({
+            type:"self_assessment",
+            scores,
+            totalScore,
+            maxScore:81,
+            band:band.title,
+            bandColor:band.color,
+            categoryScores:categoryBreakdown,
+            reflection:{strengths:q1,strengthsFeel:q2,opportunities:q3,opportunitiesFeel:q4}
+          });
+        }}>COMPLETE ACTIVITY</button>
+      </div>
+    </div>
+  );
+}
 
 // ─── HAZARD HUNT (LSE Week 1) ───────────────────────────────────────────────
 const HAZARD_FEEDBACK={
@@ -3052,7 +3313,7 @@ function ActivitiesV({u,acts,batchControl,actComps,onAct,onB}){
           <button key={act.id} onClick={()=>{if(status==="active")onAct(act);}} disabled={status!=="active"} style={{display:"flex",alignItems:"center",width:"100%",padding:16,background:"#fff",border:"1px solid #e8e8e3",borderRadius:14,marginBottom:6,cursor:status==="active"?"pointer":"default",textAlign:"left",fontFamily:FB,color:"#1a1a1a",opacity:status==="locked"?0.4:1,transition:"all 0.2s"}}>
             <div style={{marginRight:14}}><div style={{width:36,height:36,borderRadius:18,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:800,fontSize:15,color:status==="done"?"#fff":"#000",background:status==="done"?"#007A33":"#FFD300"}}>
               {status==="done"?<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-              :status==="active"?(act.type==="coolroom_countdown"?<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 3v18"/></svg>:act.type==="roster_reality"?<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>)
+              :status==="active"?(act.type==="coolroom_countdown"?<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 3v18"/></svg>:act.type==="roster_reality"?<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>:act.type==="self_assessment"?<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>)
               :<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>}
             </div></div>
             <div style={{flex:1}}><div style={{fontFamily:FC,fontWeight:800,fontSize:16,letterSpacing:0.5}}>{act.title}</div><div style={{fontSize:13,color:"#888",marginTop:2}}>{act.subtitle}</div></div>
@@ -4772,7 +5033,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                   <div style={{marginBottom:12}}><div style={subLabel}>FINAL REFLECTION QUESTION</div><input value={acfg.roster?.reflectionQ||"What's the one thing you'll do differently on your next roster?"} onChange={e=>saveAcfg("roster",{reflectionQ:e.target.value})} style={inp}/></div>
                 </div>)}
 
-                {item.kind==="activity"&&!["huddle_builder","coolroom_countdown","roster_reality"].includes(item.type)&&(<div>
+                {item.kind==="activity"&&!["huddle_builder","coolroom_countdown","roster_reality","self_assessment"].includes(item.type)&&(<div>
                   <div style={{fontSize:13,color:"#888",fontFamily:FB,padding:"8px 0"}}>Activity type: <strong>{(item.type||"standard").replace(/_/g," ")}</strong></div>
                 </div>)}
               </div>
