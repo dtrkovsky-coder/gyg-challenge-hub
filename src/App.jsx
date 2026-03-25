@@ -597,7 +597,7 @@ function LunchReorder({user,lunchConfig,onDone}){
       <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1}}>MEAL TYPE</label>
       <div style={{display:"grid",gridTemplateColumns:visTypes.length>1?"1fr 1fr":"1fr",gap:10}}>
         {visTypes.map(t=>(
-          <button key={t.id} onClick={()=>setLt(t.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,padding:"18px 12px",background:lt===t.id?"#FFFDE6":"#fff",border:`2px solid ${lt===t.id?"#FFD300":"#e0e0db"}`,borderRadius:14,cursor:"pointer",textAlign:"center"}}>
+          <button key={t.id} onClick={()=>setLt(t.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,padding:"18px 12px",background:lt===t.id?"#FFF8E0":"#fff",border:`2px solid ${lt===t.id?"#FFD300":"#e0e0db"}`,borderRadius:14,cursor:"pointer",textAlign:"center"}}>
             {LUNCH_IMAGES[t.id]&&<img src={LUNCH_IMAGES[t.id]} alt={t.name} style={{width:80,height:80,objectFit:"contain"}}/>}
             <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:1}}>{t.name}</div>
           </button>
@@ -605,10 +605,10 @@ function LunchReorder({user,lunchConfig,onDone}){
       </div>
     </div>
     {lt&&<div style={{display:"flex",flexDirection:"column",gap:6}}>
-      <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1}}>CHOOSE MAIN FILLING</label>
+      <label style={{fontSize:14,fontWeight:800,fontFamily:FC,color:"#333",letterSpacing:1}}>CHOOSE MAIN FILLING</label>
       <div style={{display:"flex",flexDirection:"column",gap:0,borderRadius:14,overflow:"hidden",border:"1px solid #e0e0db"}}>
         {visFillings.map((fl,i)=>(
-          <button key={fl.id} onClick={()=>setLf(fl.id)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px",background:lf===fl.id?"#FFFDE6":"#fff",border:"none",borderBottom:i<visFillings.length-1?"1px solid #f0f0eb":"none",cursor:"pointer",width:"100%",textAlign:"left"}}>
+          <button key={fl.id} onClick={()=>setLf(fl.id)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px",background:lf===fl.id?"#FFF8E0":"#fff",border:"none",borderBottom:i<visFillings.length-1?"1px solid #f0f0eb":"none",cursor:"pointer",width:"100%",textAlign:"left"}}>
             <div style={{display:"flex",alignItems:"center",gap:12}}>
               {LUNCH_IMAGES[fl.id]&&<img src={LUNCH_IMAGES[fl.id]} alt="" style={{width:52,height:52,borderRadius:"50%",objectFit:"cover",border:lf===fl.id?"2px solid #FFD300":"2px solid transparent"}}/>}
               <span style={{fontFamily:FB,fontSize:15,color:"#1a1a1a"}}>{fl.name}</span>
@@ -650,7 +650,7 @@ function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);c
           <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1}}>PROGRAM</label>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
             {[PROGRAMS.lse,PROGRAMS.essentials,PROGRAMS.nextgen,PROGRAMS.elite].map(p=>(
-              <button key={p.id} onClick={()=>u("program",p.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"14px 8px",background:f.program===p.id?"#FFFDE6":"#fff",border:`2px solid ${f.program===p.id?"#FFD300":"#e0e0db"}`,borderRadius:12,cursor:"pointer",fontFamily:FC}}>
+              <button key={p.id} onClick={()=>u("program",p.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"14px 8px",background:f.program===p.id?"#FFF8E0":"#fff",border:`2px solid ${f.program===p.id?"#FFD300":"#e0e0db"}`,borderRadius:12,cursor:"pointer",fontFamily:FC}}>
                 <img src={LOGOS[p.id]} alt={p.short} style={{height:44,maxWidth:"100%",objectFit:"contain"}}/>
                 <div style={{fontSize:12,fontWeight:700,color:"#888",letterSpacing:1,textAlign:"center"}}>{p.name}</div>
               </button>
@@ -662,7 +662,7 @@ function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);c
           <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1}}>STATE</label>
           <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6}}>
             {STATES.map(s=>(
-              <button key={s.id} onClick={()=>u("state",s.id)} style={{padding:"10px 4px",background:f.state===s.id?"#FFFDE6":"#fff",border:`2px solid ${f.state===s.id?"#FFD300":"#e0e0db"}`,borderRadius:10,cursor:"pointer",fontFamily:FC,fontWeight:800,fontSize:13,letterSpacing:0.5,color:f.state===s.id?"#000":"#666",transition:"all 0.15s"}}>{s.id}</button>
+              <button key={s.id} onClick={()=>u("state",s.id)} style={{padding:"10px 4px",background:f.state===s.id?"#FFF8E0":"#fff",border:`2px solid ${f.state===s.id?"#FFD300":"#e0e0db"}`,borderRadius:10,cursor:"pointer",fontFamily:FC,fontWeight:800,fontSize:13,letterSpacing:0.5,color:f.state===s.id?"#000":"#666",transition:"all 0.15s"}}>{s.id}</button>
             ))}
           </div>
         </div>
@@ -685,7 +685,7 @@ function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);c
           <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1}}>MEAL TYPE</label>
           <div style={{display:"grid",gridTemplateColumns:visTypes.length>1?"1fr 1fr":"1fr",gap:10}}>
             {visTypes.map(t=>(
-              <button key={t.id} onClick={()=>u("lunchType",t.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,padding:"18px 12px",background:f.lunchType===t.id?"#FFFDE6":"#fff",border:`2px solid ${f.lunchType===t.id?"#FFD300":"#e0e0db"}`,borderRadius:14,cursor:"pointer",textAlign:"center"}}>
+              <button key={t.id} onClick={()=>u("lunchType",t.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,padding:"18px 12px",background:f.lunchType===t.id?"#FFF8E0":"#fff",border:`2px solid ${f.lunchType===t.id?"#FFD300":"#e0e0db"}`,borderRadius:14,cursor:"pointer",textAlign:"center"}}>
                 <img src={LUNCH_IMAGES[t.id]} alt={t.name} style={{width:80,height:80,objectFit:"contain"}}/>
                 <div style={{fontFamily:FC,fontWeight:800,fontSize:14,letterSpacing:1}}>{t.name}</div>
               </button>
@@ -693,10 +693,10 @@ function RegV({onR,onB,lunchConfig,existingUsers}){const[st,setSt]=useState(1);c
           </div>
         </div>
         {f.lunchType&&<div style={{display:"flex",flexDirection:"column",gap:6}}>
-          <label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"#999",letterSpacing:1}}>CHOOSE MAIN FILLING</label>
+          <label style={{fontSize:14,fontWeight:800,fontFamily:FC,color:"#333",letterSpacing:1}}>CHOOSE MAIN FILLING</label>
           <div style={{display:"flex",flexDirection:"column",gap:0,borderRadius:14,overflow:"hidden",border:"1px solid #e0e0db"}}>
             {visFillings.map((fl,i)=>(
-              <button key={fl.id} onClick={()=>u("lunchFilling",fl.id)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px",background:f.lunchFilling===fl.id?"#FFFDE6":"#fff",border:"none",borderBottom:i<visFillings.length-1?"1px solid #f0f0eb":"none",cursor:"pointer",width:"100%",textAlign:"left"}}>
+              <button key={fl.id} onClick={()=>u("lunchFilling",fl.id)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px",background:f.lunchFilling===fl.id?"#FFF8E0":"#fff",border:"none",borderBottom:i<visFillings.length-1?"1px solid #f0f0eb":"none",cursor:"pointer",width:"100%",textAlign:"left"}}>
                 <div style={{display:"flex",alignItems:"center",gap:12}}>
                   <img src={LUNCH_IMAGES[fl.id]||LUNCH_IMAGES.burrito} alt="" style={{width:52,height:52,borderRadius:"50%",objectFit:"cover",border:f.lunchFilling===fl.id?"2px solid #FFD300":"2px solid transparent"}}/>
                   <span style={{fontFamily:FB,fontSize:15,color:"#1a1a1a"}}>{fl.name}</span>
@@ -963,7 +963,7 @@ function SelfAssessment({act,u,onComplete,onB,actCfg}){
         <div style={{width:"100%",background:"#fff",border:"1px solid #e8e8e3",borderRadius:14,padding:"20px"}}>
           {instructions.map((inst,i)=>(
             <div key={i} style={{marginBottom:i<instructions.length-1?16:0,display:"flex",gap:12,alignItems:"flex-start"}}>
-              <div style={{width:28,height:28,borderRadius:14,background:"#000",color:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:13,flexShrink:0,marginTop:2}}>{i+1}</div>
+              <div style={{width:28,height:28,borderRadius:14,background:"#000",color:"#FFD300",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FC,fontWeight:900,fontSize:13,flexShrink:0,marginTop:2,lineHeight:1}}>{i+1}</div>
               <div><span style={{fontFamily:FC,fontWeight:800,fontSize:14}}>{inst.bold}</span><span style={{fontFamily:FB,fontSize:14,color:"#555"}}> {inst.desc}</span></div>
             </div>
           ))}
@@ -1004,7 +1004,7 @@ function SelfAssessment({act,u,onComplete,onB,actCfg}){
             <div style={{display:"flex",gap:8,flexShrink:0}}>
               {[1,2,3].map(v=>(
                 <button key={v} onClick={()=>setScores(p=>({...p,[item.id]:v}))} style={{width:36,height:36,borderRadius:18,border:`2px solid ${scores[item.id]===v?"#FFD300":"#ddd"}`,background:scores[item.id]===v?"#FFD300":"transparent",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all 0.15s",padding:0}}>
-                  <span style={{fontFamily:FC,fontWeight:800,fontSize:14,color:scores[item.id]===v?"#000":"#999"}}>{v}</span>
+                  <span style={{fontFamily:FC,fontWeight:800,fontSize:14,color:scores[item.id]===v?"#000":"#999",lineHeight:1,marginTop:1}}>{v}</span>
                 </button>
               ))}
             </div>
@@ -3474,7 +3474,7 @@ function HuddleBuilder({act,u,onComplete,onB}){
       <div style={heading}>BUILD YOUR SCRIPT</div>
       <p style={subtext}>Fill in each line. Keep it tight - aim for 30 seconds total.</p>
       {partnerNotes&&(
-        <div className="anim-scale-in" style={{background:"#FFFDE6",border:"2px solid #FFD300",borderRadius:16,padding:18,marginBottom:20}}>
+        <div className="anim-scale-in" style={{background:"#FFF8E0",border:"2px solid #FFD300",borderRadius:16,padding:18,marginBottom:20}}>
           <div style={{fontSize:13,fontWeight:800,fontFamily:FC,color:"#000",letterSpacing:1,marginBottom:8}}>PARTNER FEEDBACK</div>
           {partnerNotes.map((n,i)=>n?<div key={i} style={{fontSize:15,color:"#666",marginBottom:4,lineHeight:1.4}}>- {n}</div>:null)}
         </div>
@@ -3553,10 +3553,10 @@ function HuddleBuilder({act,u,onComplete,onB}){
           <div style={{fontSize:16,fontWeight:700,fontFamily:FC,color:"#000",marginBottom:10,lineHeight:1.3,letterSpacing:0}}>{fi.q}</div>
           <div style={{display:"flex",gap:10}}>
             <button className="btn-hover" onClick={()=>setFeedback(f=>({...f,[fi.key]:"yes"}))} style={{flex:1,padding:"14px",borderRadius:12,border:feedback[fi.key]==="yes"?"2px solid #007A33":"2px solid #e8e8e3",background:feedback[fi.key]==="yes"?"#007A33":"#fff",color:feedback[fi.key]==="yes"?"#fff":"#000",fontSize:16,fontWeight:800,fontFamily:FC,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"}}>YES</button>
-            <button className="btn-hover" onClick={()=>setFeedback(f=>({...f,[fi.key]:"not_yet"}))} style={{flex:1,padding:"14px",borderRadius:12,border:feedback[fi.key]==="not_yet"?"2px solid #FFD300":"2px solid #e8e8e3",background:feedback[fi.key]==="not_yet"?"#FFFDE6":"#fff",color:"#000",fontSize:16,fontWeight:800,fontFamily:FC,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"}}>NOT YET</button>
+            <button className="btn-hover" onClick={()=>setFeedback(f=>({...f,[fi.key]:"not_yet"}))} style={{flex:1,padding:"14px",borderRadius:12,border:feedback[fi.key]==="not_yet"?"2px solid #FFD300":"2px solid #e8e8e3",background:feedback[fi.key]==="not_yet"?"#FFF8E0":"#fff",color:"#000",fontSize:16,fontWeight:800,fontFamily:FC,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"}}>NOT YET</button>
           </div>
           {feedback[fi.key]==="not_yet"&&(
-            <input value={feedback[fi.key+"Note"]||""} onChange={e=>setFeedback(f=>({...f,[fi.key+"Note"]:e.target.value}))} placeholder="What would make it land?" style={{...fieldStyle,border:"2px solid #FFD300",marginTop:10,background:"#FFFDE6"}}/>
+            <input value={feedback[fi.key+"Note"]||""} onChange={e=>setFeedback(f=>({...f,[fi.key+"Note"]:e.target.value}))} placeholder="What would make it land?" style={{...fieldStyle,border:"2px solid #FFD300",marginTop:10,background:"#FFF8E0"}}/>
           )}
         </div>
       ))}
@@ -3871,7 +3871,7 @@ function CoolRoomCountdown({act,u,onComplete,onB,coolroomImgs}){
           <div style={{background:"#fff",border:"1px solid #e8e8e3",borderRadius:14,padding:20,marginBottom:16}}>
             <p style={{fontSize:15,lineHeight:1.6,color:"#333",fontFamily:FB,margin:0}}>You'll see a 360-degree view of a cool room. You have <strong>2 minutes</strong> to count everything you can see. Record product name, quantity, and unit. Work alone - no talking.</p>
           </div>
-          <div style={{background:"#FFFDE6",borderLeft:"4px solid #FFD300",borderRadius:8,padding:16,marginBottom:32}}>
+          <div style={{background:"#FFF8E0",borderLeft:"4px solid #FFD300",borderRadius:8,padding:16,marginBottom:32}}>
             <p style={{fontSize:14,lineHeight:1.5,color:"#666",fontFamily:FB,margin:0}}>This is exactly what your Shift Leader does every Sunday morning. Let's see how accurate you are under pressure.</p>
           </div>
           <div style={{display:"flex",justifyContent:"center"}}><button className="btn-hover" style={{...BY,width:"100%",padding:"18px 32px",fontSize:17,borderRadius:16,opacity:imgLoaded?1:0.6}} onClick={startCounting}>{imgLoaded?"START COUNTING":"LOADING IMAGE..."}</button></div>
@@ -3978,7 +3978,7 @@ function CoolRoomCountdown({act,u,onComplete,onB,coolroomImgs}){
                 <p style={{fontSize:16,fontWeight:700,fontFamily:FB,lineHeight:1.5,margin:"0 0 8px"}}>Same cool room. Same 2 minutes. Everyone got a different count.</p>
                 <p style={{fontSize:14,color:"#666",fontFamily:FB,lineHeight:1.5,margin:0}}>That's what happens in your restaurant every time someone rushes a stock count.</p>
               </div>
-              <div style={{background:"#FFFDE6",border:"2px solid #FFD300",borderRadius:14,padding:20,marginBottom:24}}>
+              <div style={{background:"#FFF8E0",border:"2px solid #FFD300",borderRadius:14,padding:20,marginBottom:24}}>
                 <div style={{fontSize:14,fontWeight:800,fontFamily:FC,letterSpacing:1,marginBottom:12,color:"#000"}}>YOUR COUNT ACCURACY TARGETS</div>
                 <div style={{fontSize:13,fontFamily:FB,lineHeight:1.8,color:"#333"}}>
                   <div>- Daily variance target: less than 1kg per protein - anything over = immediate recount</div>
@@ -4033,7 +4033,7 @@ function RosterReality({act,u,onComplete,onB}){
 
   const AnswerCard=({label,text})=>(<div style={{background:"#fff",borderLeft:"4px solid #007A33",borderRadius:8,padding:16,marginBottom:12}}><div style={{fontSize:12,fontWeight:800,fontFamily:FC,letterSpacing:1,color:"#007A33",marginBottom:6}}>{label}</div><div style={{fontSize:14,fontFamily:FB,lineHeight:1.6,color:"#333"}}>{text}</div></div>);
 
-  const InsightCard=({text})=>(<div style={{background:"#FFFDE6",borderLeft:"4px solid #FFD300",borderRadius:8,padding:16,marginBottom:20}}><p style={{fontSize:14,lineHeight:1.6,color:"#333",fontFamily:FB,margin:0,fontWeight:600}}>{text}</p></div>);
+  const InsightCard=({text})=>(<div style={{background:"#FFF8E0",borderLeft:"4px solid #FFD300",borderRadius:8,padding:16,marginBottom:20}}><p style={{fontSize:14,lineHeight:1.6,color:"#333",fontFamily:FB,margin:0,fontWeight:600}}>{text}</p></div>);
 
   const ImpactNum=({num,label})=>(<div style={{textAlign:"center",marginBottom:12}}><div style={{fontSize:28,fontWeight:900,fontFamily:FC,color:"#E3000B",lineHeight:1.2}}>{num}</div><div style={{fontSize:12,fontFamily:FC,color:"#888",letterSpacing:1,marginTop:4}}>{label}</div></div>);
 
@@ -4890,7 +4890,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                     <div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:8}}>Each item gets one recording. Add/remove/rename items.</div>
                     {(acfg.thirty_second_sell?.items||SELL_ITEMS).map((item2,ii)=>(
                       <div key={ii} style={{display:"flex",gap:8,alignItems:"center",marginBottom:4}}>
-                        <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{ii+1}</span>
+                        <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,lineHeight:1}}>{ii+1}</span>
                         <input value={item2.name} onChange={e=>{const items2=[...(acfg.thirty_second_sell?.items||[...SELL_ITEMS])];items2[ii]={...items2[ii],name:e.target.value};saveAcfg("thirty_second_sell",{items:items2});}} style={{...inp,flex:1,fontSize:13,padding:"6px 10px"}}/>
                         <button onClick={()=>{const items2=[...(acfg.thirty_second_sell?.items||[...SELL_ITEMS])];items2.splice(ii,1);saveAcfg("thirty_second_sell",{items:items2});}} style={{width:24,height:24,borderRadius:12,background:"#E3000B",color:"#fff",border:"none",fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>x</button>
                       </div>
@@ -4909,7 +4909,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                     {(acfg.recovery_race?.scenarios||RECOVERY_SCENARIOS).map((scen,si)=>(
                       <div key={scen.id||si} style={{background:"#fff",borderRadius:10,padding:12,marginBottom:8}}>
                         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
-                          <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{si+1}</span>
+                          <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,lineHeight:1}}>{si+1}</span>
                           <input value={scen.title} onChange={e=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s[si]={...s[si],title:e.target.value};saveAcfg("recovery_race",{scenarios:s});}} style={{...inp,flex:1,fontWeight:700,fontSize:13,padding:"6px 10px"}}/>
                         </div>
                         <textarea value={scen.setup} onChange={e=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s[si]={...s[si],setup:e.target.value};saveAcfg("recovery_race",{scenarios:s});}} rows={2} style={{...inp,resize:"vertical",fontSize:12,padding:"6px 10px",marginBottom:8}}/>
@@ -4937,7 +4937,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                     {(acfg.shift_leader_lens?.clips||SLL_CLIPS).map((clip,ci)=>(
                       <div key={clip.id||ci} style={{background:"#fff",borderRadius:10,padding:12,marginBottom:8}}>
                         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
-                          <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{ci+1}</span>
+                          <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,lineHeight:1}}>{ci+1}</span>
                           <input value={clip.title} onChange={e=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips[ci]={...clips[ci],title:e.target.value};saveAcfg("shift_leader_lens",{clips});}} style={{...inp,flex:1,fontWeight:700,fontSize:13,padding:"6px 10px"}}/>
                           <button onClick={()=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips.splice(ci,1);saveAcfg("shift_leader_lens",{clips});}} style={{width:24,height:24,borderRadius:12,background:"#E3000B",color:"#fff",border:"none",fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>x</button>
                         </div>
@@ -5334,7 +5334,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
             </div>
           </div>
 
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",marginBottom:16,background:bk.skipActivities?"#FFFDE6":"#f8f8f5",borderRadius:12,border:bk.skipActivities?"2px solid #FFD300":"2px solid #f0f0eb"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",marginBottom:16,background:bk.skipActivities?"#FFF8E0":"#f8f8f5",borderRadius:12,border:bk.skipActivities?"2px solid #FFD300":"2px solid #f0f0eb"}}>
             <div><div style={{fontSize:12,fontWeight:900,fontFamily:FC,letterSpacing:1}}>SKIP ACTIVITIES</div><div style={{fontSize:11,color:"#999",fontFamily:FC,marginTop:2}}>Send straight to challenges</div></div>
             <button onClick={()=>{const updated={...(batchControl||{})};updated[b]={...bk,skipActivities:!bk.skipActivities};onUpdateBatchControl(updated);}} style={{padding:"8px 18px",borderRadius:8,border:"none",background:bk.skipActivities?"#FFD300":"#e8e8e3",color:bk.skipActivities?"#000":"#999",fontSize:12,fontWeight:800,fontFamily:FC,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"}}>{bk.skipActivities?"ON":"OFF"}</button>
           </div>
@@ -5467,9 +5467,9 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
             </div>
             {enabled&&<>
               <div style={{...subLabel,marginTop:4}}>MEAL TYPES</div>
-              <div style={{marginBottom:10,display:"flex",flexWrap:"wrap"}}>{LUNCH_MENU.types.map(t=>{const on=(pc.types||[]).includes(t.id);return(<button key={t.id} onClick={()=>toggleItem(p.id,"types",t.id)} style={{...TS,background:on?"#FFFDE6":"#f5f5f0",borderColor:on?"#FFD300":"#e0e0db"}}><div style={{width:8,height:8,borderRadius:2,background:on?"#FFD300":"#ddd"}}/>{t.name}</button>);})}</div>
+              <div style={{marginBottom:10,display:"flex",flexWrap:"wrap"}}>{LUNCH_MENU.types.map(t=>{const on=(pc.types||[]).includes(t.id);return(<button key={t.id} onClick={()=>toggleItem(p.id,"types",t.id)} style={{...TS,background:on?"#FFF8E0":"#f5f5f0",borderColor:on?"#FFD300":"#e0e0db"}}><div style={{width:8,height:8,borderRadius:2,background:on?"#FFD300":"#ddd"}}/>{t.name}</button>);})}</div>
               <div style={subLabel}>FILLINGS</div>
-              <div style={{display:"flex",flexWrap:"wrap"}}>{LUNCH_MENU.fillings.map(fl=>{const on=(pc.fillings||[]).includes(fl.id);return(<button key={fl.id} onClick={()=>toggleItem(p.id,"fillings",fl.id)} style={{...TS,background:on?"#FFFDE6":"#f5f5f0",borderColor:on?"#FFD300":"#e0e0db"}}><div style={{width:8,height:8,borderRadius:2,background:on?"#FFD300":"#ddd"}}/>{fl.name}</button>);})}</div>
+              <div style={{display:"flex",flexWrap:"wrap"}}>{LUNCH_MENU.fillings.map(fl=>{const on=(pc.fillings||[]).includes(fl.id);return(<button key={fl.id} onClick={()=>toggleItem(p.id,"fillings",fl.id)} style={{...TS,background:on?"#FFF8E0":"#f5f5f0",borderColor:on?"#FFD300":"#e0e0db"}}><div style={{width:8,height:8,borderRadius:2,background:on?"#FFD300":"#ddd"}}/>{fl.name}</button>);})}</div>
             </>}
           </div>
         );})}
@@ -5751,7 +5751,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                     <div key={z.id} style={{background:"#f8f8f5",borderRadius:8,padding:10,marginBottom:6}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
                         <div style={{display:"flex",alignItems:"center",gap:6}}>
-                          <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:fb2.hazard?"#007A33":"#E3000B",color:"#fff",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center"}}>{zi+1}</span>
+                          <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:fb2.hazard?"#007A33":"#E3000B",color:"#fff",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1}}>{zi+1}</span>
                           <span style={{fontFamily:FC,fontWeight:700,fontSize:12}}>{fb2.title||z.id}</span>
                         </div>
                         <div style={{display:"flex",gap:4}}>
@@ -5782,7 +5782,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                   <div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:8}}>Each item gets one 30-second recording.</div>
                   {(acfg.thirty_second_sell?.items||SELL_ITEMS).map((item,ii)=>(
                     <div key={ii} style={{background:"#f8f8f5",borderRadius:8,padding:10,marginBottom:4,display:"flex",alignItems:"center",gap:8}}>
-                      <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{ii+1}</span>
+                      <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,lineHeight:1}}>{ii+1}</span>
                       <input value={item.name} onChange={e=>{const items=[...(acfg.thirty_second_sell?.items||[...SELL_ITEMS])];items[ii]={...items[ii],name:e.target.value};saveAcfg("thirty_second_sell",{items});}} style={{...inp,flex:1,fontSize:13,padding:"6px 10px"}}/>
                       <button onClick={()=>{const items=[...(acfg.thirty_second_sell?.items||[...SELL_ITEMS])];items.splice(ii,1);saveAcfg("thirty_second_sell",{items});}} style={{width:24,height:24,borderRadius:12,background:"#E3000B",color:"#fff",border:"none",fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>x</button>
                     </div>
@@ -5805,7 +5805,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                   {(acfg.recovery_race?.scenarios||RECOVERY_SCENARIOS).map((scen,si)=>(
                     <div key={scen.id||si} style={{background:"#f8f8f5",borderRadius:10,padding:12,marginBottom:8}}>
                       <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:8}}>
-                        <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{si+1}</span>
+                        <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,lineHeight:1}}>{si+1}</span>
                         <input value={scen.title} onChange={e=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s[si]={...s[si],title:e.target.value};saveAcfg("recovery_race",{scenarios:s});}} style={{...inp,flex:1,fontWeight:700,fontSize:13,padding:"6px 10px"}}/>
                         <button onClick={()=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s.splice(si,1);saveAcfg("recovery_race",{scenarios:s});}} style={{width:24,height:24,borderRadius:12,background:"#E3000B",color:"#fff",border:"none",fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>x</button>
                       </div>
@@ -5838,7 +5838,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                   {(acfg.shift_leader_lens?.clips||SLL_CLIPS).map((clip,ci)=>(
                     <div key={clip.id||ci} style={{background:"#f8f8f5",borderRadius:10,padding:12,marginBottom:8}}>
                       <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
-                        <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{ci+1}</span>
+                        <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,lineHeight:1}}>{ci+1}</span>
                         <input value={clip.title} onChange={e=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips[ci]={...clips[ci],title:e.target.value};saveAcfg("shift_leader_lens",{clips});}} style={{...inp,flex:1,fontWeight:700,fontSize:13,padding:"6px 10px"}}/>
                         <button onClick={()=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips.splice(ci,1);saveAcfg("shift_leader_lens",{clips});}} style={{width:24,height:24,borderRadius:12,background:"#E3000B",color:"#fff",border:"none",fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>x</button>
                       </div>
