@@ -2889,6 +2889,85 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
                     </div>
                   </div>)}
 
+                  {/* 30-Second Sell */}
+                  {item.type==="thirty_second_sell"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>30-Second Sell Settings</div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:14}}>
+                      <div><div style={subLabel}>DURATION</div><div style={{display:"flex",alignItems:"center",gap:4}}><input type="number" value={acfg.thirty_second_sell?.timer||30} onChange={e=>saveAcfg("thirty_second_sell",{timer:parseInt(e.target.value)||30})} style={{...inp,width:60,textAlign:"center"}}/><span style={{fontSize:11,color:"#999"}}>sec</span></div></div>
+                      <div><div style={subLabel}>CAMERA</div><select value={acfg.thirty_second_sell?.camera||"user"} onChange={e=>saveAcfg("thirty_second_sell",{camera:e.target.value})} style={inp}><option value="user">Front</option><option value="environment">Back</option></select></div>
+                      <div><div style={subLabel}>RESOLUTION</div><select value={acfg.thirty_second_sell?.resolution||360} onChange={e=>saveAcfg("thirty_second_sell",{resolution:parseInt(e.target.value)})} style={inp}><option value={240}>240p</option><option value={360}>360p</option><option value={480}>480p</option><option value={720}>720p</option></select></div>
+                    </div>
+                    <div style={subLabel}>MENU ITEMS ({(acfg.thirty_second_sell?.items||SELL_ITEMS).length})</div>
+                    <div style={{fontSize:11,color:"#888",fontFamily:FC,marginBottom:8}}>Each item gets one recording. Add/remove/rename items.</div>
+                    {(acfg.thirty_second_sell?.items||SELL_ITEMS).map((item2,ii)=>(
+                      <div key={ii} style={{display:"flex",gap:8,alignItems:"center",marginBottom:4}}>
+                        <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{ii+1}</span>
+                        <input value={item2.name} onChange={e=>{const items2=[...(acfg.thirty_second_sell?.items||[...SELL_ITEMS])];items2[ii]={...items2[ii],name:e.target.value};saveAcfg("thirty_second_sell",{items:items2});}} style={{...inp,flex:1,fontSize:13,padding:"6px 10px"}}/>
+                        <button onClick={()=>{const items2=[...(acfg.thirty_second_sell?.items||[...SELL_ITEMS])];items2.splice(ii,1);saveAcfg("thirty_second_sell",{items:items2});}} style={{width:24,height:24,borderRadius:12,background:"#E3000B",color:"#fff",border:"none",fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>x</button>
+                      </div>
+                    ))}
+                    <button onClick={()=>{const items2=[...(acfg.thirty_second_sell?.items||[...SELL_ITEMS]),{id:`item_${Date.now()}`,name:"New Item"}];saveAcfg("thirty_second_sell",{items:items2});}} style={{width:"100%",padding:"8px",background:"#fff",border:"1px dashed #ccc",borderRadius:8,fontFamily:FC,fontWeight:700,fontSize:12,cursor:"pointer",marginTop:4}}>+ ADD ITEM</button>
+                  </div>)}
+
+                  {/* Recovery Race */}
+                  {item.type==="recovery_race"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Recovery Race Settings</div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
+                      <div><div style={subLabel}>DECISION TIMER</div><div style={{display:"flex",alignItems:"center",gap:4}}><input type="number" value={acfg.recovery_race?.decisionTimer||8} onChange={e=>saveAcfg("recovery_race",{decisionTimer:parseInt(e.target.value)||8})} style={{...inp,width:60,textAlign:"center"}}/><span style={{fontSize:11,color:"#999"}}>sec</span></div></div>
+                      <div><div style={subLabel}>BONUS THRESHOLD</div><div style={{display:"flex",alignItems:"center",gap:4}}><input type="number" value={acfg.recovery_race?.bonusThreshold||75} onChange={e=>saveAcfg("recovery_race",{bonusThreshold:parseInt(e.target.value)||75})} style={{...inp,width:60,textAlign:"center"}}/><span style={{fontSize:11,color:"#999"}}>%</span></div></div>
+                    </div>
+                    <div style={subLabel}>SCENARIOS ({(acfg.recovery_race?.scenarios||RECOVERY_SCENARIOS).length})</div>
+                    {(acfg.recovery_race?.scenarios||RECOVERY_SCENARIOS).map((scen,si)=>(
+                      <div key={scen.id||si} style={{background:"#fff",borderRadius:10,padding:12,marginBottom:8}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
+                          <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{si+1}</span>
+                          <input value={scen.title} onChange={e=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s[si]={...s[si],title:e.target.value};saveAcfg("recovery_race",{scenarios:s});}} style={{...inp,flex:1,fontWeight:700,fontSize:13,padding:"6px 10px"}}/>
+                        </div>
+                        <textarea value={scen.setup} onChange={e=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s[si]={...s[si],setup:e.target.value};saveAcfg("recovery_race",{scenarios:s});}} rows={2} style={{...inp,resize:"vertical",fontSize:12,padding:"6px 10px",marginBottom:8}}/>
+                        {scen.decisions.map((dec,di)=>(
+                          <div key={di} style={{borderLeft:"3px solid #FFD300",paddingLeft:8,marginBottom:6}}>
+                            <div style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#999"}}>STEP {di+1}</div>
+                            {dec.situation&&<input value={dec.situation} onChange={e=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s[si]={...s[si],decisions:[...s[si].decisions]};s[si].decisions[di]={...s[si].decisions[di],situation:e.target.value};saveAcfg("recovery_race",{scenarios:s});}} style={{...inp,fontSize:11,padding:"4px 8px",marginBottom:4}}/>}
+                            {dec.options.map((opt,oi)=>(
+                              <div key={oi} style={{display:"flex",alignItems:"center",gap:4,marginBottom:2}}>
+                                <span style={{width:8,height:8,borderRadius:4,background:opt.outcome==="good"?"#007A33":opt.outcome==="neutral"?"#FFB800":"#E3000B",flexShrink:0}}/>
+                                <input value={opt.text} onChange={e=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s[si]={...s[si],decisions:[...s[si].decisions]};s[si].decisions[di]={...s[si].decisions[di],options:[...s[si].decisions[di].options]};s[si].decisions[di].options[oi]={...opt,text:e.target.value};saveAcfg("recovery_race",{scenarios:s});}} style={{...inp,flex:1,fontSize:11,padding:"4px 8px"}}/>
+                                <select value={opt.outcome} onChange={e=>{const s=[...(acfg.recovery_race?.scenarios||[...RECOVERY_SCENARIOS])];s[si]={...s[si],decisions:[...s[si].decisions]};s[si].decisions[di]={...s[si].decisions[di],options:[...s[si].decisions[di].options]};s[si].decisions[di].options[oi]={...opt,outcome:e.target.value};saveAcfg("recovery_race",{scenarios:s});}} style={{...inp,width:65,fontSize:10,padding:"4px"}}><option value="good">Good</option><option value="neutral">Okay</option><option value="bad">Bad</option></select>
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>)}
+
+                  {/* Shift Leader Lens */}
+                  {item.type==="shift_leader_lens"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
+                    <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Shift Leader Lens Settings</div>
+                    <div style={subLabel}>SITUATIONS ({(acfg.shift_leader_lens?.clips||SLL_CLIPS).length})</div>
+                    {(acfg.shift_leader_lens?.clips||SLL_CLIPS).map((clip,ci)=>(
+                      <div key={clip.id||ci} style={{background:"#fff",borderRadius:10,padding:12,marginBottom:8}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
+                          <span style={{fontFamily:FC,fontWeight:900,fontSize:11,background:"#000",color:"#FFD300",width:20,height:20,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{ci+1}</span>
+                          <input value={clip.title} onChange={e=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips[ci]={...clips[ci],title:e.target.value};saveAcfg("shift_leader_lens",{clips});}} style={{...inp,flex:1,fontWeight:700,fontSize:13,padding:"6px 10px"}}/>
+                          <button onClick={()=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips.splice(ci,1);saveAcfg("shift_leader_lens",{clips});}} style={{width:24,height:24,borderRadius:12,background:"#E3000B",color:"#fff",border:"none",fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>x</button>
+                        </div>
+                        <div style={{marginBottom:6}}><div style={{fontSize:10,color:"#888",fontFamily:FC,marginBottom:2}}>SCENARIO</div><textarea value={clip.desc} onChange={e=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips[ci]={...clips[ci],desc:e.target.value};saveAcfg("shift_leader_lens",{clips});}} rows={2} style={{...inp,resize:"vertical",fontSize:12,padding:"6px 10px"}}/></div>
+                        <div style={{marginBottom:6}}><div style={{fontSize:10,color:"#888",fontFamily:FC,marginBottom:2}}>QUESTION</div><input value={clip.q} onChange={e=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips[ci]={...clips[ci],q:e.target.value};saveAcfg("shift_leader_lens",{clips});}} style={{...inp,fontSize:12,padding:"6px 10px"}}/></div>
+                        <div style={{fontSize:10,color:"#888",fontFamily:FC,marginBottom:4}}>OPTIONS</div>
+                        {clip.options.map((opt,oi)=>(
+                          <div key={oi} style={{display:"flex",alignItems:"center",gap:4,marginBottom:2}}>
+                            <span style={{fontFamily:FC,fontWeight:700,fontSize:10,color:"#999",width:16}}>{String.fromCharCode(65+oi)}</span>
+                            <input value={opt} onChange={e=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips[ci]={...clips[ci],options:[...clips[ci].options]};clips[ci].options[oi]=e.target.value;saveAcfg("shift_leader_lens",{clips});}} style={{...inp,flex:1,fontSize:11,padding:"4px 8px"}}/>
+                            <button onClick={()=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips[ci]={...clips[ci],options:clips[ci].options.filter((_,i)=>i!==oi)};saveAcfg("shift_leader_lens",{clips});}} style={{width:18,height:18,borderRadius:9,background:"#ddd",color:"#999",border:"none",fontSize:10,cursor:"pointer"}}>x</button>
+                          </div>
+                        ))}
+                        <button onClick={()=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS])];clips[ci]={...clips[ci],options:[...clips[ci].options,"New option"]};saveAcfg("shift_leader_lens",{clips});}} style={{fontSize:10,fontFamily:FC,fontWeight:700,color:"#007A33",background:"none",border:"none",cursor:"pointer",padding:"4px 0"}}>+ ADD OPTION</button>
+                      </div>
+                    ))}
+                    <button onClick={()=>{const clips=[...(acfg.shift_leader_lens?.clips||[...SLL_CLIPS]),{id:`c${Date.now()}`,title:"New Situation",desc:"Describe the scenario...",q:"What do you do?",options:["Option A","Option B","Option C","Option D"]}];saveAcfg("shift_leader_lens",{clips});}} style={{width:"100%",padding:"8px",background:"#fff",border:"1px dashed #ccc",borderRadius:8,fontFamily:FC,fontWeight:700,fontSize:12,cursor:"pointer",marginTop:4}}>+ ADD SITUATION</button>
+                  </div>)}
+
                 {/* Activity editors */}
                 {item.kind==="activity"&&item.type==="huddle_builder"&&(<div style={{background:"#f8f8f5",borderRadius:14,padding:16,marginBottom:12}}>
                   <div style={{fontFamily:FC,fontWeight:800,fontSize:14,marginBottom:14}}>Huddle Builder Settings</div>
