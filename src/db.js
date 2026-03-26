@@ -1,5 +1,25 @@
-import { db } from './firebase';
-import { doc, getDoc, setDoc, runTransaction, collection, getDocs, addDoc, deleteDoc, query, where } from 'firebase/firestore';
+import { db, storage } from './firebase';
+import { doc, getDoc, setDoc, runTransaction, collection, getDocs, addDoc, deleteDoc, query, where, limit } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+// --- Password Hashing (client-side SHA-256 + salt) ---
+
+export async function hashPassword(password, salt) {
+  if (!salt) {
+    const arr = new Uint8Array(16);
+    crypto.getRandomValues(arr);
+    salt = Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
+  }
+  const data = new TextEncoder().encode(salt + password);
+  const hashBuf = await crypto.subtle.digest('SHA-256', data);
+  const hash = Array.from(new Uint8Array(hashBuf), b => b.toString(16).padStart(2, '0')).join('');
+  return { hash, salt };
+}
+
+export async function verifyPassword(password, hash, salt) {
+  const result = await hashPassword(password, salt);
+  return result.hash === hash;
+}
 
 // --- Users (stored as individual Firestore documents for concurrent safety) ---
 
@@ -42,6 +62,52 @@ export async function deleteUser(userId) {
   } catch (e) { console.error('deleteUser error:', e); return false; }
 }
 
+// --- Scoped User Queries ---
+
+export async function getUserById(userId) {
+  try {
+    const snap = await getDoc(doc(db, 'users', userId));
+    return snap.exists() ? { ...snap.data(), _docId: snap.id } : null;
+  } catch (e) { console.error('getUserById error:', e); return null; }
+}
+
+export async function getUserByUsername(username) {
+  try {
+    const snap = await getDocs(query(collection(db, 'users'), where('username', '==', username), limit(1)));
+    const results = [];
+    snap.forEach(d => results.push({ ...d.data(), _docId: d.id }));
+    return results[0] || null;
+  } catch (e) { console.error('getUserByUsername error:', e); return null; }
+}
+
+export async function checkUsernameEmail(username, email) {
+  try {
+    const [uSnap, eSnap] = await Promise.all([
+      getDocs(query(collection(db, 'users'), where('username', '==', username), limit(1))),
+      getDocs(query(collection(db, 'users'), where('email', '==', email), limit(1)))
+    ]);
+    return { usernameTaken: !uSnap.empty, emailTaken: !eSnap.empty };
+  } catch (e) { console.error('checkUsernameEmail error:', e); return { usernameTaken: false, emailTaken: false }; }
+}
+
+export async function getUsersByBatch(batch) {
+  try {
+    const snap = await getDocs(query(collection(db, 'users'), where('batch', '==', batch)));
+    const users = [];
+    snap.forEach(d => users.push({ ...d.data(), _docId: d.id }));
+    return users;
+  } catch (e) { console.error('getUsersByBatch error:', e); return []; }
+}
+
+export async function getUsersByProgram(program) {
+  try {
+    const snap = await getDocs(query(collection(db, 'users'), where('program', '==', program)));
+    const users = [];
+    snap.forEach(d => users.push({ ...d.data(), _docId: d.id }));
+    return users;
+  } catch (e) { console.error('getUsersByProgram error:', e); return []; }
+}
+
 // --- Completions (individual documents) ---
 
 export async function getCompletions() {
@@ -51,6 +117,42 @@ export async function getCompletions() {
     snap.forEach(d => comps.push({ ...d.data(), _docId: d.id }));
     return comps;
   } catch (e) { console.error('getCompletions error:', e); return []; }
+}
+
+export async function getCompletionsByUser(userId) {
+  try {
+    const snap = await getDocs(query(collection(db, 'completions'), where('userId', '==', userId)));
+    const comps = [];
+    snap.forEach(d => comps.push({ ...d.data(), _docId: d.id }));
+    return comps;
+  } catch (e) { console.error('getCompletionsByUser error:', e); return []; }
+}
+
+export async function getCompletionsByBatch(batch) {
+  try {
+    const snap = await getDocs(query(collection(db, 'completions'), where('batch', '==', batch)));
+    const comps = [];
+    snap.forEach(d => comps.push({ ...d.data(), _docId: d.id }));
+    return comps;
+  } catch (e) { console.error('getCompletionsByBatch error:', e); return []; }
+}
+
+export async function getCompletionsByProgram(program) {
+  try {
+    const snap = await getDocs(query(collection(db, 'completions'), where('program', '==', program)));
+    const comps = [];
+    snap.forEach(d => comps.push({ ...d.data(), _docId: d.id }));
+    return comps;
+  } catch (e) { console.error('getCompletionsByProgram error:', e); return []; }
+}
+
+export async function getActivityCompletionsByUser(userId) {
+  try {
+    const snap = await getDocs(query(collection(db, 'activityCompletions'), where('userId', '==', userId)));
+    const comps = [];
+    snap.forEach(d => comps.push({ ...d.data(), _docId: d.id }));
+    return comps;
+  } catch (e) { console.error('getActivityCompletionsByUser error:', e); return []; }
 }
 
 export async function addCompletion(comp) {
@@ -207,4 +309,15 @@ export async function savePushToken(userId, token) {
     await setDoc(doc(db, 'pushTokens', userId), { token, userId, createdAt: new Date().toISOString() });
     return true;
   } catch (e) { console.error('savePushToken error:', e); return false; }
+}
+
+// --- Firebase Storage (video/file uploads) ---
+
+export async function uploadFile(blob, path) {
+  try {
+    const storageRef = ref(storage, path);
+    await uploadBytes(storageRef, blob);
+    const url = await getDownloadURL(storageRef);
+    return url;
+  } catch (e) { console.error('uploadFile error:', e); throw e; }
 }

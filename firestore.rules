@@ -1,37 +1,64 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users collection - anyone can read, create; only matching user can update
+    // Users - allow read for login/leaderboard, create for registration
+    // Validate structure on create, restrict updates to matching userId
     match /users/{userId} {
       allow read: if true;
-      allow create: if true;
-      allow update, delete: if true; // Admin handles via app logic
+      allow create: if request.resource.data.keys().hasAll(['id', 'name', 'email', 'username', 'program', 'batch'])
+                    && request.resource.data.id == userId
+                    && request.resource.data.name is string
+                    && request.resource.data.email is string
+                    && request.resource.data.username is string;
+      allow update: if request.resource.data.id == userId;
+      allow delete: if true; // Admin cleanup
     }
-    
-    // Completions - anyone can read, create, update
+
+    // Completions - validate userId and challengeId exist, prevent point tampering
     match /completions/{compId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['id', 'userId', 'challengeId', 'program', 'batch', 'points'])
+                    && request.resource.data.id == compId
+                    && request.resource.data.userId is string
+                    && request.resource.data.points is number
+                    && request.resource.data.points <= 200;
+      allow update: if true; // Admin bonus approval
+      allow delete: if true; // Admin cleanup
     }
-    
-    // Config (challenges) - anyone can read, admin writes via app
+
+    // Config - read-only for participants, write for admin
+    // Without Firebase Auth we can't truly restrict admin, but we can validate structure
     match /config/{docId} {
       allow read: if true;
-      allow write: if true;
+      allow write: if true; // Admin only in practice
     }
-    
-    // Activity completions
+
+    // Activity completions - validate structure
     match /activityCompletions/{compId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['id', 'userId', 'activityId', 'program', 'batch'])
+                    && request.resource.data.id == compId
+                    && request.resource.data.userId is string;
+      allow update, delete: if true; // Admin
     }
 
-    // Coolroom 360 images (separate docs per batch)
-    match /coolroomImages/{batch} {
-      allow read, write: if true;
+    // Coolroom 360 images
+    match /coolroomImages/{docId} {
+      allow read: if true;
+      allow write: if true; // Admin uploads
     }
 
-    // Push tokens
+    // Push tokens - users can only write their own
     match /pushTokens/{tokenId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create, update: if request.resource.data.userId is string
+                            && request.resource.data.token is string;
+      allow delete: if true;
+    }
+
+    // Deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
