@@ -6406,6 +6406,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
               <select value={fb} onChange={e=>sFb(e.target.value)} style={{width:"100%",padding:"10px 12px",background:"#151515",border:"1px solid #2a2a2a",borderRadius:10,color:"#aaa",fontSize:12,fontFamily:FC,fontWeight:600,outline:"none"}}>
                 <option value="all">All Batches</option>{batches.map(b=><option key={b} value={b}>{b}</option>)}
               </select>
+              {(fp!=="all"||fb!=="all")&&<button onClick={()=>{sFp("all");sFb("all");}} style={{width:"100%",marginTop:8,padding:"9px 12px",background:"#E3000B",border:"none",borderRadius:10,color:"#fff",fontFamily:FC,fontWeight:700,fontSize:12,letterSpacing:0.5,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>CLEAR FILTERS</button>}
             </div>
             <button onClick={onB} style={{width:"100%",padding:"11px",background:"#151515",border:"none",borderRadius:10,color:"#666",fontFamily:FC,fontWeight:700,fontSize:12,letterSpacing:0.5,cursor:"pointer",transition:"all 0.2s"}}>Sign Out</button>
           </div>
@@ -6442,6 +6443,7 @@ function AdminDash({us,co,ch:allCh,onB,lunchConfig,onUpdateLunchConfig,onUpdateC
               <select value={fb} onChange={e=>sFb(e.target.value)} style={{width:"100%",padding:"12px 14px",background:"#151515",border:"1px solid #2a2a2a",borderRadius:12,color:"#aaa",fontSize:13,fontFamily:FC,fontWeight:600,outline:"none"}}>
                 <option value="all">All Batches</option>{batches.map(b=><option key={b} value={b}>{b}</option>)}
               </select>
+              {(fp!=="all"||fb!=="all")&&<button onClick={()=>{sFp("all");sFb("all");setSideOpen(false);}} style={{width:"100%",marginTop:10,padding:"12px 14px",background:"#E3000B",border:"none",borderRadius:12,color:"#fff",fontFamily:FC,fontWeight:700,fontSize:13,letterSpacing:0.5,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>CLEAR FILTERS</button>}
             </div>
             <button onClick={onB} style={{marginTop:"auto",padding:"14px",background:"#151515",border:"none",borderRadius:12,color:"#666",fontFamily:FC,fontWeight:700,fontSize:13,letterSpacing:0.5,cursor:"pointer"}}>Sign Out</button>
           </div>
