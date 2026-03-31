@@ -92,6 +92,15 @@ export async function getUserByUsernameAndEmail(username, email) {
   } catch (e) { console.error('getUserByUsernameAndEmail error:', e); return null; }
 }
 
+export async function getUserByEmail(email) {
+  try {
+    const snap = await getDocs(query(collection(db, 'users'), where('email', '==', email.toLowerCase()), limit(1)));
+    const results = [];
+    snap.forEach(d => results.push({ ...d.data(), _docId: d.id }));
+    return results[0] || null;
+  } catch (e) { console.error('getUserByEmail error:', e); return null; }
+}
+
 export async function checkUsernameEmail(username, email) {
   try {
     const [uSnap, eSnap] = await Promise.all([

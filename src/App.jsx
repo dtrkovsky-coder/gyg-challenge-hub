@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { getUsers, addUser, updateUser, deleteUser as dbDeleteUser, getCompletions, addCompletion, updateCompletion, getChallenges, setChallenges as dbSetChallenges, getLunchConfig, setLunchConfig as dbSetLunchConfig, getSession, setSession, savePushToken, getActivityCompletions, addActivityCompletion, getBatchControl, setBatchControl as dbSetBatchControl, getCoolroomImages, setCoolroomImage, getActivityConfig, setActivityConfig as dbSetActivityConfig, getUserById, getUserByUsername, checkUsernameEmail, getUsersByBatch, getUsersByProgram, getCompletionsByUser, getCompletionsByBatch, getCompletionsByProgram, getActivityCompletionsByUser, hashPassword, verifyPassword, uploadFile, getUserByUsernameAndEmail } from "./db";
+import { getUsers, addUser, updateUser, deleteUser as dbDeleteUser, getCompletions, addCompletion, updateCompletion, getChallenges, setChallenges as dbSetChallenges, getLunchConfig, setLunchConfig as dbSetLunchConfig, getSession, setSession, savePushToken, getActivityCompletions, addActivityCompletion, getBatchControl, setBatchControl as dbSetBatchControl, getCoolroomImages, setCoolroomImage, getActivityConfig, setActivityConfig as dbSetActivityConfig, getUserById, getUserByUsername, checkUsernameEmail, getUsersByBatch, getUsersByProgram, getCompletionsByUser, getCompletionsByBatch, getCompletionsByProgram, getActivityCompletionsByUser, hashPassword, verifyPassword, uploadFile, getUserByUsernameAndEmail, getUserByEmail } from "./db";
 
 const PROGRAMS = {
   nextgen: { id: "nextgen", name: "NEXTGEN LEADERS", subtitle: "Assistant Restaurant Managers", short: "NGL" },
@@ -440,9 +440,9 @@ export default function App(){
     setUser(f);setSession({id:f.id});setView(getInitialView(f,batchControl,activityComps));flash(`Hola, ${f.name.split(" ")[0]}!`);
   };
   const logout=async()=>{setUser(null);setSession(null);setView("splash");};
-  const resetPassword=async(username,email,newPw)=>{
-    const u=await getUserByUsernameAndEmail(username,email);
-    if(!u){flash("No account found with those details",false);return false;}
+  const resetPassword=async(email,newPw)=>{
+    const u=await getUserByEmail(email);
+    if(!u){flash("No account found with that email",false);return false;}
     const{hash,salt}=await hashPassword(newPw);
     await updateUser(u.id,{password:hash,passwordSalt:salt});
     flash("Password updated - please sign in",true);
@@ -614,7 +614,6 @@ function LoginV({onL,onB,onForgot}){const[un,sU]=useState("");const[pw,sP]=useSt
 // ─── FORGOT PASSWORD ──────────────────────────────────────────────────────────
 function ForgotPasswordV({onReset,onB}){
   const[step,setStep]=useState(1);
-  const[un,sU]=useState("");
   const[em,sE]=useState("");
   const[np,sNP]=useState("");
   const[cp,sCP]=useState("");
@@ -622,9 +621,8 @@ function ForgotPasswordV({onReset,onB}){
   const[loading,setLoading]=useState(false);
 
   const handleVerify=()=>{
-    if(!un||!em){setErr("Please enter both your username and email");return;}
-    setErr("");
-    setStep(2);
+    if(!em||!em.includes("@")){setErr("Please enter a valid email address");return;}
+    setErr("");setStep(2);
   };
 
   const handleReset=async()=>{
@@ -632,9 +630,9 @@ function ForgotPasswordV({onReset,onB}){
     if(np.length<6){setErr("Password must be at least 6 characters");return;}
     if(np!==cp){setErr("Passwords do not match");return;}
     setErr("");setLoading(true);
-    const ok=await onReset(un.toLowerCase(),em.toLowerCase(),np);
+    const ok=await onReset(em.toLowerCase(),np);
     setLoading(false);
-    if(!ok){setStep(1);setErr("No account found with those details - check your username and email");}
+    if(!ok){setStep(1);setErr("No account found with that email");}
   };
 
   const inputStyle={padding:"14px 16px",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:12,color:"#fff",fontSize:15,fontFamily:"inherit",outline:"none",width:"100%",boxSizing:"border-box"};
@@ -646,20 +644,16 @@ function ForgotPasswordV({onReset,onB}){
       <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"24px 28px"}}>
         <img src={GYG_LOGO} alt="GYG" style={{width:90,height:90,objectFit:"contain",display:"block",margin:"0 auto 8px"}}/>
         <div style={{fontSize:24,fontWeight:900,fontFamily:F107,color:"#FFD300",letterSpacing:1,textAlign:"center",marginBottom:8}}>RESET PASSWORD</div>
-        {step===1&&<div style={{fontSize:14,color:"rgba(255,255,255,0.5)",textAlign:"center",marginBottom:24,fontFamily:FB}}>Enter your username and email to verify your account.</div>}
-        {step===2&&<div style={{fontSize:14,color:"rgba(255,255,255,0.5)",textAlign:"center",marginBottom:24,fontFamily:FB}}>Account verified. Set your new password below.</div>}
+        {step===1&&<div style={{fontSize:14,color:"rgba(255,255,255,0.5)",textAlign:"center",marginBottom:24,fontFamily:FB}}>Enter your email address and we'll let you set a new password.</div>}
+        {step===2&&<div style={{fontSize:14,color:"rgba(255,255,255,0.5)",textAlign:"center",marginBottom:24,fontFamily:FB}}>Email verified. Choose a new password below.</div>}
         <div style={{width:"100%",maxWidth:340,display:"flex",flexDirection:"column",gap:16}}>
           {step===1&&<>
-            <div style={{display:"flex",flexDirection:"column",gap:6}}>
-              <label style={labelStyle}>USERNAME</label>
-              <input style={inputStyle} value={un} onChange={e=>sU(e.target.value)} placeholder="Enter your username" autoComplete="username"/>
-            </div>
             <div style={{display:"flex",flexDirection:"column",gap:6}}>
               <label style={labelStyle}>EMAIL ADDRESS</label>
               <input style={inputStyle} value={em} onChange={e=>sE(e.target.value)} placeholder="Enter your email" type="email" autoComplete="email"/>
             </div>
             {err&&<div style={{color:"#ff6b6b",fontSize:13,fontFamily:FB,textAlign:"center"}}>{err}</div>}
-            <button style={{...BY,width:"100%",marginTop:4,opacity:loading?0.6:1}} disabled={loading} onClick={handleVerify}>{loading?"CHECKING...":"VERIFY ACCOUNT"}</button>
+            <button style={{...BY,width:"100%",marginTop:4}} onClick={handleVerify}>CONTINUE</button>
           </>}
           {step===2&&<>
             <div style={{display:"flex",flexDirection:"column",gap:6}}>
