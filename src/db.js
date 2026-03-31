@@ -80,6 +80,18 @@ export async function getUserByUsername(username) {
   } catch (e) { console.error('getUserByUsername error:', e); return null; }
 }
 
+export async function getUserByUsernameAndEmail(username, email) {
+  try {
+    const snap = await getDocs(query(collection(db, 'users'), where('username', '==', username), limit(1)));
+    const results = [];
+    snap.forEach(d => results.push({ ...d.data(), _docId: d.id }));
+    const user = results[0] || null;
+    if (!user) return null;
+    if (user.email.toLowerCase() !== email.toLowerCase()) return null;
+    return user;
+  } catch (e) { console.error('getUserByUsernameAndEmail error:', e); return null; }
+}
+
 export async function checkUsernameEmail(username, email) {
   try {
     const [uSnap, eSnap] = await Promise.all([

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { getUsers, addUser, updateUser, deleteUser as dbDeleteUser, getCompletions, addCompletion, updateCompletion, getChallenges, setChallenges as dbSetChallenges, getLunchConfig, setLunchConfig as dbSetLunchConfig, getSession, setSession, savePushToken, getActivityCompletions, addActivityCompletion, getBatchControl, setBatchControl as dbSetBatchControl, getCoolroomImages, setCoolroomImage, getActivityConfig, setActivityConfig as dbSetActivityConfig, getUserById, getUserByUsername, checkUsernameEmail, getUsersByBatch, getUsersByProgram, getCompletionsByUser, getCompletionsByBatch, getCompletionsByProgram, getActivityCompletionsByUser, hashPassword, verifyPassword, uploadFile } from "./db";
+import { getUsers, addUser, updateUser, deleteUser as dbDeleteUser, getCompletions, addCompletion, updateCompletion, getChallenges, setChallenges as dbSetChallenges, getLunchConfig, setLunchConfig as dbSetLunchConfig, getSession, setSession, savePushToken, getActivityCompletions, addActivityCompletion, getBatchControl, setBatchControl as dbSetBatchControl, getCoolroomImages, setCoolroomImage, getActivityConfig, setActivityConfig as dbSetActivityConfig, getUserById, getUserByUsername, checkUsernameEmail, getUsersByBatch, getUsersByProgram, getCompletionsByUser, getCompletionsByBatch, getCompletionsByProgram, getActivityCompletionsByUser, hashPassword, verifyPassword, uploadFile, getUserByUsernameAndEmail } from "./db";
 
 const PROGRAMS = {
   nextgen: { id: "nextgen", name: "NEXTGEN LEADERS", subtitle: "Assistant Restaurant Managers", short: "NGL" },
@@ -440,6 +440,15 @@ export default function App(){
     setUser(f);setSession({id:f.id});setView(getInitialView(f,batchControl,activityComps));flash(`Hola, ${f.name.split(" ")[0]}!`);
   };
   const logout=async()=>{setUser(null);setSession(null);setView("splash");};
+  const resetPassword=async(username,email,newPw)=>{
+    const u=await getUserByUsernameAndEmail(username,email);
+    if(!u){flash("No account found with those details",false);return false;}
+    const{hash,salt}=await hashPassword(newPw);
+    await updateUser(u.id,{password:hash,passwordSalt:salt});
+    flash("Password updated - please sign in",true);
+    setView("login");
+    return true;
+  };
   const isTestAll=user?.id==="test-all";
   const isDone=(cid)=>!isTestAll&&comps.some(c=>c.userId===user?.id&&c.challengeId===cid);
   const submit=async(cid,s)=>{
@@ -466,7 +475,8 @@ export default function App(){
     <div style={{width:"100%",maxWidth:isAdmin?1200:420,margin:"0 auto",minHeight:"100vh",background:"#f5f5f0",fontFamily:FB,color:"#1a1a1a",position:"relative",overflowX:"hidden"}}>
       {toast&&<div className="anim-scale-in" style={{position:"fixed",top:"50%",left:0,right:0,display:"flex",justifyContent:"center",transform:"translateY(-50%)",zIndex:9999,pointerEvents:"none"}}><div style={{padding:"16px 28px",borderRadius:14,color:"#fff",fontSize:16,fontWeight:700,fontFamily:FC,letterSpacing:1,boxShadow:"0 4px 20px rgba(0,0,0,0.2)",background:toast.ok?"#007A33":"#E3000B",textAlign:"center",maxWidth:"80vw"}}>{toast.m}</div></div>}
       {view==="splash"&&<SplashV onL={()=>setView("login")} onR={()=>setView("register")}/>}
-      {view==="login"&&<LoginV onL={login} onB={()=>setView("splash")}/>}
+      {view==="login"&&<LoginV onL={login} onB={()=>setView("splash")} onForgot={()=>setView("forgot_password")}/>}
+      {view==="forgot_password"&&<ForgotPasswordV onReset={resetPassword} onB={()=>setView("login")}/>}
       {view==="register"&&<RegV onR={reg} onB={()=>setView("splash")} lunchConfig={lunchConfig} />}
       {view==="reorder_lunch"&&user&&(<div className="view-enter" style={{minHeight:"100vh",background:"#f5f5f0",display:"flex",flexDirection:"column"}}>
         <div style={TBar}><span style={{width:32}}/><span style={TT}>ORDER LUNCH</span><span style={{width:32}}/></div>
@@ -585,7 +595,7 @@ function SplashV({onL,onR}){return (
 );}
 
 // ─── LOGIN ───────────────────────────────────────────────────────────────────
-function LoginV({onL,onB}){const[un,sU]=useState("");const[pw,sP]=useState("");return (
+function LoginV({onL,onB,onForgot}){const[un,sU]=useState("");const[pw,sP]=useState("");return (
   <VidBg>
     <div style={{padding:"16px 20px 0",display:"flex",alignItems:"center"}}><button style={{...BA,background:"rgba(255,255,255,0.1)"}} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button></div>
     <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"24px 28px"}}>
@@ -595,10 +605,80 @@ function LoginV({onL,onB}){const[un,sU]=useState("");const[pw,sP]=useState("");r
         <div style={{display:"flex",flexDirection:"column",gap:6}}><label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"rgba(255,255,255,0.5)",letterSpacing:1}}>USERNAME</label><input style={{padding:"14px 16px",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:12,color:"#fff",fontSize:15,fontFamily:FB,outline:"none"}} value={un} onChange={e=>sU(e.target.value)} placeholder="Enter username" autoComplete="username" name="username"/></div>
         <div style={{display:"flex",flexDirection:"column",gap:6}}><label style={{fontSize:13,fontWeight:700,fontFamily:FC,color:"rgba(255,255,255,0.5)",letterSpacing:1}}>PASSWORD</label><input style={{padding:"14px 16px",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:12,color:"#fff",fontSize:15,fontFamily:FB,outline:"none"}} type="password" value={pw} onChange={e=>sP(e.target.value)} placeholder="Enter password" autoComplete="current-password" name="password"/></div>
         <button style={{...BY,width:"100%",marginTop:8}} onClick={()=>onL(un,pw)}>SIGN IN</button>
+        <button onClick={onForgot} style={{background:"none",border:"none",cursor:"pointer",color:"rgba(255,255,255,0.5)",fontSize:13,fontFamily:FC,fontWeight:700,letterSpacing:1,textAlign:"center",padding:"4px 0",textDecoration:"underline"}}>FORGOT PASSWORD?</button>
       </div>
     </div>
   </VidBg>
 );}
+
+// ─── FORGOT PASSWORD ──────────────────────────────────────────────────────────
+function ForgotPasswordV({onReset,onB}){
+  const[step,setStep]=useState(1);
+  const[un,sU]=useState("");
+  const[em,sE]=useState("");
+  const[np,sNP]=useState("");
+  const[cp,sCP]=useState("");
+  const[err,setErr]=useState("");
+  const[loading,setLoading]=useState(false);
+
+  const handleVerify=()=>{
+    if(!un||!em){setErr("Please enter both your username and email");return;}
+    setErr("");
+    setStep(2);
+  };
+
+  const handleReset=async()=>{
+    if(!np||!cp){setErr("Please enter and confirm your new password");return;}
+    if(np.length<6){setErr("Password must be at least 6 characters");return;}
+    if(np!==cp){setErr("Passwords do not match");return;}
+    setErr("");setLoading(true);
+    const ok=await onReset(un.toLowerCase(),em.toLowerCase(),np);
+    setLoading(false);
+    if(!ok){setStep(1);setErr("No account found with those details - check your username and email");}
+  };
+
+  const inputStyle={padding:"14px 16px",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:12,color:"#fff",fontSize:15,fontFamily:"inherit",outline:"none",width:"100%",boxSizing:"border-box"};
+  const labelStyle={fontSize:13,fontWeight:700,color:"rgba(255,255,255,0.5)",letterSpacing:1};
+
+  return(
+    <VidBg>
+      <div style={{padding:"16px 20px 0",display:"flex",alignItems:"center"}}><button style={{...BA,background:"rgba(255,255,255,0.1)"}} onClick={onB}><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1L1 9l8 8"/></svg></button></div>
+      <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"24px 28px"}}>
+        <img src={GYG_LOGO} alt="GYG" style={{width:90,height:90,objectFit:"contain",display:"block",margin:"0 auto 8px"}}/>
+        <div style={{fontSize:24,fontWeight:900,fontFamily:F107,color:"#FFD300",letterSpacing:1,textAlign:"center",marginBottom:8}}>RESET PASSWORD</div>
+        {step===1&&<div style={{fontSize:14,color:"rgba(255,255,255,0.5)",textAlign:"center",marginBottom:24,fontFamily:FB}}>Enter your username and email to verify your account.</div>}
+        {step===2&&<div style={{fontSize:14,color:"rgba(255,255,255,0.5)",textAlign:"center",marginBottom:24,fontFamily:FB}}>Account verified. Set your new password below.</div>}
+        <div style={{width:"100%",maxWidth:340,display:"flex",flexDirection:"column",gap:16}}>
+          {step===1&&<>
+            <div style={{display:"flex",flexDirection:"column",gap:6}}>
+              <label style={labelStyle}>USERNAME</label>
+              <input style={inputStyle} value={un} onChange={e=>sU(e.target.value)} placeholder="Enter your username" autoComplete="username"/>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:6}}>
+              <label style={labelStyle}>EMAIL ADDRESS</label>
+              <input style={inputStyle} value={em} onChange={e=>sE(e.target.value)} placeholder="Enter your email" type="email" autoComplete="email"/>
+            </div>
+            {err&&<div style={{color:"#ff6b6b",fontSize:13,fontFamily:FB,textAlign:"center"}}>{err}</div>}
+            <button style={{...BY,width:"100%",marginTop:4,opacity:loading?0.6:1}} disabled={loading} onClick={handleVerify}>{loading?"CHECKING...":"VERIFY ACCOUNT"}</button>
+          </>}
+          {step===2&&<>
+            <div style={{display:"flex",flexDirection:"column",gap:6}}>
+              <label style={labelStyle}>NEW PASSWORD</label>
+              <input style={inputStyle} value={np} onChange={e=>sNP(e.target.value)} placeholder="Enter new password" type="password" autoComplete="new-password"/>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:6}}>
+              <label style={labelStyle}>CONFIRM PASSWORD</label>
+              <input style={inputStyle} value={cp} onChange={e=>sCP(e.target.value)} placeholder="Confirm new password" type="password" autoComplete="new-password"/>
+            </div>
+            {err&&<div style={{color:"#ff6b6b",fontSize:13,fontFamily:FB,textAlign:"center"}}>{err}</div>}
+            <button style={{...BY,width:"100%",marginTop:4,opacity:loading?0.6:1}} disabled={loading} onClick={handleReset}>{loading?"SAVING...":"SET NEW PASSWORD"}</button>
+          </>}
+          <button onClick={onB} style={{background:"none",border:"none",cursor:"pointer",color:"rgba(255,255,255,0.5)",fontSize:13,fontFamily:FC,fontWeight:700,letterSpacing:1,textAlign:"center",padding:"4px 0",textDecoration:"underline"}}>BACK TO SIGN IN</button>
+        </div>
+      </div>
+    </VidBg>
+  );
+}
 
 // ─── REGISTER ────────────────────────────────────────────────────────────────
 function LunchReorder({user,lunchConfig,onDone}){
